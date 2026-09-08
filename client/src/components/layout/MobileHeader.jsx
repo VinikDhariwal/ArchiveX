@@ -7,7 +7,6 @@ export default function MobileHeader({
   onOpenMenu,
   onCloseMenu,
   compareCount = 0,
-  onOpenCompare,
 }) {
   return (
     <>
@@ -16,9 +15,9 @@ export default function MobileHeader({
           {clientConfig.appName}
         </Link>
         <div className="header-actions">
-          <button type="button" className="btn btn--ghost btn--icon" onClick={onOpenCompare}>
+          <Link className="btn btn--ghost btn--icon" to="/compare">
             Compare{compareCount > 0 ? ` (${compareCount})` : ''}
-          </button>
+          </Link>
           <button
             type="button"
             className="menu-toggle"

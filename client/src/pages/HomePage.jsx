@@ -1,23 +1,23 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import AppShell from '../components/layout/AppShell.jsx';
 import useSectionReveal from '../hooks/useSectionReveal.js';
+import useDocumentTitle from '../hooks/useDocumentTitle.js';
 import ArchiveHero from '../components/archive/ArchiveHero.jsx';
-import ArchiveIndex from '../components/archive/ArchiveIndex.jsx';
+import ArchivePromise from '../components/archive/ArchivePromise.jsx';
+import BrandMarquee from '../components/archive/BrandMarquee.jsx';
+import DomainPaths from '../components/archive/DomainPaths.jsx';
 import FeaturedObject from '../components/archive/FeaturedObject.jsx';
-import ObjectCard from '../components/archive/ObjectCard.jsx';
 import EditorialStory from '../components/archive/EditorialStory.jsx';
-import BrandIndex from '../components/archive/BrandIndex.jsx';
-import JournalPreview from '../components/archive/JournalPreview.jsx';
+import HomeClose from '../components/archive/HomeClose.jsx';
 import {
+  archivePromise,
   brands,
-  curatedObjectIds,
+  domainPaths,
   editorialStory,
   featuredCarId,
   featuredMotorcycleId,
   getObjectById,
-  getObjectsByIds,
-  journalArticles,
+  homeClose,
 } from '../data/demoData.js';
 
 const MAX_COMPARE = 4;
@@ -25,10 +25,10 @@ const MAX_COMPARE = 4;
 export default function HomePage() {
   const [compareIds, setCompareIds] = useState([]);
   useSectionReveal();
+  useDocumentTitle('Home');
 
   const featuredCar = getObjectById(featuredCarId);
   const featuredMotorcycle = getObjectById(featuredMotorcycleId);
-  const curated = useMemo(() => getObjectsByIds(curatedObjectIds), []);
 
   const toggleCompare = (id) => {
     setCompareIds((current) => {
@@ -45,14 +45,27 @@ export default function HomePage() {
   const clearCompare = () => setCompareIds([]);
 
   return (
-    <AppShell compareCount={compareIds.length} onOpenCompare={() => undefined}>
+    <>
       <ArchiveHero />
-      <ArchiveIndex />
+      <BrandMarquee brands={brands} />
+      <ArchivePromise promise={archivePromise} />
+      <DomainPaths domains={domainPaths} />
+
+      <section className="signatures" aria-labelledby="signatures-title" data-reveal>
+        <div className="signatures__head">
+          <p className="meta">The signatures</p>
+          <span className="hairline" aria-hidden="true" />
+          <h2 id="signatures-title" className="display">
+            Objects with a story to tell.
+          </h2>
+          <p className="signatures__lede">A few of the tales collectors return for — automotive first, then two wheels.</p>
+        </div>
+      </section>
 
       {featuredCar ? (
         <FeaturedObject
           object={featuredCar}
-          eyebrow="Featured automotive object"
+          eyebrow="House favourite · Automotive"
           sectionId="featured-car"
           onToggleCompare={toggleCompare}
           isCompared={compareIds.includes(featuredCar.id)}
@@ -62,7 +75,7 @@ export default function HomePage() {
       {featuredMotorcycle ? (
         <FeaturedObject
           object={featuredMotorcycle}
-          eyebrow="Featured motorcycle object"
+          eyebrow="Signature · Motorcycle"
           sectionId="featured-motorcycle"
           flipped
           onToggleCompare={toggleCompare}
@@ -70,33 +83,8 @@ export default function HomePage() {
         />
       ) : null}
 
-      <section className="curated-grid" id="curated" aria-labelledby="curated-title" data-reveal>
-        <div className="curated-grid__head">
-          <div>
-            <p className="meta">Curated objects</p>
-            <span className="hairline" aria-hidden="true" />
-            <h2 id="curated-title">Across the archive</h2>
-          </div>
-          <Link className="link-cta" to="/discover">
-            View all objects
-          </Link>
-        </div>
-        <div className="object-grid">
-          {curated.map((object, index) => (
-            <ObjectCard
-              key={object.id}
-              object={object}
-              wide={index === 0 || index === 3}
-              onToggleCompare={toggleCompare}
-              isCompared={compareIds.includes(object.id)}
-            />
-          ))}
-        </div>
-      </section>
-
       <EditorialStory story={editorialStory} />
-      <BrandIndex brands={brands} />
-      <JournalPreview articles={journalArticles} />
+      <HomeClose close={homeClose} />
 
       <div
         className={`compare-tray ${compareIds.length ? 'is-visible' : ''}`}
@@ -106,10 +94,20 @@ export default function HomePage() {
         <span>
           Compare tray · {compareIds.length}/{MAX_COMPARE} objects selected
         </span>
-        <button type="button" className="btn" style={{ color: 'var(--paper)', borderColor: 'rgba(241,238,231,0.4)' }} onClick={clearCompare}>
-          Clear
-        </button>
+        <div className="compare-tray__actions">
+          <Link className="link-cta link-cta--light" to="/compare">
+            Open compare
+          </Link>
+          <button
+            type="button"
+            className="btn"
+            style={{ color: 'var(--paper)', borderColor: 'rgba(241,238,231,0.4)' }}
+            onClick={clearCompare}
+          >
+            Clear
+          </button>
+        </div>
       </div>
-    </AppShell>
+    </>
   );
 }
