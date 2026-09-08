@@ -15,13 +15,6 @@ const img = (id, alt, type = 'gallery', width = 1400, height = 933) => ({
   height,
 });
 
-export const archiveStats = {
-  archiveId: 'ARCHIVE 001',
-  objectCount: '1,284',
-  brandCount: '220',
-  lastUpdated: '08.09.2026',
-};
-
 export const hero = {
   brand: 'ArchiveX',
   kicker: 'The archive',
@@ -40,8 +33,8 @@ export const hero = {
     1500
   ),
   galleryBackground: {
-    url: 'https://images.unsplash.com/photo-1518998053901-536d6e6040ff?auto=format&fit=crop&w=1800&q=80',
-    alt: 'Soft museum gallery architecture wash',
+    url: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=70',
+    alt: 'Soft architectural wash',
   },
 };
 
@@ -115,8 +108,8 @@ export const objects = [
     shortDescription: 'Italian superbike form — successor spirit to the 916 lineage.',
     images: [
       img('photo-1632157256334-518122d788bd', 'Ducati superbike on mountain road', 'hero'),
-      img('photo-1760716801761-a2b7bd687979', 'Red Ducati motorcycle parked', 'gallery'),
-      img('photo-1558981806-ec527fa84c39', 'Sport motorcycle side study', 'side'),
+      img('photo-1760716801761-a2b7bd687979', 'Red Ducati Monster parked', 'gallery'),
+      img('photo-1568772585407-9361f9bf3a87', 'Red Ducati in garage light', 'side'),
     ],
   },
   {
@@ -129,69 +122,69 @@ export const objects = [
     rarity: 'COLLECTIBLE',
     shortDescription: 'The four-cylinder machine that opened modern motorcycle ambition.',
     images: [
-      img('photo-1558981403-c5f9899a28bc', 'Classic motorcycle demonstration plate', 'hero'),
-      img('photo-1449426468159-d96dbf08f19f', 'Motorcycle side profile', 'side'),
+      img('photo-1502744688674-c619d1586c9e', 'Honda motorcycle on forest trail', 'hero'),
       img('photo-1558981359-219d6364c9c8', 'Motorcycle cockpit detail', 'detail'),
+      img('photo-1558981806-ec527fa84c39', 'Motorcycle on open road', 'gallery'),
     ],
   },
   {
-    id: 'demo-mv-agusta-f4',
-    slug: 'mv-agusta-f4',
-    name: 'MV Agusta F4',
-    brand: 'MV Agusta',
+    id: 'demo-yamaha-yzf-r6',
+    slug: 'yamaha-yzf-r6',
+    name: 'Yamaha YZF-R6',
+    brand: 'Yamaha',
     productType: 'motorcycle',
-    year: 1999,
-    rarity: 'VERY RARE',
-    shortDescription: 'Sculptural superbike craftsmanship with archival presence.',
+    year: 2008,
+    rarity: 'COLLECTIBLE',
+    shortDescription: 'Sculptural supersport craftsmanship with archival track presence.',
     images: [
-      img('photo-1571068316344-75bc76f77890', 'Red sport motorcycle plate', 'hero'),
-      img('photo-1609630875171-b1321377ee65', 'Motorcycle mechanical detail', 'detail'),
-      img('photo-1568772585407-9361f9bf3a87', 'Motorcycle archival atmosphere', 'gallery'),
+      img('photo-1609630875171-b1321377ee65', 'Yamaha YZF-R6 orange and black superbike', 'hero'),
+      img('photo-1558981359-219d6364c9c8', 'Motorcycle cockpit detail', 'detail'),
+      img('photo-1558981806-ec527fa84c39', 'Sport motorcycle on open road', 'gallery'),
     ],
   },
   {
-    id: 'demo-bmw-r-ninet',
-    slug: 'bmw-r-ninet',
-    name: 'BMW R nineT',
-    brand: 'BMW Motorrad',
+    id: 'demo-ktm-rc',
+    slug: 'ktm-rc',
+    name: 'KTM RC',
+    brand: 'KTM',
     productType: 'motorcycle',
     year: 2014,
     rarity: 'COLLECTIBLE',
-    shortDescription: 'Modern heritage roadster shaped for contemporary collectors.',
+    shortDescription: 'Sharp orange-framed roadster energy shaped for contemporary collectors.',
     images: [
-      img('photo-1525160357955-59457d5d0f66', 'Heritage motorcycle wheel and tank', 'hero'),
+      img('photo-1449426468159-d96dbf08f19f', 'KTM RC sport motorcycle parked outdoors', 'hero'),
+      img('photo-1558981403-c5f9899a28bc', 'Modern motorcycle street study', 'gallery'),
       img('photo-1558981359-219d6364c9c8', 'Motorcycle cockpit study', 'detail'),
-      img('photo-1558981403-c5f9899a28bc', 'Roadster motorcycle atmosphere', 'gallery'),
     ],
   },
   {
-    id: 'demo-rolex-gmt-master-ii',
-    slug: 'rolex-gmt-master-ii',
-    name: 'Rolex GMT-Master II',
+    id: 'demo-rolex-air-king',
+    slug: 'rolex-air-king',
+    name: 'Rolex Air-King',
     brand: 'Rolex',
     productType: 'watch',
-    year: 1983,
+    year: 1945,
     rarity: 'RARE',
-    shortDescription: 'Travel chronometer language preserved for collector study.',
+    shortDescription: 'Aviation chronometer language preserved for collector study.',
     images: [
-      img('photo-1523170335258-f5ed11844a49', 'Steel sports watch hero plate', 'hero'),
-      img('photo-1547996160-81dfa63595aa', 'Watch dial close study', 'dial'),
-      img('photo-1587836374828-4eba366e0c3d', 'Watch on surface editorial', 'editorial'),
+      img('photo-1547996160-81dfa63595aa', 'Rolex Air-King on book surface', 'hero'),
+      img('photo-1622434641406-a158123450f9', 'Watch bracelet detail', 'detail'),
+      img('photo-1609587312208-cea54be969e7', 'Sports chronograph editorial atmosphere', 'gallery'),
     ],
   },
   {
-    id: 'demo-omega-speedmaster',
-    slug: 'omega-speedmaster',
-    name: 'Omega Speedmaster',
+    id: 'demo-omega-seamaster',
+    slug: 'omega-seamaster-planet-ocean',
+    name: 'Omega Seamaster Planet Ocean',
     brand: 'Omega',
     productType: 'watch',
-    year: 1957,
+    year: 2005,
     rarity: 'ICONIC',
-    shortDescription: 'Chronograph history with enduring archival significance.',
+    shortDescription: 'Diving chronograph history with enduring archival significance.',
     images: [
-      img('photo-1614164185128-c4f587235c8c', 'Chronograph watch hero plate', 'hero'),
-      img('photo-1587836374828-4eba366e0c3d', 'Watch editorial surface study', 'editorial'),
-      img('photo-1523170335258-f5ed11844a49', 'Sports watch atmosphere', 'gallery'),
+      img('photo-1523170335258-f5ed11844a49', 'Omega Seamaster Planet Ocean chronograph', 'hero'),
+      img('photo-1609587312208-cea54be969e7', 'Sports chronograph editorial pair', 'editorial'),
+      img('photo-1594534475808-b18fc33b045e', 'Luxury watch case study', 'gallery'),
     ],
   },
   {
@@ -206,7 +199,7 @@ export const objects = [
     images: [
       img('photo-1594534475808-b18fc33b045e', 'Square luxury watch hero plate', 'hero'),
       img('photo-1622434641406-a158123450f9', 'Watch bracelet detail', 'detail'),
-      img('photo-1547996160-81dfa63595aa', 'Watch dial study', 'dial'),
+      img('photo-1611930022073-b7a4ba5fcccd', 'Watch dial editorial study', 'dial'),
     ],
   },
 ];
@@ -219,9 +212,9 @@ export const curatedObjectIds = [
   'demo-lamborghini-aventador',
   'demo-mclaren-p1',
   'demo-honda-cb750',
-  'demo-mv-agusta-f4',
-  'demo-bmw-r-ninet',
-  'demo-omega-speedmaster',
+  'demo-yamaha-yzf-r6',
+  'demo-ktm-rc',
+  'demo-omega-seamaster',
   'demo-cartier-santos',
 ];
 
@@ -244,9 +237,15 @@ export const brands = [
   { id: 'ferrari', name: 'Ferrari', domain: 'car', country: 'Italy' },
   { id: 'porsche', name: 'Porsche', domain: 'car', country: 'Germany' },
   { id: 'ducati', name: 'Ducati', domain: 'motorcycle', country: 'Italy' },
-  { id: 'bmw-motorrad', name: 'BMW Motorrad', domain: 'motorcycle', country: 'Germany' },
+  { id: 'yamaha', name: 'Yamaha', domain: 'motorcycle', country: 'Japan' },
+  { id: 'ktm', name: 'KTM', domain: 'motorcycle', country: 'Austria' },
   { id: 'mclaren', name: 'McLaren', domain: 'car', country: 'United Kingdom' },
   { id: 'rolex', name: 'Rolex', domain: 'watch', country: 'Switzerland' },
+  { id: 'omega', name: 'Omega', domain: 'watch', country: 'Switzerland' },
+  { id: 'honda', name: 'Honda', domain: 'motorcycle', country: 'Japan' },
+  { id: 'lamborghini', name: 'Lamborghini', domain: 'car', country: 'Italy' },
+  { id: 'cartier', name: 'Cartier', domain: 'watch', country: 'France' },
+  { id: 'bmw-motorrad', name: 'BMW Motorrad', domain: 'motorcycle', country: 'Germany' },
 ];
 
 export const journalArticles = [
@@ -302,4 +301,42 @@ export function getPrimaryImage(object) {
 export function getSecondaryImage(object) {
   if (!object?.images?.length || object.images.length < 2) return null;
   return object.images.find((item) => item.type !== 'hero') || object.images[1];
+}
+
+function shuffleArray(list) {
+  const copy = [...list];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+  }
+  return copy;
+}
+
+/**
+ * Discover feed: cars + motorcycles lead; watches are woven in as secondary.
+ * `shuffleKey` only forces a fresh shuffle when the user reshuffles.
+ */
+export function getShuffledDiscoverFeed(shuffleKey = 0) {
+  void shuffleKey;
+  const primary = shuffleArray(
+    objects.filter((item) => item.productType === 'car' || item.productType === 'motorcycle')
+  );
+  const secondary = shuffleArray(objects.filter((item) => item.productType === 'watch'));
+  const feed = [];
+  let watchIndex = 0;
+
+  primary.forEach((item, index) => {
+    feed.push(item);
+    if ((index + 1) % 3 === 0 && secondary[watchIndex]) {
+      feed.push(secondary[watchIndex]);
+      watchIndex += 1;
+    }
+  });
+
+  while (watchIndex < secondary.length) {
+    feed.push(secondary[watchIndex]);
+    watchIndex += 1;
+  }
+
+  return feed;
 }

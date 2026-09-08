@@ -31,6 +31,8 @@
   --space-9: 8.5rem;
 
   --radius-xs: 0;
+  --radius-soft: 6px;
+  --radius-plate: 10px;
   --header-height: 4.75rem;
   --header-height-condensed: 3.5rem;
   --content-max: 1440px;
@@ -42,7 +44,7 @@
   --duration-slow: 420ms;
 
   --frame-width: 1px;
-  --frame-mat: clamp(10px, 1.1vw, 18px);
+  --frame-mat: clamp(12px, 1.2vw, 20px);
   --frame-brass: 1px;
 }
 

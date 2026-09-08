@@ -91,4 +91,5 @@ Never commit real `.env` files or secrets. Do not hardcode production hosts, cat
 - Phase 0: Project rules — complete
 - Phase 1: Foundation — complete
 - Phase 2: Ivory Museum website — complete
+- Phase 3: Routing / layouts / page shells — complete
 - Later phases: not started

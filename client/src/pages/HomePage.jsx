@@ -1,23 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import AppShell from '../components/layout/AppShell.jsx';
 import useSectionReveal from '../hooks/useSectionReveal.js';
+import useDocumentTitle from '../hooks/useDocumentTitle.js';
 import ArchiveHero from '../components/archive/ArchiveHero.jsx';
-import ArchiveIndex from '../components/archive/ArchiveIndex.jsx';
 import FeaturedObject from '../components/archive/FeaturedObject.jsx';
-import ObjectCard from '../components/archive/ObjectCard.jsx';
 import EditorialStory from '../components/archive/EditorialStory.jsx';
-import BrandIndex from '../components/archive/BrandIndex.jsx';
-import JournalPreview from '../components/archive/JournalPreview.jsx';
 import {
-  brands,
-  curatedObjectIds,
   editorialStory,
   featuredCarId,
   featuredMotorcycleId,
   getObjectById,
-  getObjectsByIds,
-  journalArticles,
 } from '../data/demoData.js';
 
 const MAX_COMPARE = 4;
@@ -25,10 +17,10 @@ const MAX_COMPARE = 4;
 export default function HomePage() {
   const [compareIds, setCompareIds] = useState([]);
   useSectionReveal();
+  useDocumentTitle('Home');
 
   const featuredCar = getObjectById(featuredCarId);
   const featuredMotorcycle = getObjectById(featuredMotorcycleId);
-  const curated = useMemo(() => getObjectsByIds(curatedObjectIds), []);
 
   const toggleCompare = (id) => {
     setCompareIds((current) => {
@@ -45,9 +37,8 @@ export default function HomePage() {
   const clearCompare = () => setCompareIds([]);
 
   return (
-    <AppShell compareCount={compareIds.length} onOpenCompare={() => undefined}>
+    <>
       <ArchiveHero />
-      <ArchiveIndex />
 
       {featuredCar ? (
         <FeaturedObject
@@ -70,33 +61,25 @@ export default function HomePage() {
         />
       ) : null}
 
-      <section className="curated-grid" id="curated" aria-labelledby="curated-title" data-reveal>
-        <div className="curated-grid__head">
-          <div>
-            <p className="meta">Curated objects</p>
-            <span className="hairline" aria-hidden="true" />
-            <h2 id="curated-title">Across the archive</h2>
+      <EditorialStory story={editorialStory} />
+
+      <section className="home-continue" aria-label="Continue exploring" data-reveal>
+        <div className="home-continue__inner">
+          <p className="meta">Continue</p>
+          <span className="hairline" aria-hidden="true" />
+          <div className="home-continue__links">
+            <Link className="link-cta" to="/brands">
+              Brands
+            </Link>
+            <Link className="link-cta" to="/journal">
+              Journal
+            </Link>
+            <Link className="link-cta" to="/categories">
+              Categories
+            </Link>
           </div>
-          <Link className="link-cta" to="/discover">
-            View all objects
-          </Link>
-        </div>
-        <div className="object-grid">
-          {curated.map((object, index) => (
-            <ObjectCard
-              key={object.id}
-              object={object}
-              wide={index === 0 || index === 3}
-              onToggleCompare={toggleCompare}
-              isCompared={compareIds.includes(object.id)}
-            />
-          ))}
         </div>
       </section>
-
-      <EditorialStory story={editorialStory} />
-      <BrandIndex brands={brands} />
-      <JournalPreview articles={journalArticles} />
 
       <div
         className={`compare-tray ${compareIds.length ? 'is-visible' : ''}`}
@@ -106,10 +89,20 @@ export default function HomePage() {
         <span>
           Compare tray · {compareIds.length}/{MAX_COMPARE} objects selected
         </span>
-        <button type="button" className="btn" style={{ color: 'var(--paper)', borderColor: 'rgba(241,238,231,0.4)' }} onClick={clearCompare}>
-          Clear
-        </button>
+        <div className="compare-tray__actions">
+          <Link className="link-cta link-cta--light" to="/compare">
+            Open compare
+          </Link>
+          <button
+            type="button"
+            className="btn"
+            style={{ color: 'var(--paper)', borderColor: 'rgba(241,238,231,0.4)' }}
+            onClick={clearCompare}
+          >
+            Clear
+          </button>
+        </div>
       </div>
-    </AppShell>
+    </>
   );
 }

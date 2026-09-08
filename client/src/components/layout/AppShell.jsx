@@ -21,15 +21,21 @@ export default function AppShell({ children, compareCount = 0, onOpenCompare }) 
     };
   }, [menuOpen]);
 
+  const openCompare = onOpenCompare || (() => undefined);
+
   return (
     <div className="page-shell">
       <div className={`site-header ${condensed ? 'is-condensed' : ''}`}>
-        <DesktopHeader compareCount={compareCount} onOpenCompare={onOpenCompare} />        <MobileHeader
+        <DesktopHeader
+          compareCount={compareCount}
+          onOpenCompare={openCompare}
+        />
+        <MobileHeader
           menuOpen={menuOpen}
           onOpenMenu={() => setMenuOpen(true)}
           onCloseMenu={() => setMenuOpen(false)}
           compareCount={compareCount}
-          onOpenCompare={onOpenCompare}
+          onOpenCompare={openCompare}
         />
       </div>
       {children}

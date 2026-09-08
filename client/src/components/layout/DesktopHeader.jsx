@@ -36,15 +36,15 @@ export default function DesktopHeader({ compareCount = 0, onOpenCompare }) {
         </ul>
       </nav>
       <div className="header-actions">
-        <button type="button" className="icon-btn" aria-label="Search">
+        <Link className="icon-btn" to="/search" aria-label="Search">
           <SearchIcon />
-        </button>
-        <button type="button" className="icon-btn" aria-label="Account">
+        </Link>
+        <Link className="icon-btn" to="/account" aria-label="Account">
           <ProfileIcon />
-        </button>
-        <button type="button" className="link-cta header-compare" onClick={onOpenCompare}>
+        </Link>
+        <Link className="link-cta header-compare" to="/compare" onClick={onOpenCompare}>
           Compare{compareCount > 0 ? ` (${compareCount})` : ''}
-        </button>
+        </Link>
       </div>
     </header>
   );

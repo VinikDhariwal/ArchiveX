@@ -82,6 +82,168 @@ button {
   background: var(--paper);
 }
 
+.section-pad {
+  padding-block: clamp(3.5rem, 8vh, 6rem);
+  padding-inline: var(--page-gutter);
+}
+
+.section-inner {
+  width: min(100%, var(--content-max));
+  margin-inline: auto;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+  color: var(--ink);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.layout-banner {
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper-deep) 55%, var(--paper));
+  padding: 0.7rem var(--page-gutter);
+}
+
+.layout-banner .meta {
+  margin: 0;
+  width: min(100%, var(--content-max));
+  margin-inline: auto;
+}
+
+.breadcrumbs {
+  margin: 0 0 1.5rem;
+}
+
+.breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.55rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-meta);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.breadcrumbs__item:not(:last-child)::after {
+  content: "·";
+  margin-left: 0.55rem;
+  color: var(--brass);
+}
+
+.breadcrumbs a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.breadcrumbs a:hover {
+  color: var(--ink);
+}
+
+.breadcrumbs [aria-current="page"] {
+  color: var(--brass);
+}
+
+.state-page,
+.route-shell {
+  min-height: min(70vh, 640px);
+}
+
+.state-page__inner,
+.route-shell__inner {
+  max-width: 40rem;
+}
+
+.state-page__title,
+.route-shell__title {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  margin: 0;
+}
+
+.state-page__copy,
+.route-shell__summary {
+  color: var(--muted-ink);
+  margin-top: 1.25rem;
+  line-height: 1.7;
+  font-family: var(--font-editorial);
+  font-size: 1.2rem;
+}
+
+.state-page__actions,
+.route-shell__actions {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.route-shell__note {
+  margin-top: 1.5rem;
+}
+
+.admin-shell {
+  min-height: 100vh;
+}
+
+.admin-shell__header {
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.admin-shell__header-inner {
+  width: min(100%, var(--content-max));
+  margin-inline: auto;
+  padding: 1rem var(--page-gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.admin-shell__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-shell__nav a {
+  text-decoration: none;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.admin-shell__nav a:hover {
+  color: var(--ink);
+}
+
+.compare-tray__actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
 .meta {
   font-family: var(--font-meta);
   font-size: 0.6875rem;
@@ -239,14 +401,18 @@ button {
   color: var(--ink);
 }
 
-/* Quiet museum plate — single hairline brass rule + ivory mat */
+/* Quiet museum plate — soft edges, ivory mat, faint brass */
 .museum-frame {
   position: relative;
   display: inline-block;
   max-width: 100%;
   padding: 0;
   background: transparent;
-  box-shadow: 0 18px 48px rgba(23, 24, 23, 0.045);
+  border-radius: var(--radius-plate);
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgba(23, 24, 23, 0.03),
+    0 18px 48px rgba(23, 24, 23, 0.05);
 }
 
 .museum-frame::before {
@@ -255,14 +421,26 @@ button {
   inset: 0;
   pointer-events: none;
   z-index: 2;
+  border-radius: inherit;
   box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--brass) 55%, transparent),
-    inset 0 0 0 calc(1px + var(--frame-mat)) var(--paper);
+    inset 0 0 0 1px color-mix(in srgb, var(--brass) 32%, transparent),
+    inset 0 0 0 calc(1px + var(--frame-mat)) color-mix(in srgb, var(--paper) 92%, transparent);
+}
+
+.museum-frame::after {
+  content: "";
+  position: absolute;
+  inset: var(--frame-mat);
+  pointer-events: none;
+  z-index: 3;
+  border-radius: calc(var(--radius-plate) - 4px);
+  box-shadow: inset 0 0 28px rgba(243, 240, 232, 0.35);
 }
 
 .museum-frame__mat {
   background: var(--paper);
   padding: var(--frame-mat);
+  border-radius: inherit;
 }
 
 .museum-frame__mat img {
@@ -271,4 +449,5 @@ button {
   aspect-ratio: 4 / 5;
   object-fit: cover;
   display: block;
+  border-radius: calc(var(--radius-soft) - 1px);
 }
