@@ -7,30 +7,100 @@
 export const DEMO_DISCLAIMER =
   'Demonstration content for layout and discovery. Not a market valuation or current inventory claim.';
 
-const img = (id, alt, type = 'gallery', width = 1400, height = 933) => ({
-  url: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=80`,
-  alt,
-  type,
-  width,
-  height,
-});
+const img = (id, alt, type = 'gallery', width = 1400, height = 933, options = {}) => {
+  const fit = options.fit || 'crop';
+  const params = [`auto=format`, `fit=${fit}`, `w=${width}`, `q=80`];
+  if (fit === 'crop' && height) params.push(`h=${height}`);
+  return {
+    url: `https://images.unsplash.com/${id}?${params.join('&')}`,
+    alt,
+    type,
+    width,
+    height,
+    objectPosition: options.objectPosition || 'center',
+  };
+};
+
+const heroImg = (id, alt, objectPosition = 'center') =>
+  img(id, alt, 'hero', 1600, 1200, { fit: 'max', objectPosition });
 
 export const hero = {
   brand: 'ArchiveX',
-  kicker: 'The archive',
+  kicker: 'A living archive',
   headlineLine1: 'Objects',
   headlineLine2: 'worth remembering.',
   lede:
-    'A living archive of extraordinary cars, motorcycles, and watches — and the stories behind the objects collectors keep.',
-  primaryCta: { label: 'Explore archive', href: '/discover' },
-  secondaryCta: { label: 'Read the journal', href: '/journal' },
-  featuredSlug: 'ferrari-f40',
-  image: img(
-    'photo-1750712344309-b62744ffae18',
-    'Ferrari F40 on museum display — rare archival hero object',
-    'hero',
-    1200,
-    1500
+    'Celebrating extraordinary cars and motorcycles — with luxury watches as a quieter second chamber — and the stories collectors return to.',
+  primaryCta: { label: 'Begin the archive', href: '#promise' },
+  secondaryCta: { label: 'Explore discover', href: '/discover' },
+  tertiaryCta: { label: 'Read the journal', href: '/journal' },
+  featuredSlug: 'mercedes-benz-300-slr-uhlenhaut-coupe',
+  /** Hero stage: five ultra-rare archive objects only */
+  plates: [
+    {
+      slug: 'mercedes-benz-300-slr-uhlenhaut-coupe',
+      name: 'Mercedes-Benz 300 SLR Uhlenhaut Coupé',
+      brand: 'Mercedes-Benz',
+      year: 1955,
+      rarity: 'ULTRA-RARE',
+      image: heroImg(
+        'photo-1772550327967-4d9123809a65',
+        'Silver Mercedes-Benz 300-series coupe — demonstration stand-in for the Uhlenhaut Coupé',
+        'center'
+      ),
+    },
+    {
+      slug: '1919-traub-motorcycle',
+      name: '1919 Traub Motorcycle',
+      brand: 'Traub',
+      year: 1919,
+      rarity: 'UNIQUE',
+      image: heroImg(
+        'photo-1508349661974-9927dbd8399c',
+        'Vintage motorcycle profile — demonstration stand-in for the 1919 Traub',
+        'center'
+      ),
+    },
+    {
+      slug: 'patek-philippe-henry-graves-supercomplication',
+      name: 'Patek Philippe Henry Graves Supercomplication',
+      brand: 'Patek Philippe',
+      year: 1933,
+      rarity: 'UNIQUE',
+      image: heroImg(
+        'photo-1509048191080-d2984bad6ae5',
+        'Antique pocket watch — demonstration stand-in for the Henry Graves Supercomplication',
+        'center'
+      ),
+    },
+    {
+      slug: 'bugatti-type-57sc-atlantic',
+      name: 'Bugatti Type 57SC Atlantic',
+      brand: 'Bugatti',
+      year: 1936,
+      rarity: 'ULTRA-RARE',
+      image: heroImg(
+        'photo-1707483413144-2db108cefb61',
+        'Vintage Bugatti grille study — demonstration stand-in for the Type 57SC Atlantic',
+        'center top'
+      ),
+    },
+    {
+      slug: '1916-cyclone-board-track-racer',
+      name: '1916 Cyclone Board Track Racer',
+      brand: 'Cyclone',
+      year: 1916,
+      rarity: 'ULTRA-RARE',
+      image: heroImg(
+        'photo-1459372537964-e38c57a5e86f',
+        'Antique motorcycle study — demonstration stand-in for the 1916 Cyclone board tracker',
+        'center'
+      ),
+    },
+  ],
+  image: heroImg(
+    'photo-1772550327967-4d9123809a65',
+    'Mercedes-Benz 300 SLR Uhlenhaut Coupé — rare archival hero object'
   ),
   galleryBackground: {
     url: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=70',
@@ -38,7 +108,156 @@ export const hero = {
   },
 };
 
+export const archivePromise = {
+  eyebrow: 'What is ArchiveX?',
+  title: 'A chamber for objects with a tale.',
+  body:
+    'Every extraordinary machine carries origin, craft, performance, and provenance. ArchiveX studies those stories — not as merchandise, but as design, engineering, and collector memory.',
+  quote:
+    'ArchiveX is a place of discovery, of comparison, of quiet study, and of lasting attention. Let the archive begin…',
+  quoteCredit: 'The ArchiveX promise',
+};
+
+export const domainPaths = [
+  {
+    id: 'car',
+    label: 'Cars',
+    title: 'Automotive icons',
+    summary: 'Scarce silhouettes, engineering lore, and the machines collectors keep.',
+    href: '/discover?domain=car',
+    image: img(
+      'photo-1772550327967-4d9123809a65',
+      'Silver Mercedes coupe in the automotive chamber',
+      'editorial',
+      1800,
+      1200,
+      { fit: 'max' }
+    ),
+  },
+  {
+    id: 'motorcycle',
+    label: 'Motorcycles',
+    title: 'Two-wheel craft',
+    summary: 'Superbikes and heritage roadsters with sculptural presence.',
+    href: '/discover?domain=motorcycle',
+    image: img(
+      'photo-1459372537964-e38c57a5e86f',
+      'Antique motorcycle in the two-wheel chamber',
+      'editorial',
+      1800,
+      1200,
+      { fit: 'max' }
+    ),
+  },
+  {
+    id: 'watch',
+    label: 'Watches',
+    title: 'Secondary chamber',
+    summary: 'Luxury timepieces kept in the archive — important, never dominant.',
+    href: '/discover?domain=watch',
+    image: img(
+      'photo-1509048191080-d2984bad6ae5',
+      'Antique pocket watch in the secondary chamber',
+      'editorial',
+      1800,
+      1200,
+      { fit: 'max' }
+    ),
+  },
+];
+
 export const objects = [
+  {
+    id: 'demo-mercedes-uhlenhaut',
+    slug: 'mercedes-benz-300-slr-uhlenhaut-coupe',
+    name: 'Mercedes-Benz 300 SLR Uhlenhaut Coupé',
+    brand: 'Mercedes-Benz',
+    productType: 'car',
+    year: 1955,
+    rarity: 'ULTRA-RARE',
+    shortDescription:
+      'Only two road-going coupés were built from the legendary 1950s racer — both survive. One set a public auction record near $142 million.',
+    images: [
+      heroImg(
+        'photo-1772550327967-4d9123809a65',
+        'Silver Mercedes-Benz 300-series coupe — demonstration stand-in for the Uhlenhaut Coupé'
+      ),
+      img('photo-1767023019012-30f747a1c87a', 'Classic silver Mercedes-Benz exhibition study', 'gallery'),
+    ],
+  },
+  {
+    id: 'demo-traub-1919',
+    slug: '1919-traub-motorcycle',
+    name: '1919 Traub Motorcycle',
+    brand: 'Traub',
+    productType: 'motorcycle',
+    year: 1919,
+    rarity: 'UNIQUE',
+    shortDescription:
+      'Exactly one known unit — discovered bricked inside a Chicago wall, with mechanical ideas years ahead of its time, and still running.',
+    images: [
+      heroImg(
+        'photo-1508349661974-9927dbd8399c',
+        'Vintage motorcycle profile — demonstration stand-in for the 1919 Traub'
+      ),
+      img('photo-1554975461-777d5f4c3c2f', 'Weathered vintage motorcycle tank detail', 'detail'),
+    ],
+  },
+  {
+    id: 'demo-patek-henry-graves',
+    slug: 'patek-philippe-henry-graves-supercomplication',
+    name: 'Patek Philippe Henry Graves Supercomplication',
+    brand: 'Patek Philippe',
+    productType: 'watch',
+    year: 1933,
+    rarity: 'UNIQUE',
+    shortDescription:
+      'A one-of-one custom pocket watch with 24 complications — over five years in the making in the 1930s, later trading above $24 million.',
+    images: [
+      heroImg(
+        'photo-1509048191080-d2984bad6ae5',
+        'Antique pocket watch — demonstration stand-in for the Henry Graves Supercomplication'
+      ),
+      img('photo-1587836374828-4dbafa94cf0e', 'Luxury watch dial study', 'detail'),
+    ],
+  },
+  {
+    id: 'demo-bugatti-atlantic',
+    slug: 'bugatti-type-57sc-atlantic',
+    name: 'Bugatti Type 57SC Atlantic',
+    brand: 'Bugatti',
+    productType: 'car',
+    year: 1936,
+    rarity: 'ULTRA-RARE',
+    shortDescription:
+      'Jean Bugatti’s Art Deco masterpiece in riveted lightweight aluminium — four built, three accounted for; a holy grail among collectors.',
+    images: [
+      heroImg(
+        'photo-1707483413144-2db108cefb61',
+        'Vintage Bugatti grille study — demonstration stand-in for the Type 57SC Atlantic',
+        'center top'
+      ),
+      img('photo-1519245659620-e859806a8d3b', 'Classic sports-car silhouette study', 'gallery'),
+    ],
+  },
+  {
+    id: 'demo-cyclone-1916',
+    slug: '1916-cyclone-board-track-racer',
+    name: '1916 Cyclone Board Track Racer',
+    brand: 'Cyclone',
+    productType: 'motorcycle',
+    year: 1916,
+    rarity: 'ULTRA-RARE',
+    shortDescription:
+      'Fewer than fourteen survivors worldwide — built for wooden board-track racing, with an overhead-cam V-twin at the peak of early American race engineering.',
+    images: [
+      heroImg(
+        'photo-1459372537964-e38c57a5e86f',
+        'Antique motorcycle study — demonstration stand-in for the 1916 Cyclone board tracker'
+      ),
+      img('photo-1558980664-769d59546b3d', 'Motorcycle motion study', 'gallery'),
+    ],
+  },
   {
     id: 'demo-ferrari-f40',
     slug: 'ferrari-f40',
@@ -49,9 +268,9 @@ export const objects = [
     rarity: 'ICONIC',
     shortDescription: 'Twin-turbo V8 legend — raw engineering made collectible myth.',
     images: [
-      img('photo-1750712344309-b62744ffae18', 'Ferrari F40 on display', 'hero'),
-      img('photo-1726739569681-14cc0392b4bc', 'Ferrari F40 in garage light', 'gallery'),
-      img('photo-1762111215490-0afdb55466c2', 'Ferrari F40 on the street', 'gallery'),
+      img('photo-1762111215490-0afdb55466c2', 'White Ferrari F40 on the street', 'hero'),
+      img('photo-1750712344309-b62744ffae18', 'Black Ferrari F40 on display', 'gallery'),
+      img('photo-1726739569681-14cc0392b4bc', 'Red Ferrari F40 in garage light', 'gallery'),
     ],
   },
   {
@@ -204,26 +423,27 @@ export const objects = [
   },
 ];
 
-export const featuredCarId = 'demo-ferrari-f40';
-export const featuredMotorcycleId = 'demo-ducati-panigale';
+export const featuredCarId = 'demo-mercedes-uhlenhaut';
+export const featuredMotorcycleId = 'demo-traub-1919';
 
 export const curatedObjectIds = [
-  'demo-porsche-911',
-  'demo-lamborghini-aventador',
-  'demo-mclaren-p1',
-  'demo-honda-cb750',
-  'demo-yamaha-yzf-r6',
-  'demo-ktm-rc',
+  'demo-mercedes-uhlenhaut',
+  'demo-bugatti-atlantic',
+  'demo-traub-1919',
+  'demo-cyclone-1916',
+  'demo-patek-henry-graves',
+  'demo-ferrari-f40',
+  'demo-ducati-panigale',
   'demo-omega-seamaster',
-  'demo-cartier-santos',
 ];
 
 export const editorialStory = {
-  type: 'Archive Essay',
-  title: 'Why machines still matter',
+  type: 'The chamber',
+  title: 'Where machines still matter',
   excerpt:
-    'Between asphalt memory and workshop craft, ArchiveX studies the objects collectors return to — not as merchandise, but as evidence of design, engineering, and culture.',
+    'Step into a quieter room of asphalt memory and workshop craft — designed so every object feels like an occasion for attention, not a listing.',
   href: '/journal',
+  cta: 'Enter the journal',
   image: img(
     'photo-1486262715619-67b85e0b08d3',
     'Workshop tools and mechanical craft demonstration photograph',
@@ -233,7 +453,33 @@ export const editorialStory = {
   ),
 };
 
+export const homeClose = {
+  eyebrow: 'Your next step',
+  title: 'Two ways into the tale.',
+  paths: [
+    {
+      label: 'Discover',
+      title: 'Browse the mixed feed',
+      summary: 'Cars and motorcycles lead; watches follow. Shuffle, filter, compare.',
+      href: '/discover',
+      cta: 'Open discover',
+    },
+    {
+      label: 'Journal',
+      title: 'Read the stories',
+      summary: 'Essays, model histories, and notes from the quieter side of collecting.',
+      href: '/journal',
+      cta: 'Open journal',
+    },
+  ],
+};
+
 export const brands = [
+  { id: 'mercedes-benz', name: 'Mercedes-Benz', domain: 'car', country: 'Germany' },
+  { id: 'bugatti', name: 'Bugatti', domain: 'car', country: 'France' },
+  { id: 'traub', name: 'Traub', domain: 'motorcycle', country: 'United States' },
+  { id: 'cyclone', name: 'Cyclone', domain: 'motorcycle', country: 'United States' },
+  { id: 'patek-philippe', name: 'Patek Philippe', domain: 'watch', country: 'Switzerland' },
   { id: 'ferrari', name: 'Ferrari', domain: 'car', country: 'Italy' },
   { id: 'porsche', name: 'Porsche', domain: 'car', country: 'Germany' },
   { id: 'ducati', name: 'Ducati', domain: 'motorcycle', country: 'Italy' },

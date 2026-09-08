@@ -2,7 +2,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { selectIsFavorite, toggleFavorite } from '../../features/favorites/favoriteSlice.js';
 import { getPrimaryImage } from '../../data/demoData.js';
-import MuseumFrame from './MuseumFrame.jsx';
 
 export default function FeaturedObject({
   object,
@@ -22,20 +21,19 @@ export default function FeaturedObject({
     <section
       id={sectionId}
       className={`featured-object ${flipped ? 'featured-object--flip' : ''}`}
+      data-type={object.productType}
       aria-labelledby={`${sectionId}-title`}
       data-reveal
     >
       <div className="featured-object__media">
-        <Link to={`/products/${object.slug}`}>
-          <MuseumFrame>
-            <img
-              src={primary.url}
-              alt={primary.alt}
-              width={primary.width}
-              height={primary.height}
-              loading="lazy"
-            />
-          </MuseumFrame>
+        <Link to={`/products/${object.slug}`} aria-label={`View ${object.name}`}>
+          <img
+            src={primary.url}
+            alt={primary.alt}
+            width={primary.width}
+            height={primary.height}
+            loading="lazy"
+          />
         </Link>
       </div>
       <div className="featured-object__body">
@@ -53,7 +51,7 @@ export default function FeaturedObject({
         </div>
         <div className="featured-object__actions">
           <Link className="link-cta" to={`/products/${object.slug}`}>
-            View object
+            View object →
           </Link>
           <span className="quiet-action-group">
             <button

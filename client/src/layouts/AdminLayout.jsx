@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { clientConfig } from '../config/clientConfig.js';
+import PageSkeleton from '../components/feedback/PageSkeleton.jsx';
 
 const adminNav = [
   { label: 'Overview', to: '/admin' },
@@ -41,7 +43,9 @@ export default function AdminLayout() {
       <div className="layout-banner" role="note">
         <p className="meta">Admin shell · real authorization arrives in Phase 6 · product CRUD in Phase 13</p>
       </div>
-      <Outlet />
+      <Suspense fallback={<PageSkeleton variant="admin" />}>
+        <Outlet />
+      </Suspense>
     </div>
   );
 }

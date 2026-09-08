@@ -1,16 +1,6 @@
-import useDocumentTitle from '../hooks/useDocumentTitle.js';
+import PageSkeleton from '../feedback/PageSkeleton.jsx';
 
-export default function LoadingPage({ label = 'Loading the archive' }) {
-  useDocumentTitle('Loading');
-
-  return (
-    <main className="state-page" aria-busy="true" aria-live="polite">
-      <div className="state-page__inner">
-        <p className="meta">Please wait</p>
-        <span className="hairline" aria-hidden="true" />
-        <h1 className="display state-page__title">{label}</h1>
-        <p className="state-page__copy">Preparing the next chamber of the collection.</p>
-      </div>
-    </main>
-  );
+/** Full-page lazy-route fallback — skeleton only, no loading copy. */
+export default function LoadingPage() {
+  return <PageSkeleton />;
 }

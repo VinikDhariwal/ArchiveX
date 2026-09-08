@@ -1,10 +1,9 @@
-import { Suspense, lazy } from 'react';
+import { lazy } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import PublicLayout from '../layouts/PublicLayout.jsx';
 import AuthenticatedLayout from '../layouts/AuthenticatedLayout.jsx';
 import AdminLayout from '../layouts/AdminLayout.jsx';
 import RouteErrorBoundary from '../components/feedback/RouteErrorBoundary.jsx';
-import LoadingPage from '../pages/LoadingPage.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import UnauthorizedPage from '../pages/UnauthorizedPage.jsx';
 import RouteShellPage from '../pages/RouteShellPage.jsx';
@@ -21,7 +20,6 @@ export default function AppRoutes() {
   return (
     <BrowserRouter>
       <RouteErrorBoundary>
-        <Suspense fallback={<LoadingPage />}>
           <Routes>
             <Route element={<PublicLayout />}>
               <Route index element={<HomePage />} />
@@ -276,7 +274,6 @@ export default function AppRoutes() {
               <Route path="*" element={<Navigate to="/admin" replace />} />
             </Route>
           </Routes>
-        </Suspense>
       </RouteErrorBoundary>
     </BrowserRouter>
   );

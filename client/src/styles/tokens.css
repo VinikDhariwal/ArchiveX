@@ -1,23 +1,30 @@
 :root {
-  /* The Ivory Museum — exact inspiration palette */
-  --paper: #f3f0e8;
-  --paper-deep: #e3ded2;
-  --ink: #171817;
-  --muted-ink: #7d7a6e;
-  --brass: #a68d61;
-  --brass-bright: #b89c6f;
-  --brass-soft: rgba(166, 141, 97, 0.35);
-  --forest: #24372f;
-  --forest-deep: #1a2822;
+  /* Qissa-inspired, lighter premium archive */
+  --paper: #f4ebe3;
+  --paper-mid: #eadfd4;
+  --paper-deep: #dfd0c2;
+  --blush: #f0ddd6;
+  --blush-deep: #e4c8be;
+  --ink: #1c2430;
+  --ink-soft: #2c3644;
+  --muted-ink: #6f675f;
+  --brass: #b08d4f;
+  --brass-bright: #c9a86a;
+  --brass-soft: rgba(176, 141, 79, 0.32);
+  --navy: #243044;
+  --navy-deep: #18202c;
+  --forest: #2f3d38;
+  --forest-deep: #1f2a26;
   --oxide: #a34f32;
-  --white: #faf8f3;
-  --line: rgba(23, 24, 23, 0.12);
-  --line-strong: rgba(23, 24, 23, 0.2);
-  --line-brass: rgba(166, 141, 97, 0.65);
+  --white: #fff8f2;
+  --line: rgba(28, 36, 48, 0.1);
+  --line-strong: rgba(28, 36, 48, 0.18);
+  --line-brass: rgba(176, 141, 79, 0.55);
+  --glow: rgba(201, 168, 106, 0.18);
 
-  --font-display: "DM Serif Display", "Cormorant Garamond", Georgia, serif;
+  --font-display: "Cormorant Garamond", "DM Serif Display", Georgia, serif;
   --font-editorial: "Cormorant Garamond", "Fraunces", Georgia, serif;
-  --font-ui: "Manrope", "IBM Plex Sans", "Space Grotesk", system-ui, sans-serif;
+  --font-ui: "Manrope", "IBM Plex Sans", system-ui, sans-serif;
   --font-meta: "IBM Plex Mono", ui-monospace, monospace;
 
   --space-1: 0.25rem;
@@ -31,8 +38,8 @@
   --space-9: 8.5rem;
 
   --radius-xs: 0;
-  --radius-soft: 6px;
-  --radius-plate: 10px;
+  --radius-soft: 8px;
+  --radius-plate: 14px;
   --header-height: 4.75rem;
   --header-height-condensed: 3.5rem;
   --content-max: 1440px;
@@ -43,9 +50,9 @@
   --duration-med: 220ms;
   --duration-slow: 420ms;
 
-  --frame-width: 1px;
-  --frame-mat: clamp(12px, 1.2vw, 20px);
-  --frame-brass: 1px;
+  --frame-width: 0;
+  --frame-mat: 0;
+  --frame-brass: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

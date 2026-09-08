@@ -24,7 +24,11 @@ body {
   margin: 0;
   min-width: 320px;
   color: var(--ink);
-  background: var(--paper);
+  background:
+    radial-gradient(120% 80% at 10% -10%, color-mix(in srgb, var(--blush) 70%, transparent) 0%, transparent 45%),
+    radial-gradient(90% 70% at 100% 0%, color-mix(in srgb, var(--brass-bright) 16%, transparent) 0%, transparent 40%),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper-mid) 55%, var(--paper) 100%);
+  background-attachment: fixed;
   font-family: var(--font-ui);
   font-size: 1rem;
   line-height: 1.6;
@@ -79,7 +83,7 @@ button {
 .page-shell {
   width: 100%;
   overflow-x: clip;
-  background: var(--paper);
+  background: transparent;
 }
 
 .section-pad {
@@ -256,8 +260,9 @@ button {
   display: block;
   width: 2.25rem;
   height: 1px;
-  background: var(--brass);
-  margin: 1rem 0 1.25rem;
+  background: color-mix(in srgb, var(--brass) 55%, transparent);
+  margin: 0.85rem 0 1.1rem;
+  opacity: 0.7;
 }
 
 /* Quiet luxury CTA — text + arrow, not a heavy button */
@@ -320,10 +325,23 @@ button {
     border-color var(--duration-med) var(--ease-museum);
 }
 
-.btn:hover {
-  background: var(--ink);
-  color: var(--paper);
+.btn--soft {
+  border-color: color-mix(in srgb, var(--brass) 45%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--white) 88%, var(--brass-bright)) 0%, var(--blush) 100%);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.9rem 1.45rem;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 10px 28px var(--glow);
 }
+
+.btn--soft:hover {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+}
+
 
 .btn--ghost {
   border-color: var(--line-strong);
@@ -401,45 +419,44 @@ button {
   color: var(--ink);
 }
 
-/* Quiet museum plate — soft edges, ivory mat, faint brass */
+/* Integrated imagery — soft-edged, no separate plate chrome */
 .museum-frame {
   position: relative;
-  display: inline-block;
+  display: block;
   max-width: 100%;
   padding: 0;
   background: transparent;
-  border-radius: var(--radius-plate);
+  border-radius: clamp(18px, 2.4vw, 28px);
   overflow: hidden;
-  box-shadow:
-    0 1px 2px rgba(23, 24, 23, 0.03),
-    0 18px 48px rgba(23, 24, 23, 0.05);
+  box-shadow: none;
+  isolation: isolate;
 }
 
-.museum-frame::before {
+.museum-frame::before,
+.museum-frame::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 2;
   border-radius: inherit;
-  box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--brass) 32%, transparent),
-    inset 0 0 0 calc(1px + var(--frame-mat)) color-mix(in srgb, var(--paper) 92%, transparent);
+}
+
+.museum-frame::before {
+  box-shadow: none;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--paper) 55%, transparent), transparent 14%, transparent 86%, color-mix(in srgb, var(--paper) 45%, transparent)),
+    linear-gradient(180deg, color-mix(in srgb, var(--paper) 35%, transparent), transparent 18%, transparent 82%, color-mix(in srgb, var(--blush) 50%, transparent));
+  mix-blend-mode: normal;
 }
 
 .museum-frame::after {
-  content: "";
-  position: absolute;
-  inset: var(--frame-mat);
-  pointer-events: none;
-  z-index: 3;
-  border-radius: calc(var(--radius-plate) - 4px);
-  box-shadow: inset 0 0 28px rgba(243, 240, 232, 0.35);
+  box-shadow: inset 0 0 48px color-mix(in srgb, var(--paper) 28%, transparent);
 }
 
 .museum-frame__mat {
-  background: var(--paper);
-  padding: var(--frame-mat);
+  background: transparent;
+  padding: 0;
   border-radius: inherit;
 }
 
@@ -449,5 +466,262 @@ button {
   aspect-ratio: 4 / 5;
   object-fit: cover;
   display: block;
-  border-radius: calc(var(--radius-soft) - 1px);
+  border-radius: inherit;
+  mask-image: radial-gradient(130% 115% at 50% 45%, #000 52%, transparent 78%);
+  -webkit-mask-image: radial-gradient(130% 115% at 50% 45%, #000 52%, transparent 78%);
+}
+
+/* —— Skeleton loading —— */
+.skeleton {
+  display: block;
+  background: color-mix(in srgb, var(--blush) 55%, var(--paper));
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton--shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    color-mix(in srgb, var(--paper) 72%, transparent) 50%,
+    transparent 65%
+  );
+  transform: translateX(-100%);
+  animation: skeleton-shimmer 1.35s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-media {
+  width: 100%;
+  border-radius: 12px;
+  min-height: 8rem;
+}
+
+.skeleton-text {
+  display: grid;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.skeleton-text__line {
+  height: 0.85rem;
+  width: 100%;
+}
+
+.skeleton-text__line.is-short {
+  width: 62%;
+}
+
+.skeleton--meta {
+  height: 0.7rem;
+  width: 7.5rem;
+}
+
+.skeleton--brand {
+  height: 1.1rem;
+  width: min(12rem, 40%);
+  margin-top: 0.85rem;
+}
+
+.skeleton--display {
+  height: clamp(2.2rem, 5vw, 3.4rem);
+  width: min(28rem, 92%);
+  margin-top: 0.75rem;
+  border-radius: 6px;
+}
+
+.skeleton--display.is-second {
+  width: min(18rem, 70%);
+  margin-top: 0.55rem;
+}
+
+.skeleton--heading {
+  height: clamp(1.6rem, 3vw, 2.4rem);
+  width: min(22rem, 80%);
+  margin-top: 0.75rem;
+  border-radius: 6px;
+}
+
+.skeleton--title {
+  height: 1.1rem;
+  width: min(16rem, 70%);
+  margin-top: 1rem;
+}
+
+.skeleton--cta {
+  height: 1rem;
+  width: 7.5rem;
+}
+
+.skeleton--chip {
+  height: 2rem;
+  width: 5.5rem;
+  border-radius: 999px;
+}
+
+.skeleton--rail {
+  height: 2.75rem;
+  width: 100%;
+  border-radius: 0;
+}
+
+.skeleton--row {
+  height: 3.25rem;
+  width: 100%;
+  border-radius: 8px;
+}
+
+.page-skeleton-root {
+  width: 100%;
+  min-height: min(70vh, 720px);
+}
+
+.page-skeleton--home {
+  display: grid;
+  gap: 2.5rem;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1.25rem, 4vw, 3.5rem) 3rem;
+}
+
+.page-skeleton__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: end;
+}
+
+.page-skeleton__hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-bottom: 1rem;
+}
+
+.page-skeleton__lede {
+  margin-top: 1.25rem;
+  max-width: 28rem;
+}
+
+.page-skeleton__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 1.75rem;
+}
+
+.page-skeleton__hero-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.page-skeleton__plate {
+  width: 100%;
+  max-height: min(52vh, 420px);
+  border-radius: 16px;
+}
+
+.page-skeleton__marquee {
+  margin-inline: calc(-1 * clamp(1.25rem, 4vw, 3.5rem));
+}
+
+.page-skeleton__section {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 36rem;
+}
+
+.page-skeleton__cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.page-skeleton__cards--duo {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.page-skeleton__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin: 1.5rem 0 1.75rem;
+}
+
+.page-skeleton__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.page-skeleton__grid > :first-child {
+  grid-column: 1 / -1;
+  max-height: 280px;
+}
+
+.page-skeleton__product-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+}
+
+.page-skeleton__gallery {
+  max-height: min(58vh, 480px);
+  border-radius: 16px;
+}
+
+.page-skeleton__identity {
+  display: grid;
+  gap: 0.85rem;
+  padding-top: 0.5rem;
+}
+
+.page-skeleton--admin {
+  display: grid;
+  gap: 0.85rem;
+  padding: 2rem clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.page-skeleton__admin-rows {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.feedback-state--skeleton {
+  border-style: solid;
+  border-color: var(--line);
+  background: color-mix(in srgb, var(--paper) 88%, var(--blush));
+  display: grid;
+  gap: 0.85rem;
+}
+
+@media (max-width: 900px) {
+  .page-skeleton__hero,
+  .page-skeleton__product-grid,
+  .page-skeleton__cards,
+  .page-skeleton__cards--duo,
+  .page-skeleton__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-skeleton__grid > :first-child {
+    grid-column: auto;
+    max-height: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton--shimmer::after {
+    animation: none;
+  }
 }

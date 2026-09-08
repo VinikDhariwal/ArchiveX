@@ -1,4 +1,5 @@
 import MuseumFrame from './MuseumFrame.jsx';
+import { Link } from 'react-router-dom';
 
 export default function EditorialStory({ story }) {
   return (
@@ -21,9 +22,9 @@ export default function EditorialStory({ story }) {
           <h2 id="editorial-title">{story.title}</h2>
           <p>{story.excerpt}</p>
           <p style={{ marginTop: '1.75rem' }}>
-            <a className="link-cta" href={story.href}>
-              Continue reading
-            </a>
+            <Link className="btn btn--soft" to={story.href}>
+              {story.cta || 'Continue reading'}
+            </Link>
           </p>
         </div>
       </div>
