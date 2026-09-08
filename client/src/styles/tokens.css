@@ -1,0 +1,55 @@
+:root {
+  /* The Ivory Museum — exact inspiration palette */
+  --paper: #f3f0e8;
+  --paper-deep: #e3ded2;
+  --ink: #171817;
+  --muted-ink: #7d7a6e;
+  --brass: #a68d61;
+  --brass-bright: #b89c6f;
+  --brass-soft: rgba(166, 141, 97, 0.35);
+  --forest: #24372f;
+  --forest-deep: #1a2822;
+  --oxide: #a34f32;
+  --white: #faf8f3;
+  --line: rgba(23, 24, 23, 0.12);
+  --line-strong: rgba(23, 24, 23, 0.2);
+  --line-brass: rgba(166, 141, 97, 0.65);
+
+  --font-display: "DM Serif Display", "Cormorant Garamond", Georgia, serif;
+  --font-editorial: "Cormorant Garamond", "Fraunces", Georgia, serif;
+  --font-ui: "Manrope", "IBM Plex Sans", "Space Grotesk", system-ui, sans-serif;
+  --font-meta: "IBM Plex Mono", ui-monospace, monospace;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2.5rem;
+  --space-7: 4rem;
+  --space-8: 6rem;
+  --space-9: 8.5rem;
+
+  --radius-xs: 0;
+  --header-height: 4.75rem;
+  --header-height-condensed: 3.5rem;
+  --content-max: 1440px;
+  --page-gutter: clamp(1.5rem, 4.5vw, 5rem);
+
+  --ease-museum: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 120ms;
+  --duration-med: 220ms;
+  --duration-slow: 420ms;
+
+  --frame-width: 1px;
+  --frame-mat: clamp(10px, 1.1vw, 18px);
+  --frame-brass: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 1ms;
+    --duration-med: 1ms;
+    --duration-slow: 1ms;
+  }
+}
