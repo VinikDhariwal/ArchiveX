@@ -229,15 +229,15 @@ Use:
 
 ### Color tokens (reference)
 
-- `--paper: #f1eee7`
-- `--paper-deep: #e4dfd4`
+- `--paper: #f3f0e8`
+- `--paper-deep: #e3ded2`
 - `--ink: #171817`
-- `--muted-ink: #686860`
-- `--forest: #24372f`
+- `--muted-ink: #7d7a6e`
+- `--brass: #a68d61`
 - `--oxide: #a34f32`
-- `--brass: #b49a69`
-- `--white: #faf9f5`
-- `--line: rgba(23, 24, 23, 0.16)`
+- `--forest: #24372f`
+- `--white: #faf8f3`
+- `--line: rgba(23, 24, 23, 0.12)`
 
 ### Avoid
 
@@ -297,7 +297,20 @@ Backend authorization is authoritative. Never trust frontend role claims.
 
 ---
 
-## 10. MVP scope
+## 10B. Imagery and interaction rules
+
+- Card/grid hover must **not** swap photographs while titles stay fixed.
+- Product titles and primary images must stay aligned; rename demo objects or replace photos rather than mismatch.
+- Multi-image viewing happens on product detail with premium fade transitions between plates.
+- Museum frames stay subtle (hairline brass + ivory mat).
+
+| Nav | Route | Behavior |
+| --- | --- | --- |
+| Discover | `/discover` | Shuffled multi-domain product feed (cars, motorcycles, watches). Not watch-first. |
+| Brands | `/brands` | Alphabetical A–Z by default; filterable by product domain/category. |
+| Categories | `/categories` | Domain taxonomy exploration. |
+| Journal | `/journal` | Editorial archive. |
+| Collections | `/collections` | Authenticated collector collections. |
 
 ### Public
 

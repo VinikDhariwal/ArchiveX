@@ -1,85 +1,274 @@
-:root {
-  --paper: #f1eee7;
-  --paper-deep: #e4dfd4;
-  --ink: #171817;
-  --muted-ink: #686860;
-  --forest: #24372f;
-  --brass: #b49a69;
-  --line: rgba(23, 24, 23, 0.16);
-  --white: #faf9f5;
-  font-family: "IBM Plex Sans", "Manrope", system-ui, sans-serif;
-  line-height: 1.5;
-  color: var(--ink);
-  background: var(--paper);
+@import "./tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-* {
-  box-sizing: border-box;
+html {
+  scroll-behavior: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
 }
 
 body {
   margin: 0;
   min-width: 320px;
+  color: var(--ink);
   background: var(--paper);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 #root {
   min-height: 100vh;
 }
 
-.foundation {
-  width: min(1440px, 100%);
-  margin: 0 auto;
-  padding: 4rem clamp(1.25rem, 4vw, 4rem);
+img {
+  max-width: 100%;
+  display: block;
 }
 
-.foundation__header h1 {
-  font-family: "DM Serif Display", "Cormorant Garamond", Georgia, serif;
-  font-size: clamp(2.5rem, 5vw, 4.5rem);
-  font-weight: 400;
-  line-height: 1.1;
-  margin: 0.5rem 0 1rem;
-  max-width: 16ch;
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
 }
 
-.foundation__eyebrow {
-  margin: 0;
-  letter-spacing: 0.14em;
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 1px solid var(--brass);
+  outline-offset: 4px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.page-shell {
+  width: 100%;
+  overflow-x: clip;
+  background: var(--paper);
+}
+
+.meta {
+  font-family: var(--font-meta);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 0.75rem;
   color: var(--brass);
 }
 
-.foundation__lede {
-  max-width: 42rem;
-  color: var(--muted-ink);
-  font-size: 1.125rem;
+.hairline {
+  display: block;
+  width: 2.25rem;
+  height: 1px;
+  background: var(--brass);
+  margin: 1rem 0 1.25rem;
 }
 
-.foundation__panel {
-  margin-top: 3rem;
-  padding: 1.5rem;
-  border: 1px solid var(--line);
-  background: var(--white);
-}
-
-.foundation__panel h2 {
-  margin-top: 0;
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
+/* Quiet luxury CTA — text + arrow, not a heavy button */
+.link-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--forest);
+  text-decoration: none;
+  color: var(--ink);
+  transition: color var(--duration-fast) var(--ease-museum), gap var(--duration-med) var(--ease-museum);
 }
 
-.foundation__code {
-  margin: 0;
-  overflow: auto;
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 0.85rem;
+.link-cta::after {
+  content: "→";
+  font-family: var(--font-meta);
+  transition: transform var(--duration-med) var(--ease-museum);
 }
 
-.foundation__error {
-  color: #a34f32;
+.link-cta:hover {
+  color: var(--brass);
+  gap: 0.9rem;
+}
+
+.link-cta:hover::after {
+  transform: translateX(2px);
+}
+
+.link-cta--light {
+  color: var(--paper);
+}
+
+.link-cta--light:hover {
+  color: var(--brass-bright);
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  padding: 0.8rem 1.2rem;
+  border-radius: 0;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    background var(--duration-med) var(--ease-museum),
+    color var(--duration-med) var(--ease-museum),
+    border-color var(--duration-med) var(--ease-museum);
+}
+
+.btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn--ghost {
+  border-color: var(--line-strong);
+  color: var(--muted-ink);
+}
+
+.btn--ghost:hover {
+  border-color: var(--ink);
+  color: var(--paper);
+  background: var(--ink);
+}
+
+.btn--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.45rem 0.8rem;
+}
+
+.demo-note {
+  font-family: var(--font-meta);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+  line-height: 1.65;
+  max-width: 28rem;
+}
+
+/* Quiet inline actions — museum placard, not ecommerce buttons */
+.quiet-action {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0.15rem 0;
+  font-family: var(--font-meta);
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+  border-bottom: 1px solid transparent;
+  transition:
+    color var(--duration-fast) var(--ease-museum),
+    border-color var(--duration-fast) var(--ease-museum);
+}
+
+.quiet-action:hover {
+  color: var(--ink);
+  border-bottom-color: var(--line-strong);
+}
+
+.quiet-action.is-active {
+  color: var(--brass);
+  border-bottom-color: var(--brass);
+}
+
+.quiet-action__divider {
+  display: inline-block;
+  width: 1px;
+  height: 0.85rem;
+  background: var(--line);
+  align-self: center;
+}
+
+.is-favorited {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.is-compared {
+  border-color: var(--brass);
+  color: var(--ink);
+}
+
+/* Quiet museum plate — single hairline brass rule + ivory mat */
+.museum-frame {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  padding: 0;
+  background: transparent;
+  box-shadow: 0 18px 48px rgba(23, 24, 23, 0.045);
+}
+
+.museum-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--brass) 55%, transparent),
+    inset 0 0 0 calc(1px + var(--frame-mat)) var(--paper);
+}
+
+.museum-frame__mat {
+  background: var(--paper);
+  padding: var(--frame-mat);
+}
+
+.museum-frame__mat img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
 }
