@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import useSectionReveal from '../hooks/useSectionReveal.js';
 import useDocumentTitle from '../hooks/useDocumentTitle.js';
 import ArchiveHero from '../components/archive/ArchiveHero.jsx';
@@ -20,29 +18,12 @@ import {
   homeClose,
 } from '../data/demoData.js';
 
-const MAX_COMPARE = 4;
-
 export default function HomePage() {
-  const [compareIds, setCompareIds] = useState([]);
   useSectionReveal();
   useDocumentTitle('Home');
 
   const featuredCar = getObjectById(featuredCarId);
   const featuredMotorcycle = getObjectById(featuredMotorcycleId);
-
-  const toggleCompare = (id) => {
-    setCompareIds((current) => {
-      if (current.includes(id)) {
-        return current.filter((item) => item !== id);
-      }
-      if (current.length >= MAX_COMPARE) {
-        return current;
-      }
-      return [...current, id];
-    });
-  };
-
-  const clearCompare = () => setCompareIds([]);
 
   return (
     <>
@@ -67,8 +48,6 @@ export default function HomePage() {
           object={featuredCar}
           eyebrow="House favourite · Automotive"
           sectionId="featured-car"
-          onToggleCompare={toggleCompare}
-          isCompared={compareIds.includes(featuredCar.id)}
         />
       ) : null}
 
@@ -78,36 +57,11 @@ export default function HomePage() {
           eyebrow="Signature · Motorcycle"
           sectionId="featured-motorcycle"
           flipped
-          onToggleCompare={toggleCompare}
-          isCompared={compareIds.includes(featuredMotorcycle.id)}
         />
       ) : null}
 
       <EditorialStory story={editorialStory} />
       <HomeClose close={homeClose} />
-
-      <div
-        className={`compare-tray ${compareIds.length ? 'is-visible' : ''}`}
-        role="status"
-        aria-live="polite"
-      >
-        <span>
-          Compare tray · {compareIds.length}/{MAX_COMPARE} objects selected
-        </span>
-        <div className="compare-tray__actions">
-          <Link className="link-cta link-cta--light" to="/compare">
-            Open compare
-          </Link>
-          <button
-            type="button"
-            className="btn"
-            style={{ color: 'var(--paper)', borderColor: 'rgba(241,238,231,0.4)' }}
-            onClick={clearCompare}
-          >
-            Clear
-          </button>
-        </div>
-      </div>
     </>
   );
 }

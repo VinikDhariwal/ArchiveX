@@ -1,25 +1,20 @@
 import { Link, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import Breadcrumbs from '../components/layout/Breadcrumbs.jsx';
 import ProductGallery from '../components/archive/ProductGallery.jsx';
 import useDocumentTitle from '../hooks/useDocumentTitle.js';
-import { getObjectBySlug } from '../data/demoData.js';
-import { toggleFavorite } from '../features/favorites/favoriteSlice.js';
+import { getObjectBySlug, getPublisher } from '../data/demoData.js';
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
   const object = getObjectBySlug(slug);
-  const dispatch = useDispatch();
-  const favorited = useSelector((state) =>
-    object ? state.favorites.ids.includes(object.id) : false
-  );
+  const publisher = object ? getPublisher(object) : 'ArchiveX';
 
   useDocumentTitle(object?.name || 'Missing object');
 
   if (!object) {
     return (
-      <main className="section-pad route-shell">
-        <div className="section-inner route-shell__inner">
+      <main className="route-shell">
+        <div className="route-shell__inner">
           <Breadcrumbs
             items={[
               { label: 'Home', to: '/' },
@@ -27,9 +22,10 @@ export default function ProductDetailPage() {
               { label: 'Missing' },
             ]}
           />
-          <p className="meta">Missing object</p>
-          <span className="hairline" aria-hidden="true" />
-          <h1 className="display route-shell__title">This object is not in the demonstration archive</h1>
+          <header className="page-head">
+            <p className="meta">Missing object</p>
+            <h1 className="display page-head__title">This object is not in the demonstration archive</h1>
+          </header>
           <p className="route-shell__actions">
             <Link className="link-cta" to="/">
               Back home
@@ -41,7 +37,7 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <main className="product-detail section-pad">
+    <main className="product-detail">
       <div className="product-detail__inner section-inner">
         <Breadcrumbs
           items={[
@@ -56,11 +52,11 @@ export default function ProductDetailPage() {
           <ProductGallery images={object.images} productName={object.name} />
 
           <div className="product-detail__identity">
-            <p className="meta">{object.brand}</p>
-            <span className="hairline" aria-hidden="true" />
-            <h1 className="display product-detail__title">{object.name}</h1>
-            <p className="product-detail__lede">{object.shortDescription}</p>
-
+            <header className="page-head">
+              <p className="meta">{object.brand}</p>
+              <h1 className="display product-detail__title">{object.name}</h1>
+              <p className="product-detail__lede">{object.shortDescription}</p>
+            </header>
             <div className="featured-object__meta-row">
               <span>{object.productType}</span>
               <span>{object.year}</span>
@@ -68,15 +64,12 @@ export default function ProductDetailPage() {
               <span>{object.images.length} plates</span>
             </div>
 
+            <p className="product-detail__publisher">
+              <span className="meta">Publisher</span>
+              <strong>{publisher}</strong>
+            </p>
+
             <div className="featured-object__actions">
-              <button
-                type="button"
-                className={`quiet-action ${favorited ? 'is-active' : ''}`}
-                aria-pressed={favorited}
-                onClick={() => dispatch(toggleFavorite(object.id))}
-              >
-                {favorited ? 'Saved' : 'Save to favorites'}
-              </button>
               <Link className="link-cta" to="/discover">
                 Back to discover
               </Link>

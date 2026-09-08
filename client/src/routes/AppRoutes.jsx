@@ -142,7 +142,7 @@ export default function AppRoutes() {
                   title: 'Saved objects',
                   summary: 'Authenticated favorites will sync here.',
                   nextPhase: 'Phase 9',
-                  links: [{ label: 'Compare shell', to: '/compare' }],
+                  links: [{ label: 'Browse discover', to: '/discover' }],
                 })}
               />
               <Route
@@ -167,15 +167,7 @@ export default function AppRoutes() {
                   ],
                 })}
               />
-              <Route
-                path="compare"
-                element={shell({
-                  eyebrow: 'Compare',
-                  title: 'Object comparison',
-                  summary: 'Side-by-side comparison of archived objects will live here.',
-                  nextPhase: 'Phase 9',
-                })}
-              />
+              <Route path="compare" element={<Navigate to="/discover" replace />} />
             </Route>
 
             <Route path="admin" element={<AdminLayout />}>

@@ -10,7 +10,7 @@ ArchiveX is a production-grade luxury **discovery**, **archive**, **editorial**,
 
 ArchiveX is a premium **website**, not a mobile application, ecommerce marketplace, or SaaS dashboard.
 
-Guests browse public content. Authenticated users save, collect, compare, and personalize. Editors and admins manage catalog, media, journal, users, and auditability.
+Guests browse public content. Authenticated users can save, collect, compare, personalize, and **submit** products, images, and object information under brands. **Nothing contributor-submitted appears on the public website until an admin approves it.** Admins use `/admin` as the website control surface: hero panel content and images, brands, catalog, media, journal, approvals, users, and auditability.
 
 ---
 
@@ -282,16 +282,25 @@ ArchiveX is **not** an ecommerce marketplace.
 
 ### Access model
 
-- Guests can browse public content.
-- Authenticated users can eventually: save favorites, create collections, compare objects, save comparisons where supported, follow brands where implemented, view recently viewed objects, manage profile/settings, receive personalized recommendations.
+- Guests can browse **approved** public content only.
+- Authenticated users (`user`) can eventually: save favorites, create collections, compare objects, save comparisons where supported, follow brands where implemented, view recently viewed objects, manage profile/settings, receive personalized recommendations, and **contribute** catalog material (products, images, specs/copy tied to brands and domains).
+- Contributor submissions enter a **pending** state. They must be **approved by admin** (or an authorized moderator/editor) before they are visible on public routes (home, discover, product detail, brand pages, search, etc.).
+- Rejected or pending items must never leak into public APIs or SEO surfaces.
+
+### Contribution and approval (non-negotiable)
+
+- Login exists so people other than the site operator can add images, products, and related info under brands.
+- Public display requires an explicit admin approval step from `/admin` (moderation queue).
+- Admin may also edit, reject, or request changes before approval.
+- Seed/demo content used in early phases is operator-owned and may be treated as pre-approved for local demo only.
 
 ### Roles
 
-- `user`
-- `editor`
-- `moderator`
-- `admin`
-- `superadmin`
+- `user` — collector + contributor (submissions pending until approved)
+- `editor` — may manage editorial/catalog drafts as defined in later phases
+- `moderator` — may review and approve/reject contributor submissions
+- `admin` — full website CMS + approvals + users
+- `superadmin` — elevated admin (ops / break-glass)
 
 Backend authorization is authoritative. Never trust frontend role claims.
 
@@ -331,13 +340,18 @@ Backend authorization is authoritative. Never trust frontend role claims.
 - Comparison
 - Account settings
 - Recently viewed
+- Contributor submissions (products, images, object info under brands) — pending until approved
 
-### Admin
+### Admin (`/admin`) — website CMS + moderation
 
-- Product management
-- Brand management
+`/admin` is not a generic SaaS dashboard. It is the control room for what the public website shows.
+
+- **Hero / homepage panel** — featured plates, images, copy, and related hero data
+- Brand add / edit / remove
+- Product management (operator-created and contributor-submitted)
+- **Approval queue** — approve / reject / request changes for user submissions before public display
 - Category management
-- Article management
+- Article / journal management
 - Media management
 - User management
 - Audit logs
@@ -477,7 +491,7 @@ The Ivory Museum direction communicates archival seriousness: warm paper surface
 
 ### 5. What is MVP
 
-Public discovery and editorial surfaces; authenticated collector tools (favorites, collections, comparison, account, recently viewed); admin content and user operations; MERN/MVC/REST foundation with auth, validation, rate limiting, logging, tests, and deployment documentation. See Section 10.
+Public discovery and editorial surfaces; authenticated collector tools (favorites, collections, comparison, account, recently viewed); **user contribution of products/images under brands with admin approval before public display**; `/admin` as website CMS (hero panel, brands, catalog, media, approvals, users); MERN/MVC/REST foundation with auth, validation, rate limiting, logging, tests, and deployment documentation. See Section 10.
 
 ### 6. What is post-MVP
 
@@ -491,11 +505,16 @@ Advanced search, richer recommendations, price history, social collector feature
 - Website-first Ivory Museum desktop experience
 - Production website: no hardcoding of data, secrets, hosts, or catalog content unless a phase explicitly authorizes demo/seed values
 - No cart/checkout/purchasing flows
+- `/admin` is the website CMS (hero, brands, catalog, media) plus contribution moderation
+- Contributor submissions stay pending until admin approval; public surfaces show approved content only
 - Backend authorization never deferred to the frontend
 - Thin controllers; business logic in services
 - No forbidden stack substitutions
 - No premature later-phase features or speculative infrastructure
 
+### 8. Why contributor content is admin-gated
+
+ArchiveX is a curated archive, not an open dump. Login lets other people propose objects under brands, but the public museum surface stays editorial: only admin-approved submissions appear on the website. This keeps rarity, imagery quality, and brand integrity under operator control while still allowing community contribution.
 ---
 
 ## 15. Verification checklist for this document
@@ -514,3 +533,6 @@ Confirm this file permanently records:
 - [x] Ivory Museum
 - [x] Website-first desktop experience
 - [x] Production no-hardcoding rule
+- [x] `/admin` as website CMS (hero, brands, catalog, media)
+- [x] Authenticated user contributions under brands
+- [x] Admin approval required before public display
