@@ -5,7 +5,6 @@ import ObjectCard from '../components/archive/ObjectCard.jsx';
 import useDocumentTitle from '../hooks/useDocumentTitle.js';
 import { getShuffledDiscoverFeed } from '../data/demoData.js';
 
-const MAX_COMPARE = 4;
 const DOMAIN_FILTERS = [
   { id: 'all', label: 'All' },
   { id: 'car', label: 'Cars' },
@@ -19,7 +18,6 @@ export default function DiscoverPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const paramDomain = searchParams.get('domain') || 'all';
   const domain = VALID_DOMAINS.has(paramDomain) ? paramDomain : 'all';
-  const [compareIds, setCompareIds] = useState([]);
   const [shuffleKey, setShuffleKey] = useState(0);
   useDocumentTitle('Discover');
 
@@ -42,18 +40,6 @@ export default function DiscoverPage() {
       return;
     }
     setSearchParams({ domain: next });
-  };
-
-  const toggleCompare = (id) => {
-    setCompareIds((current) => {
-      if (current.includes(id)) {
-        return current.filter((item) => item !== id);
-      }
-      if (current.length >= MAX_COMPARE) {
-        return current;
-      }
-      return [...current, id];
-    });
   };
 
   return (
@@ -105,14 +91,8 @@ export default function DiscoverPage() {
         </div>
 
         <div className="object-grid object-grid--discover">
-          {visible.map((object, index) => (
-            <ObjectCard
-              key={object.id}
-              object={object}
-              wide={index === 0}
-              onToggleCompare={toggleCompare}
-              isCompared={compareIds.includes(object.id)}
-            />
+          {visible.map((object) => (
+            <ObjectCard key={object.id} object={object} />
           ))}
         </div>
 
@@ -125,29 +105,6 @@ export default function DiscoverPage() {
             Browse brands
           </Link>
         </p>
-      </div>
-
-      <div
-        className={`compare-tray ${compareIds.length ? 'is-visible' : ''}`}
-        role="status"
-        aria-live="polite"
-      >
-        <span>
-          Compare tray · {compareIds.length}/{MAX_COMPARE} objects selected
-        </span>
-        <div className="compare-tray__actions">
-          <Link className="link-cta link-cta--light" to="/compare">
-            Open compare
-          </Link>
-          <button
-            type="button"
-            className="btn"
-            style={{ color: 'var(--paper)', borderColor: 'rgba(241,238,231,0.4)' }}
-            onClick={() => setCompareIds([])}
-          >
-            Clear
-          </button>
-        </div>
       </div>
     </main>
   );

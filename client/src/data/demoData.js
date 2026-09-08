@@ -7,8 +7,9 @@
 export const DEMO_DISCLAIMER =
   'Demonstration content for layout and discovery. Not a market valuation or current inventory claim.';
 
-const img = (id, alt, type = 'gallery', width = 1400, height = 933, options = {}) => {
-  const fit = options.fit || 'crop';
+const img = (id, alt, type = 'gallery', width = 1400, height = 1050, options = {}) => {
+  // Prefer fit=max so Unsplash does not pre-crop the subject before CSS framing.
+  const fit = options.fit || 'max';
   const params = [`auto=format`, `fit=${fit}`, `w=${width}`, `q=80`];
   if (fit === 'crop' && height) params.push(`h=${height}`);
   return {
@@ -80,9 +81,9 @@ export const hero = {
       year: 1936,
       rarity: 'ULTRA-RARE',
       image: heroImg(
-        'photo-1707483413144-2db108cefb61',
-        'Vintage Bugatti grille study — demonstration stand-in for the Type 57SC Atlantic',
-        'center top'
+        'photo-1492144534655-ae79c964c9d7',
+        'Classic sports car three-quarter — demonstration stand-in for the Type 57SC Atlantic',
+        'center'
       ),
     },
     {
@@ -233,9 +234,9 @@ export const objects = [
       'Jean Bugatti’s Art Deco masterpiece in riveted lightweight aluminium — four built, three accounted for; a holy grail among collectors.',
     images: [
       heroImg(
-        'photo-1707483413144-2db108cefb61',
-        'Vintage Bugatti grille study — demonstration stand-in for the Type 57SC Atlantic',
-        'center top'
+        'photo-1492144534655-ae79c964c9d7',
+        'Classic sports car three-quarter — demonstration stand-in for the Type 57SC Atlantic',
+        'center'
       ),
       img('photo-1519245659620-e859806a8d3b', 'Classic sports-car silhouette study', 'gallery'),
     ],
@@ -268,9 +269,12 @@ export const objects = [
     rarity: 'ICONIC',
     shortDescription: 'Twin-turbo V8 legend — raw engineering made collectible myth.',
     images: [
-      img('photo-1762111215490-0afdb55466c2', 'White Ferrari F40 on the street', 'hero'),
-      img('photo-1750712344309-b62744ffae18', 'Black Ferrari F40 on display', 'gallery'),
+      img('photo-1750712344309-b62744ffae18', 'Black Ferrari F40 on display', 'hero', 1600, 1200, {
+        fit: 'max',
+        objectPosition: 'center',
+      }),
       img('photo-1726739569681-14cc0392b4bc', 'Red Ferrari F40 in garage light', 'gallery'),
+      img('photo-1762111215490-0afdb55466c2', 'White Ferrari F40 on the street', 'gallery'),
     ],
   },
   {
@@ -416,9 +420,12 @@ export const objects = [
     rarity: 'COLLECTIBLE',
     shortDescription: 'Early pilot wristwatch geometry still shaping dress codes.',
     images: [
-      img('photo-1594534475808-b18fc33b045e', 'Square luxury watch hero plate', 'hero'),
+      img('photo-1523170335258-f5ed11844a49', 'Luxury wristwatch on dark surface', 'hero', 1400, 1400, {
+        fit: 'max',
+        objectPosition: 'center',
+      }),
       img('photo-1622434641406-a158123450f9', 'Watch bracelet detail', 'detail'),
-      img('photo-1611930022073-b7a4ba5fcccd', 'Watch dial editorial study', 'dial'),
+      img('photo-1614164185128-e4ec99c436d7', 'Watch dial editorial study', 'dial'),
     ],
   },
 ];
@@ -460,7 +467,7 @@ export const homeClose = {
     {
       label: 'Discover',
       title: 'Browse the mixed feed',
-      summary: 'Cars and motorcycles lead; watches follow. Shuffle, filter, compare.',
+      summary: 'Cars and motorcycles lead; watches follow. Shuffle and filter the archive.',
       href: '/discover',
       cta: 'Open discover',
     },
@@ -542,6 +549,11 @@ export function getObjectsByIds(ids) {
 export function getPrimaryImage(object) {
   if (!object?.images?.length) return null;
   return object.images.find((item) => item.type === 'hero') || object.images[0];
+}
+
+/** Site operator / publisher identity for contributed and house objects. */
+export function getPublisher(object) {
+  return object?.publisher || 'ArchiveX';
 }
 
 export function getSecondaryImage(object) {

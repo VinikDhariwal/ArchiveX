@@ -7,12 +7,14 @@ export default function UnauthorizedPage() {
   return (
     <main className="state-page">
       <div className="state-page__inner">
-        <p className="meta">401 / 403</p>
-        <span className="hairline" aria-hidden="true" />
-        <h1 className="display state-page__title">This chamber is restricted</h1>
-        <p className="state-page__copy">
-          Authentication and role guards arrive in Phase 6. This page is the structural placeholder for denied access.
-        </p>
+        <header className="page-head">
+          <p className="meta">401 / 403</p>
+          <h1 className="display page-head__title">This chamber is restricted</h1>
+          <p className="page-lede">
+            Authentication and role guards arrive in Phase 6. This page is the structural placeholder for
+            denied access.
+          </p>
+        </header>
         <p className="state-page__actions">
           <Link className="link-cta" to="/">
             Return home

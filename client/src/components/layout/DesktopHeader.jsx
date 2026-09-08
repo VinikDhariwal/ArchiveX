@@ -20,7 +20,7 @@ function ProfileIcon() {
   );
 }
 
-export default function DesktopHeader({ compareCount = 0, onOpenCompare }) {
+export default function DesktopHeader() {
   return (
     <header className="desktop-header" aria-label="Primary">
       <Link className="brand-mark" to="/">
@@ -41,9 +41,6 @@ export default function DesktopHeader({ compareCount = 0, onOpenCompare }) {
         </Link>
         <Link className="icon-btn" to="/account" aria-label="Account">
           <ProfileIcon />
-        </Link>
-        <Link className="link-cta header-compare" to="/compare" onClick={onOpenCompare}>
-          Compare{compareCount > 0 ? ` (${compareCount})` : ''}
         </Link>
       </div>
     </header>

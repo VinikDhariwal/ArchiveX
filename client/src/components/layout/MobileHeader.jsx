@@ -2,12 +2,7 @@ import { Link } from 'react-router-dom';
 import { navLinks } from '../../data/demoData.js';
 import { clientConfig } from '../../config/clientConfig.js';
 
-export default function MobileHeader({
-  menuOpen,
-  onOpenMenu,
-  onCloseMenu,
-  compareCount = 0,
-}) {
+export default function MobileHeader({ menuOpen, onOpenMenu, onCloseMenu }) {
   return (
     <>
       <header className="mobile-header" aria-label="Mobile">
@@ -15,9 +10,6 @@ export default function MobileHeader({
           {clientConfig.appName}
         </Link>
         <div className="header-actions">
-          <Link className="btn btn--ghost btn--icon" to="/compare">
-            Compare{compareCount > 0 ? ` (${compareCount})` : ''}
-          </Link>
           <button
             type="button"
             className="menu-toggle"

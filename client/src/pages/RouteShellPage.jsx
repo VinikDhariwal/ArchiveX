@@ -4,7 +4,7 @@ import useDocumentTitle from '../hooks/useDocumentTitle.js';
 
 /**
  * Structural route shell for destinations not yet fully implemented.
- * Keeps Ivory Museum typography and wide website composition.
+ * Matches Discover page typography and wide website composition.
  */
 export default function RouteShellPage({
   title,
@@ -17,13 +17,14 @@ export default function RouteShellPage({
   useDocumentTitle(title);
 
   return (
-    <main className="section-pad route-shell">
-      <div className="section-inner route-shell__inner">
+    <main className="route-shell">
+      <div className="route-shell__inner">
         {breadcrumbs.length ? <Breadcrumbs items={breadcrumbs} /> : null}
-        <p className="meta">{eyebrow}</p>
-        <span className="hairline" aria-hidden="true" />
-        <h1 className="display route-shell__title">{title}</h1>
-        <p className="route-shell__summary">{summary}</p>
+        <header className="page-head">
+          {eyebrow ? <p className="meta">{eyebrow}</p> : null}
+          <h1 className="display page-head__title">{title}</h1>
+          {summary ? <p className="page-lede">{summary}</p> : null}
+        </header>
         {nextPhase ? (
           <p className="demo-note route-shell__note">Planned for {nextPhase}. Structural route shell only.</p>
         ) : null}

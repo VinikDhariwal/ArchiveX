@@ -1,79 +1,70 @@
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { selectIsFavorite, toggleFavorite } from '../../features/favorites/favoriteSlice.js';
-import { getPrimaryImage } from '../../data/demoData.js';
+import { getPrimaryImage, getPublisher } from '../../data/demoData.js';
+import ObjectDetailModal from './ObjectDetailModal.jsx';
 
-export default function FeaturedObject({
-  object,
-  eyebrow,
-  sectionId,
-  flipped = false,
-  onToggleCompare,
-  isCompared,
-}) {
-  const dispatch = useDispatch();
-  const favorited = useSelector(selectIsFavorite(object.id));
+export default function FeaturedObject({ object, eyebrow, sectionId, flipped = false }) {
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const primary = getPrimaryImage(object);
+  const publisher = getPublisher(object);
 
   if (!primary) return null;
 
   return (
-    <section
-      id={sectionId}
-      className={`featured-object ${flipped ? 'featured-object--flip' : ''}`}
-      data-type={object.productType}
-      aria-labelledby={`${sectionId}-title`}
-      data-reveal
-    >
-      <div className="featured-object__media">
-        <Link to={`/products/${object.slug}`} aria-label={`View ${object.name}`}>
-          <img
-            src={primary.url}
-            alt={primary.alt}
-            width={primary.width}
-            height={primary.height}
-            loading="lazy"
-          />
-        </Link>
-      </div>
-      <div className="featured-object__body">
-        <p className="meta">{eyebrow}</p>
-        <span className="hairline" aria-hidden="true" />
-        <h2 id={`${sectionId}-title`}>
-          <Link to={`/products/${object.slug}`}>{object.name}</Link>
-        </h2>
-        <p>{object.shortDescription}</p>
-        <div className="featured-object__meta-row">
-          <span>{object.brand}</span>
-          <span>{object.productType}</span>
-          <span>{object.year}</span>
-          <span className="rarity">{object.rarity}</span>
+    <>
+      <section
+        id={sectionId}
+        className={`featured-object ${flipped ? 'featured-object--flip' : ''}`}
+        data-type={object.productType}
+        aria-labelledby={`${sectionId}-title`}
+        data-reveal
+      >
+        <div className="featured-object__media">
+          <button
+            type="button"
+            className="featured-object__media-btn"
+            onClick={() => setDetailsOpen(true)}
+            aria-label={`View details for ${object.name}`}
+          >
+            <img
+              src={primary.url}
+              alt={primary.alt}
+              width={primary.width}
+              height={primary.height}
+              loading="lazy"
+            />
+          </button>
         </div>
-        <div className="featured-object__actions">
-          <Link className="link-cta" to={`/products/${object.slug}`}>
-            View object →
-          </Link>
-          <span className="quiet-action-group">
-            <button
-              type="button"
-              className={`quiet-action ${favorited ? 'is-active' : ''}`}
-              aria-pressed={favorited}
-              onClick={() => dispatch(toggleFavorite(object.id))}
-            >
-              {favorited ? 'Saved' : 'Save'}
+        <div className="featured-object__body">
+          <p className="meta">{eyebrow}</p>
+          <span className="hairline" aria-hidden="true" />
+          <h2 id={`${sectionId}-title`}>
+            <button type="button" className="featured-object__title-btn" onClick={() => setDetailsOpen(true)}>
+              {object.name}
             </button>
-            <span className="quiet-action__divider" aria-hidden="true" />
-            <button
-              type="button"
-              className={`quiet-action ${isCompared ? 'is-active' : ''}`}
-              aria-pressed={isCompared}
-              onClick={() => onToggleCompare(object.id)}
-            >
-              {isCompared ? 'In compare' : 'Compare'}
+          </h2>
+          <p>{object.shortDescription}</p>
+          <div className="featured-object__meta-row">
+            <span>{object.brand}</span>
+            <span>{object.productType}</span>
+            <span>{object.year}</span>
+            <span className="rarity">{object.rarity}</span>
+            <span>Published by {publisher}</span>
+          </div>
+          <div className="featured-object__actions">
+            <button type="button" className="link-cta" onClick={() => setDetailsOpen(true)}>
+              Details
             </button>
-          </span>
+            <Link className="link-cta link-cta--muted" to={`/products/${object.slug}`}>
+              Open full plate →
+            </Link>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {detailsOpen ? (
+        <ObjectDetailModal object={object} onClose={() => setDetailsOpen(false)} />
+      ) : null}
+    </>
   );
 }

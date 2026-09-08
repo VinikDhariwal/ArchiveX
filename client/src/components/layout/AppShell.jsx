@@ -3,7 +3,7 @@ import DesktopHeader from './DesktopHeader.jsx';
 import MobileHeader from './MobileHeader.jsx';
 import Footer from './Footer.jsx';
 
-export default function AppShell({ children, compareCount = 0, onOpenCompare }) {
+export default function AppShell({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [condensed, setCondensed] = useState(false);
 
@@ -21,21 +21,14 @@ export default function AppShell({ children, compareCount = 0, onOpenCompare }) 
     };
   }, [menuOpen]);
 
-  const openCompare = onOpenCompare || (() => undefined);
-
   return (
     <div className="page-shell">
       <div className={`site-header ${condensed ? 'is-condensed' : ''}`}>
-        <DesktopHeader
-          compareCount={compareCount}
-          onOpenCompare={openCompare}
-        />
+        <DesktopHeader />
         <MobileHeader
           menuOpen={menuOpen}
           onOpenMenu={() => setMenuOpen(true)}
           onCloseMenu={() => setMenuOpen(false)}
-          compareCount={compareCount}
-          onOpenCompare={openCompare}
         />
       </div>
       {children}
