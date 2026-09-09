@@ -39,6 +39,23 @@ const rarityProfileSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const marketSignalsSchema = new mongoose.Schema(
+  {
+    archiveEstimate: { type: String, default: '' },
+    marketRange: { type: String, default: '' },
+    collectorInterest: { type: String, default: '' },
+    availabilitySignal: { type: String, default: '' },
+    priceMovement: { type: String, default: '' },
+    lastUpdated: { type: Date, default: null },
+    disclaimer: {
+      type: String,
+      default:
+        'Informational archive signals only — not a guarantee of price, availability, or investment outcome.',
+    },
+  },
+  { _id: false }
+);
+
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 220 },
@@ -50,6 +67,7 @@ const productSchema = new mongoose.Schema(
     tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],
     shortDescription: { type: String, default: '', maxlength: 500 },
     description: { type: String, default: '', maxlength: 20000 },
+    whyItMatters: { type: String, default: '', maxlength: 8000 },
     releaseYear: { type: Number, min: 1200, max: 3000 },
     productionPeriod: { type: String, maxlength: 120 },
     rarity: { type: String, enum: RARITY_VALUES, default: 'COLLECTIBLE', index: true },
@@ -62,6 +80,7 @@ const productSchema = new mongoose.Schema(
     images: { type: [productImageSchema], default: [] },
     specifications: { type: specificationsSchema, default: undefined },
     rarityProfile: { type: rarityProfileSchema, default: undefined },
+    marketSignals: { type: marketSignalsSchema, default: undefined },
     submittedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

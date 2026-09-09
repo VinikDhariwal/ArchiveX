@@ -29,6 +29,55 @@ function unsplash(id, w = 1400) {
   return `https://images.unsplash.com/${id}?auto=format&fit=max&w=${w}&q=80`;
 }
 
+function intelligenceFor(product) {
+  const type = product.productType;
+  const name = product.name;
+  const year = product.releaseYear;
+  const availability = product.availability || 'unknown';
+
+  const whyByType = {
+    car: `${name} remains a study object for engineering theatre, silhouette discipline, and the cultural memory of the road-going machine.`,
+    motorcycle: `${name} carries two-wheel craft into the archive — geometry, workshop myth, and the balance between machine and rider.`,
+    watch: `${name} holds horological language that collectors still return to — movement, case geometry, and quiet historical presence.`,
+  };
+
+  return {
+    whyItMatters: whyByType[type] || whyByType.car,
+    rarityProfile: {
+      productionHistory:
+        product.productionPeriod
+          ? `Documented production window ${product.productionPeriod}.`
+          : year
+            ? `Associated with the ${year} era in the ArchiveX catalog.`
+            : 'Production history preserved for collector study.',
+      collectorInterest:
+        type === 'watch'
+          ? 'Secondary-domain interest remains steady among archive readers.'
+          : 'Primary-domain collector attention stays high across Discover and journal paths.',
+      historicalSignificance:
+        type === 'watch'
+          ? 'Horological and design context matter as much as technical specification.'
+          : 'Engineering, design, and cultural impact define its place in the chamber.',
+    },
+    marketSignals: {
+      archiveEstimate: 'Archive study range — not a formal appraisal',
+      marketRange:
+        product.rarity === 'ICONIC' || product.rarity === 'UNIQUE' || product.rarity === 'ULTRA-RARE'
+          ? 'Elevated private / auction band'
+          : product.rarity === 'RARE'
+            ? 'Selective private band'
+            : 'Broader collector band',
+      collectorInterest:
+        product.featured ? 'High among returning readers' : 'Steady within its chamber',
+      availabilitySignal: availability,
+      priceMovement: 'Observational — no guaranteed trajectory',
+      lastUpdated: new Date('2026-09-09T12:00:00.000Z'),
+      disclaimer:
+        'Informational archive signals only — not a guarantee of price, availability, or investment outcome.',
+    },
+  };
+}
+
 async function upsertBySlug(Model, slug, data) {
   return Model.findOneAndUpdate(
     { slug },
@@ -635,11 +684,13 @@ async function seed() {
   ];
 
   for (const product of products) {
+    const intelligence = intelligenceFor(product);
     await Product.findOneAndUpdate(
       { slug: product.slug },
       {
         $set: {
           ...product,
+          ...intelligence,
           createdBy: admin._id,
           updatedBy: admin._id,
           submittedBy: admin._id,

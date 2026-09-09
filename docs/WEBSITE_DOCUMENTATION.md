@@ -1,7 +1,7 @@
 # ArchiveX — Living Website Documentation
 
 **Status:** Living document — update this file whenever libraries, routes, components, APIs, or product behavior change.  
-**Last updated:** 2026-09-09 (Phase 7 discovery)
+**Last updated:** 2026-09-09 (Phase 8 product detail)
 **Companion rules:** [PROJECT_RULES.md](./PROJECT_RULES.md) (product/tech contract; do not replace it)  
 **Setup guide:** [../README.md](../README.md)
 
@@ -44,6 +44,8 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Client wired to API | Done — Home signatures, Discover, Product detail, Brand marquee |
 | Phase 6 Authentication | Done — register/login/refresh/logout/me, JWT, route guards |
 | Phase 7 Discovery | Done — search, domain-aware filters, sort, pagination, URL sync |
+| Phase 7 UI polish | Done — ivory-gold pills, brand search, Discover chamber layout, reveal fix |
+| Phase 8 Product detail | Done — domain-aware detail, related, views, gallery lightbox |
 | Admin CMS | Layout shell only (auth-gated; CRUD in Phase 13) |
 
 **Migrate / re-seed Atlas**
@@ -59,7 +61,10 @@ npm run seed --prefix server
 | GET | `/api/v1/health` | Liveness + DB status |
 | GET | `/api/v1/products` | Approved only; search/filters/sort/pagination (see Phase 7) |
 | GET | `/api/v1/products/filters/schema` | Domain-aware filter metadata for Discover UI |
-| GET | `/api/v1/products/:slug` | Approved only |
+| GET | `/api/v1/products/:slug` | Approved only; includes specs, rarity, market signals |
+| POST | `/api/v1/products/:id/view` | Record detail view (sessionKey optional) |
+| GET | `/api/v1/products/:id/related` | Related approved objects |
+| GET | `/api/v1/products/:id/journal` | Journal stub until Phase 10 |
 | GET | `/api/v1/brands` | Active brands; optional `domain` |
 | GET | `/api/v1/brands/:slug` | Active brand |
 | GET | `/api/v1/categories` | Active categories; optional `productType` |
@@ -172,10 +177,13 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `models/Brand.js` | Brands with primaryDomains |
 | `models/Category.js` | Categories scoped by productType |
 | `models/Tag.js` | Tags |
-| `models/Product.js` | Domain-neutral Product + images, status gate, specs |
+| `models/Product.js` | Domain-neutral Product + images, status, specs, rarityProfile, marketSignals, whyItMatters |
+| `models/ProductView.js` | Detail view events (session/user/source) |
 | `models/shared/productSubdocuments.js` | `buildSpecifications`, `assertValidSpecifications` |
 | `models/index.js` | Barrel exports |
 | `services/searchService.js` | Public discovery filters, sort modes, shuffle, field selection |
+| `services/recommendationService.js` | Related objects scoring + journal stub |
+| `services/productService.js` | Product list/detail serialize, view recording |
 | `services/productService.js` | Public product list/detail + serialize via searchService |
 | `services/brandService.js` | Public brand list/detail |
 | `services/categoryService.js` | Public category list/detail |
@@ -189,6 +197,11 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `validators/` | Empty |
 | `tests/health.test.js` | Health endpoint |
 | `tests/models.test.js` | Spec validation + model CRUD (memory Mongo) |
+| `tests/catalogApi.test.js` | Public catalog approved-only reads |
+| `tests/auth.test.js` | Auth register/login/me |
+| `tests/discovery.test.js` | Discovery filters/sort/fields |
+| `tests/productDetail.test.js` | Phase 8 view/related/journal + intelligence payload |
+| `tests/health.test.js` | Health endpoint |
 | `tests/catalogApi.test.js` | Public catalog approval gate |
 | `testSupport/http.js` | Ephemeral listen + fetch helper |
 
@@ -242,7 +255,7 @@ App.jsx → global CSS → AppRoutes
 | --- | --- | --- |
 | `/`, `/home` | `HomePage` | Full Ivory Museum composition |
 | `/discover` | `DiscoverPage` | Search + domain-aware filters + sort + masonry feed |
-| `/products/:slug` | `ProductDetailPage` | Gallery + metadata from API |
+| `/products/:slug` | `ProductDetailPage` | Domain-aware detail: gallery, specs, rarity, market, related |
 | `/search`, `/brands`, `/brands/:slug`, `/categories`, `/categories/:slug`, `/journal`, `/journal/:slug` | `RouteShellPage` | Structural placeholders |
 | `/compare` | redirect | → `/discover` (compare removed from public UX) |
 | `/account`, `/favorites`, `/collections`… | shells | Authenticated layout |
@@ -257,7 +270,7 @@ App.jsx → global CSS → AppRoutes
 | `HomePage.jsx` | Hero → marquee → promise → chambers → signatures → editorial → close |
 | `DiscoverPage.jsx` | URL-synced discovery: search, filters, sort, pagination, masonry |
 | `LoginPage.jsx` / `RegisterPage.jsx` / `AccountPage.jsx` | Auth surfaces |
-| `ProductDetailPage.jsx` | Full object plate by slug |
+| `ProductDetailPage.jsx` | Domain-aware product intelligence page |
 | `RouteShellPage.jsx` | Wide placeholder for unfinished routes |
 | `NotFoundPage.jsx` / `UnauthorizedPage.jsx` / `ErrorPage.jsx` / `LoadingPage.jsx` | System states |
 
@@ -265,12 +278,25 @@ App.jsx → global CSS → AppRoutes
 
 | File | Role |
 | --- | --- |
-| `ProductFilters.jsx` | Domain-aware filter rail (shared + car/moto/watch specs) |
-| `ProductSort.jsx` | Sort control + result count |
+| `ProductFilters.jsx` | Domain-aware filter rail; custom ivory dropdowns; **brand search** inside Brands menu |
+| `ProductSort.jsx` | Custom sort dropdown + result count |
 | `ProductGrid.jsx` / `ProductCard.jsx` | Masonry grid wrappers around `ObjectCard` |
 | `ProductGridSkeleton.jsx` | Loading skeleton for Discover |
 
-### 5.8 Archive components
+### 5.8 Product detail components
+
+| File | Role |
+| --- | --- |
+| `components/product/ProductIdentity.jsx` | Brand, name, reference, meta row |
+| `components/product/ProductActions.jsx` | Favorite / Collection stub / Compare / back |
+| `components/product/ProductSpecifications.jsx` | Domain-aware spec list |
+| `components/product/RarityProfile.jsx` | Production / interest / significance |
+| `components/product/MarketSignals.jsx` | Informational market reading + disclaimer |
+| `components/product/RelatedObjects.jsx` | Related approved plates |
+| `components/product/ProductJournal.jsx` | Journal stub (Phase 10) |
+| `components/archive/ProductGallery.jsx` | Thumbs, prev/next, keyboard, accessible lightbox |
+
+### 5.9 Archive components
 
 | File | Role |
 | --- | --- |
@@ -283,11 +309,10 @@ App.jsx → global CSS → AppRoutes
 | `HomeClose.jsx` | Discover / Journal closing paths |
 | `ObjectCard.jsx` | Discover card; opens `ObjectDetailModal` |
 | `ObjectDetailModal.jsx` | Portal details dialog; close / back to feed |
-| `ProductGallery.jsx` | Multi-image gallery with keyboard arrows |
 | `MuseumFrame.jsx` | Subtle museum media frame |
 | `BrandIndex.jsx` / `JournalPreview.jsx` | Available brand/journal UI blocks |
 
-### 5.9 Layout & feedback components
+### 5.10 Layout & feedback components
 
 | File | Role |
 | --- | --- |
@@ -300,17 +325,18 @@ App.jsx → global CSS → AppRoutes
 | `RouteErrorBoundary.jsx` | Catches render errors in routes |
 | `RequireAuth.jsx` / `RequireAdmin.jsx` | Route guards |
 
-### 5.10 Redux features
+### 5.11 Redux features
 
 | File | Role |
 | --- | --- |
 | `features/auth/authSlice.js` | Access token + user credentials |
 | `features/discover/filterSlice.js` | Mobile filter drawer + draft search query |
 | `features/favorites/favoriteSlice.js` | Local favorite ids (persistence in Phase 9) |
+| `features/compare/compareSlice.js` | Local compare tray ids (max 3; persistence Phase 9) |
 | `features/products/productApi.js` | Discover URL ↔ query helpers |
 | `features/products/productSelectors.js` | Product list selectors |
 
-### 5.11 Demo data (`data/demoData.js`)
+### 5.12 Demo data (`data/demoData.js`)
 
 **Purpose:** Hero plates and editorial copy still local until CMS. Catalog reads from Atlas APIs.
 
@@ -330,17 +356,66 @@ App.jsx → global CSS → AppRoutes
 
 | File | Covers |
 | --- | --- |
-| `styles/tokens.css` | Ivory Museum tokens: paper/blush/ink/navy/brass/forest/oxide; fonts; spacing; motion; reduced-motion |
-| `styles/global.css` | Reset, page chrome, typography utilities, CTAs, shells, skeletons |
-| `styles/archive.css` | Header, hero, marquee, chambers, **featured bordered cards**, discover masonry, object cards, detail modal, product detail |
+| `styles/tokens.css` | Design tokens (colors, type, space, motion) — **source of truth for hex values** |
+| `styles/global.css` | Reset, page chrome, typography utilities, shared `.btn` / `.btn--soft` pills, shells, skeletons |
+| `styles/archive.css` | Header, hero, marquee, chambers, featured objects, Discover workspace, object cards, detail modal, product detail |
 
-**Design notes in force**
+### 6.1 Color tokens (`client/src/styles/tokens.css`)
+
+Qissa-inspired lighter premium archive. Prefer CSS variables over hardcoding.
+
+| Token | Hex / value | Role |
+| --- | --- | --- |
+| `--paper` | `#f4ebe3` | Page / surface base |
+| `--paper-mid` | `#eadfd4` | Mid paper wash |
+| `--paper-deep` | `#dfd0c2` | Deeper paper / inset fields |
+| `--blush` | `#f0ddd6` | Soft blush wash |
+| `--blush-deep` | `#e4c8be` | Deeper blush (hover gradients) |
+| `--ink` | `#1c2430` | Primary text |
+| `--ink-soft` | `#2c3644` | Softened ink (pill labels) |
+| `--muted-ink` | `#6f675f` | Secondary / meta text |
+| `--brass` | `#b08d4f` | Brass accent / borders |
+| `--brass-bright` | `#c9a86a` | Brighter brass highlight |
+| `--brass-soft` | `rgba(176, 141, 79, 0.32)` | Soft brass wash |
+| `--navy` | `#243044` | Active chip / strong UI |
+| `--navy-deep` | `#18202c` | Deep navy |
+| `--forest` | `#2f3d38` | Domain accent (motorcycles) |
+| `--forest-deep` | `#1f2a26` | Deep forest |
+| `--oxide` | `#a34f32` | Warm oxide accent |
+| `--white` | `#fff8f2` | Warm white |
+| `--line` | `rgba(28, 36, 48, 0.1)` | Hairline borders |
+| `--line-strong` | `rgba(28, 36, 48, 0.18)` | Stronger rules |
+| `--line-brass` | `rgba(176, 141, 79, 0.55)` | Brass rules |
+| `--glow` | `rgba(201, 168, 106, 0.18)` | Soft brass glow |
+
+### 6.2 Typography tokens
+
+| Token | Stack |
+| --- | --- |
+| `--font-display` | `"Cormorant Garamond", "DM Serif Display", Georgia, serif` |
+| `--font-editorial` | `"Cormorant Garamond", "Fraunces", Georgia, serif` |
+| `--font-ui` | `"Manrope", "IBM Plex Sans", system-ui, sans-serif` |
+| `--font-meta` | `"IBM Plex Mono", ui-monospace, monospace` |
+
+### 6.3 Shared control language
+
+Ivory–gold **pill** buttons (Discover actions, homepage CTAs, card Details, Search/Clear):
+
+- Border: brass-tinted (`color-mix` of `--brass` + `--ink`)
+- Fill: paper → blush vertical gradient
+- Hover: deeper blush/brass border, ink text
+- Classes: `.btn`, `.btn--soft`, `.discover-page__action`, `.product-filters__text-action`, `.brand-dropdown__button`
+
+Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, rounded items — not native OS dark menus.
+
+### 6.4 Design notes in force
 
 - Soft bordered “chamber” card language reused for signature featured objects
+- Discover: fixed-height workspace; filters rail + feed scroll independently; page header pinned above chamber
 - Discover masonry: avoid `transform` on cards (breaks CSS columns)
 - No hover photo-swap that breaks title↔image binding
-- Details modal replaces Compare/Save in public UX for now
-
+- Details modal replaces Compare/Save on public feed cards (collector actions Phase 9)
+- `useSectionReveal` observes late-mounted `[data-reveal]` nodes (API-driven homepage signatures)
 ---
 
 ## 7. Environment variables
@@ -374,13 +449,31 @@ App.jsx → global CSS → AppRoutes
 1. **Land on Home** — hero plates, brand marquee, promise, domain chambers, two signature objects (Details), editorial close  
 2. **Enter a chamber** — domain path links into Discover filtered by domain  
 3. **Discover feed** — masonry of cars/motorcycles/watches; open Details modal  
-4. **Product page** — `/products/:slug` full plate + gallery (still demo data)  
+4. **Product page** — `/products/:slug` gallery + identity, overview, why it matters, specs, rarity, market signals, related, journal stub; records a view  
 5. **Journal / Brands / Search / Admin / Account** — shells until later phases  
 6. **API health** — `GET /api/v1/health` (+ Mongo connected when URI set)
 
 ---
 
 ## 9. Changelog (append newest on top)
+
+### 2026-09-09 (Phase 8) — Dynamic product detail
+
+- `ProductView` model + `POST /products/:id/view` for detail view tracking.
+- `recommendationService` + `GET /products/:id/related` (type/brand/tag/rarity scoring) and `GET /products/:id/journal` stub.
+- Product payload enriched with `whyItMatters`, `rarityProfile`, `marketSignals` (informational disclaimer).
+- Seed attaches intelligence fields to all 16 demo products.
+- Client detail framework: Identity, Actions, Specs, Rarity, Market, Related, Journal + gallery lightbox (keyboard, Escape, broken-image fallback).
+- Local compare slice (max 3); favorite toggle via existing favorites slice; Collection button API-ready/disabled until Phase 9.
+- **30** server tests passing (includes `productDetail.test.js`).
+
+### 2026-09-09 (late night) — Phase 7 UI polish + tokens documented
+
+- Shared ivory–gold pill buttons on Home (hero, marquee, chambers, featured, editorial, close) and object card / modal actions.
+- Brands dropdown: in-menu search, Escape/click-outside, autofocus.
+- Discover: page header pinned; chamber no longer overlaps title; feed/filters remain independently scrollable.
+- `useSectionReveal` watches dynamically mounted sections so homepage signatures appear after API load.
+- Design tokens (full hex table) recorded in §6.1.
 
 ### 2026-09-09 (night) — Phase 7 Discovery
 
@@ -430,5 +523,5 @@ App.jsx → global CSS → AppRoutes
 
 ## 10. Next documentation updates expected
 
-When Phase 8 product detail intelligence lands, document related objects and view tracking.
-When Phase 9 collector features land, document favorites/collections persistence.
+When Phase 9 collector features land, document favorites/collections persistence and compare sync.
+When Phase 10 journal lands, replace the product journal stub with real essays.

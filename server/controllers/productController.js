@@ -1,6 +1,7 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import { successResponse } from '../utils/response.js';
 import * as productService from '../services/productService.js';
+import * as recommendationService from '../services/recommendationService.js';
 
 export const listProducts = asyncHandler(async (req, res) => {
   const { products, meta } = await productService.listPublicProducts(req.query);
@@ -15,4 +16,26 @@ export const getProductFilters = asyncHandler(async (req, res) => {
 export const getProductBySlug = asyncHandler(async (req, res) => {
   const product = await productService.getPublicProductBySlug(req.params.slug);
   return successResponse(res, product);
+});
+
+export const recordProductView = asyncHandler(async (req, res) => {
+  const result = await productService.recordProductView(req.params.id, {
+    sessionKey: req.body?.sessionKey || req.headers['x-session-key'],
+    userId: req.user?.id || null,
+    source: req.body?.source || 'detail',
+    userAgent: req.get('user-agent') || '',
+  });
+  return successResponse(res, result, null, 201);
+});
+
+export const getRelatedProducts = asyncHandler(async (req, res) => {
+  const products = await recommendationService.getRelatedProducts(req.params.id, {
+    limit: req.query.limit,
+  });
+  return successResponse(res, products, { total: products.length });
+});
+
+export const getProductJournal = asyncHandler(async (req, res) => {
+  const payload = await recommendationService.getProductJournal(req.params.id);
+  return successResponse(res, payload.items, payload.meta);
 });
