@@ -6,6 +6,7 @@
  *   npm run seed --prefix server
  */
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 import env from '../config/env.js';
 import { connectDatabase } from '../config/database.js';
 import {
@@ -17,9 +18,8 @@ import {
   buildSpecifications,
 } from '../models/index.js';
 
-/** Placeholder hash — auth hashing lands in Phase 6. Not a real login password. */
-const SEED_PASSWORD_HASH =
-  '$2b$10$seedplaceholderhasharchivexphase4demoonlyxxxxxxxxxx';
+/** Demo admin login (local/dev seed only): editor@archivex.local / ArchiveX!admin */
+const SEED_ADMIN_PASSWORD = 'ArchiveX!admin';
 
 function img(url, alt, type = 'gallery', sortOrder = 0, width = 1400, height = 933) {
   return { url, alt, type, sortOrder, width, height };
@@ -44,15 +44,18 @@ async function seed() {
 
   await connectDatabase();
 
+  const passwordHash = await bcrypt.hash(SEED_ADMIN_PASSWORD, 10);
+
   const admin = await User.findOneAndUpdate(
     { email: 'editor@archivex.local' },
     {
       $set: {
         name: 'ArchiveX Editor',
         email: 'editor@archivex.local',
-        passwordHash: SEED_PASSWORD_HASH,
+        passwordHash,
         role: 'admin',
         status: 'active',
+        tokenVersion: 0,
         preferences: { newsletter: false, locale: 'en' },
       },
     },

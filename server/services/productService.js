@@ -1,6 +1,16 @@
 import { Product } from '../models/index.js';
 import ApiError from '../utils/ApiError.js';
-import { SUPPORTED_PRODUCT_TYPES } from '../config/constants.js';
+import {
+  applyFieldSelection,
+  buildPublicProductFilter,
+  getDiscoverFilterSchema,
+  mongoSortForMode,
+  parseFieldSelection,
+  parsePagination,
+  parseSort,
+  shufflePreferringPrimary,
+  sortProductsInMemory,
+} from './searchService.js';
 
 const PUBLIC_FILTER = {
   status: 'approved',
@@ -68,50 +78,95 @@ export function serializeProduct(doc) {
   };
 }
 
-function parsePagination(query) {
-  const page = Math.max(1, Number(query.page) || 1);
-  const limit = Math.min(48, Math.max(1, Number(query.limit) || 24));
-  return { page, limit, skip: (page - 1) * limit };
-}
-
 export async function listPublicProducts(query = {}) {
-  const filter = { ...PUBLIC_FILTER };
-
-  if (query.productType) {
-    if (!SUPPORTED_PRODUCT_TYPES.includes(query.productType)) {
-      throw new ApiError('Invalid productType', 400, 'INVALID_PRODUCT_TYPE');
-    }
-    filter.productType = query.productType;
-  }
-
-  if (query.featured === 'true' || query.featured === true) {
-    filter.featured = true;
-  }
-
-  if (query.q && String(query.q).trim()) {
-    filter.$text = { $search: String(query.q).trim() };
-  }
-
+  const { filter, empty, searchTerm } = await buildPublicProductFilter(query);
   const { page, limit, skip } = parsePagination(query);
-  const sort = query.shuffle === 'true' ? { updatedAt: -1 } : { featured: -1, releaseYear: -1, name: 1 };
+  const sort = parseSort(query);
+  const fields = parseFieldSelection(query);
+
+  if (empty) {
+    return {
+      products: [],
+      meta: {
+        page,
+        limit,
+        total: 0,
+        totalPages: 1,
+        sort: sort.mode,
+        filters: summarizeActiveFilters(query),
+      },
+    };
+  }
+
+  // Shuffle needs a stable full-result set so pagination counts stay correct.
+  if (sort.mode === 'shuffle') {
+    const all = await Product.find(filter)
+      .populate('brand', 'name slug')
+      .populate('category', 'name slug')
+      .populate('tags', 'name slug')
+      .lean();
+
+    let products = shufflePreferringPrimary(all.map(serializeProduct), sort.seed);
+    const total = products.length;
+    products = products.slice(skip, skip + limit).map((item) => applyFieldSelection(item, fields));
+
+    return {
+      products,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / limit)),
+        sort: 'shuffle',
+        seed: sort.seed,
+        filters: summarizeActiveFilters(query),
+      },
+    };
+  }
+
+  const needsInMemorySort = sort.mode === 'rarity' || (sort.mode === 'relevance' && searchTerm);
+
+  if (needsInMemorySort) {
+    const all = await Product.find(filter)
+      .populate('brand', 'name slug')
+      .populate('category', 'name slug')
+      .populate('tags', 'name slug')
+      .lean();
+
+    let products = sortProductsInMemory(all.map(serializeProduct), sort.mode, searchTerm);
+    const total = products.length;
+    products = products.slice(skip, skip + limit).map((item) => applyFieldSelection(item, fields));
+
+    return {
+      products,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / limit)),
+        sort: sort.mode,
+        filters: summarizeActiveFilters(query),
+      },
+    };
+  }
+
+  const mongoSort = mongoSortForMode(sort.mode);
 
   const [items, total] = await Promise.all([
     Product.find(filter)
       .populate('brand', 'name slug')
       .populate('category', 'name slug')
       .populate('tags', 'name slug')
-      .sort(sort)
+      .sort(mongoSort)
       .skip(skip)
       .limit(limit)
       .lean(),
     Product.countDocuments(filter),
   ]);
 
-  let products = items.map(serializeProduct);
-
-  if (query.shuffle === 'true') {
-    products = shufflePreferringPrimary(products, Number(query.seed) || Date.now());
-  }
+  const products = items
+    .map(serializeProduct)
+    .map((item) => applyFieldSelection(item, fields));
 
   return {
     products,
@@ -120,6 +175,8 @@ export async function listPublicProducts(query = {}) {
       limit,
       total,
       totalPages: Math.max(1, Math.ceil(total / limit)),
+      sort: sort.mode,
+      filters: summarizeActiveFilters(query),
     },
   };
 }
@@ -138,48 +195,45 @@ export async function getPublicProductBySlug(slug) {
   return serializeProduct(product);
 }
 
-/** Deterministic-ish shuffle that weaves watches after every third primary object. */
-function shufflePreferringPrimary(products, seed) {
-  const random = mulberry32(seed);
-  const shuffle = (list) => {
-    const copy = [...list];
-    for (let i = copy.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(random() * (i + 1));
-      [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
-  };
-
-  const primary = shuffle(
-    products.filter((item) => item.productType === 'car' || item.productType === 'motorcycle')
-  );
-  const secondary = shuffle(products.filter((item) => item.productType === 'watch'));
-  const feed = [];
-  let watchIndex = 0;
-
-  primary.forEach((item, index) => {
-    feed.push(item);
-    if ((index + 1) % 3 === 0 && secondary[watchIndex]) {
-      feed.push(secondary[watchIndex]);
-      watchIndex += 1;
-    }
-  });
-
-  while (watchIndex < secondary.length) {
-    feed.push(secondary[watchIndex]);
-    watchIndex += 1;
-  }
-
-  return feed;
+export function getPublicFilterSchema(query = {}) {
+  const productType = query.productType || query.domain || 'all';
+  return getDiscoverFilterSchema(productType);
 }
 
-function mulberry32(seed) {
-  let value = seed >>> 0;
-  return function next() {
-    value += 0x6d2b79f5;
-    let t = value;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+function summarizeActiveFilters(query = {}) {
+  const keys = [
+    'productType',
+    'domain',
+    'q',
+    'brand',
+    'category',
+    'tag',
+    'yearMin',
+    'yearMax',
+    'rarity',
+    'material',
+    'color',
+    'availability',
+    'bodyStyle',
+    'engine',
+    'power',
+    'drivetrain',
+    'transmission',
+    'displacement',
+    'productionPeriod',
+    'movement',
+    'caseMaterial',
+    'caseSize',
+    'dialColor',
+    'waterResistance',
+    'featured',
+  ];
+
+  const active = {};
+  for (const key of keys) {
+    if (query[key] !== undefined && query[key] !== null && String(query[key]).trim() !== '') {
+      active[key] = query[key];
+    }
+  }
+  return active;
 }

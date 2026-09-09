@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema(
     passwordHash: { type: String, required: true },
     role: { type: String, enum: USER_ROLES, default: 'user', index: true },
     status: { type: String, enum: USER_STATUSES, default: 'active', index: true },
+    tokenVersion: { type: Number, default: 0 },
     preferences: {
       newsletter: { type: Boolean, default: false },
       locale: { type: String, default: 'en', maxlength: 16 },

@@ -50,6 +50,8 @@ Set `MONGODB_URI` in `server/.env`, then seed the multi-domain demo catalog:
 npm run seed --prefix server
 ```
 
+Seed admin (Phase 6): `editor@archivex.local` / `ArchiveX!admin`
+
 ## Scripts
 
 | Command | Description |

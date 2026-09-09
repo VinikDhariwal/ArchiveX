@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { navLinks } from '../../data/demoData.js';
 import { clientConfig } from '../../config/clientConfig.js';
+import { selectAuthUser, selectIsAuthenticated } from '../../features/auth/authSlice.js';
 
 function SearchIcon() {
   return (
@@ -21,6 +23,9 @@ function ProfileIcon() {
 }
 
 export default function DesktopHeader() {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const user = useSelector(selectAuthUser);
+
   return (
     <header className="desktop-header" aria-label="Primary">
       <Link className="brand-mark" to="/">
@@ -39,9 +44,15 @@ export default function DesktopHeader() {
         <Link className="icon-btn" to="/search" aria-label="Search">
           <SearchIcon />
         </Link>
-        <Link className="icon-btn" to="/account" aria-label="Account">
-          <ProfileIcon />
-        </Link>
+        {isAuthenticated ? (
+          <Link className="icon-btn" to="/account" aria-label={`Account for ${user?.name || 'collector'}`}>
+            <ProfileIcon />
+          </Link>
+        ) : (
+          <Link className="link-cta" to="/login">
+            Sign in
+          </Link>
+        )}
       </div>
     </header>
   );

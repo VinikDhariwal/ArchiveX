@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { navLinks } from '../../data/demoData.js';
 import { clientConfig } from '../../config/clientConfig.js';
+import { selectIsAuthenticated } from '../../features/auth/authSlice.js';
 
 export default function MobileHeader({ menuOpen, onOpenMenu, onCloseMenu }) {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
   return (
     <>
       <header className="mobile-header" aria-label="Mobile">
@@ -42,6 +46,15 @@ export default function MobileHeader({ menuOpen, onOpenMenu, onCloseMenu }) {
               {link.label}
             </Link>
           ))}
+          {isAuthenticated ? (
+            <Link to="/account" onClick={onCloseMenu}>
+              Account
+            </Link>
+          ) : (
+            <Link to="/login" onClick={onCloseMenu}>
+              Sign in
+            </Link>
+          )}
         </nav>
         <p className="demo-note">Cars and motorcycles lead the archive. Watches follow.</p>
       </div>
