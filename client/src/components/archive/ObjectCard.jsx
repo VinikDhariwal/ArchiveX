@@ -36,7 +36,7 @@ export default function ObjectCard({ object }) {
           </div>
         </button>
         <div className="object-card__actions">
-          <button type="button" className="link-cta" onClick={() => setDetailsOpen(true)}>
+          <button type="button" className="btn btn--soft" onClick={() => setDetailsOpen(true)}>
             Details
           </button>
           <span className="object-card__publisher" title="Publisher">
