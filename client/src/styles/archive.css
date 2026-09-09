@@ -722,19 +722,57 @@ button.link-cta {
   }
 }
 
-/* Featured spreads — compact so one signature fits the viewport */
+/* Featured spreads — same soft bordered box language as chamber cards */
 .featured-object {
-  width: min(100%, var(--content-max));
+  --card-tint: color-mix(in srgb, var(--navy) 35%, var(--blush));
+  width: min(calc(100% - (2 * var(--page-gutter))), var(--content-max));
   margin: clamp(2rem, 4vh, 3.5rem) auto 0;
-  padding-inline: var(--page-gutter);
+  padding: clamp(1rem, 2vw, 1.45rem);
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
   gap: clamp(1.1rem, 2.5vw, 2.25rem);
   align-items: center;
-  background: transparent;
+  overflow: hidden;
+  border-radius: clamp(18px, 2vw, 24px);
   color: var(--ink);
-  overflow: visible;
-  border-radius: 0;
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--card-tint) 22%, transparent) 0%,
+      transparent 48%
+    ),
+    linear-gradient(
+      185deg,
+      color-mix(in srgb, var(--white) 82%, var(--paper)) 0%,
+      color-mix(in srgb, var(--blush) 48%, var(--paper-mid)) 58%,
+      color-mix(in srgb, var(--paper-deep) 55%, var(--blush)) 100%
+    );
+  border: 1px solid color-mix(in srgb, var(--ink) 7%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--white) 70%, transparent) inset,
+    0 14px 36px color-mix(in srgb, var(--ink) 5%, transparent);
+  transition:
+    border-color var(--duration-med),
+    box-shadow var(--duration-med);
+}
+
+.featured-object[data-type='car'] {
+  --card-tint: color-mix(in srgb, var(--navy) 42%, var(--blush));
+}
+
+.featured-object[data-type='motorcycle'] {
+  --card-tint: color-mix(in srgb, var(--forest) 40%, var(--blush));
+}
+
+.featured-object[data-type='watch'] {
+  --card-tint: color-mix(in srgb, var(--brass) 38%, var(--blush));
+}
+
+.featured-object:hover {
+  border-color: color-mix(in srgb, var(--brass) 32%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--white) 75%, transparent) inset,
+    0 18px 40px color-mix(in srgb, var(--ink) 7%, transparent);
 }
 
 .featured-object--flip {
@@ -753,6 +791,9 @@ button.link-cta {
 .featured-object__media {
   position: relative;
   max-height: min(52vh, 420px);
+  border-radius: clamp(14px, 1.6vw, 18px);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--white) 35%, transparent);
 }
 
 .featured-object__media a,
@@ -765,11 +806,8 @@ button.link-cta {
   margin: 0;
   cursor: pointer;
   background: transparent;
-  border-radius: clamp(16px, 2vw, 24px);
+  border-radius: inherit;
   overflow: hidden;
-  background:
-    radial-gradient(80% 70% at 50% 45%, color-mix(in srgb, var(--white) 65%, transparent), transparent 72%),
-    linear-gradient(160deg, var(--paper-mid), var(--blush));
 }
 
 .featured-object__title-btn {
@@ -795,6 +833,8 @@ button.link-cta {
   max-height: min(52vh, 420px);
   object-fit: contain;
   object-position: center;
+  padding: 0.75rem 0.85rem;
+  box-sizing: border-box;
   border-radius: inherit;
   transition: transform 320ms var(--ease-museum);
 }
@@ -807,7 +847,7 @@ button.link-cta {
   display: grid;
   align-content: center;
   gap: 0.2rem;
-  padding: 0;
+  padding: 0.35rem 0.5rem 0.35rem 0;
 }
 
 .featured-object__body .meta {

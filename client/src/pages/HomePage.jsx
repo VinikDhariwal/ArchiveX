@@ -56,7 +56,6 @@ export default function HomePage() {
           object={featuredMotorcycle}
           eyebrow="Signature · Motorcycle"
           sectionId="featured-motorcycle"
-          flipped
         />
       ) : null}
 

@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Link } from 'react-router-dom';
 import { getPrimaryImage, getPublisher } from '../../data/demoData.js';
 
 export default function ObjectDetailModal({ object, onClose }) {
@@ -68,9 +67,6 @@ export default function ObjectDetailModal({ object, onClose }) {
             </p>
 
             <div className="object-modal__actions">
-              <Link className="link-cta" to={`/products/${object.slug}`} onClick={onClose}>
-                Open full plate →
-              </Link>
               <button type="button" className="quiet-action" onClick={onClose}>
                 Back to feed
               </button>

@@ -35,30 +35,30 @@ export const hero = {
   primaryCta: { label: 'Begin the archive', href: '#promise' },
   secondaryCta: { label: 'Explore discover', href: '/discover' },
   tertiaryCta: { label: 'Read the journal', href: '/journal' },
-  featuredSlug: 'mercedes-benz-300-slr-uhlenhaut-coupe',
+  featuredSlug: 'mercedes-benz-300-sl',
   /** Hero stage: five ultra-rare archive objects only */
   plates: [
     {
-      slug: 'mercedes-benz-300-slr-uhlenhaut-coupe',
-      name: 'Mercedes-Benz 300 SLR Uhlenhaut Coupé',
+      slug: 'mercedes-benz-300-sl',
+      name: 'Mercedes-Benz 300 SL',
       brand: 'Mercedes-Benz',
       year: 1955,
-      rarity: 'ULTRA-RARE',
+      rarity: 'ICONIC',
       image: heroImg(
         'photo-1772550327967-4d9123809a65',
-        'Silver Mercedes-Benz 300-series coupe — demonstration stand-in for the Uhlenhaut Coupé',
+        'Silver Mercedes-Benz 300 SL Gullwing coupe',
         'center'
       ),
     },
     {
-      slug: '1919-traub-motorcycle',
-      name: '1919 Traub Motorcycle',
-      brand: 'Traub',
-      year: 1919,
-      rarity: 'UNIQUE',
+      slug: 'suzuki-cafe-racer',
+      name: 'Suzuki Café Racer',
+      brand: 'Suzuki',
+      year: 1975,
+      rarity: 'COLLECTIBLE',
       image: heroImg(
         'photo-1508349661974-9927dbd8399c',
-        'Vintage motorcycle profile — demonstration stand-in for the 1919 Traub',
+        'Custom Suzuki café racer motorcycle profile',
         'center'
       ),
     },
@@ -75,33 +75,33 @@ export const hero = {
       ),
     },
     {
-      slug: 'bugatti-type-57sc-atlantic',
-      name: 'Bugatti Type 57SC Atlantic',
+      slug: 'bugatti-chiron',
+      name: 'Bugatti Chiron',
       brand: 'Bugatti',
-      year: 1936,
-      rarity: 'ULTRA-RARE',
+      year: 2016,
+      rarity: 'ICONIC',
       image: heroImg(
-        'photo-1492144534655-ae79c964c9d7',
-        'Classic sports car three-quarter — demonstration stand-in for the Type 57SC Atlantic',
+        'photo-1544636331-e26879cd4d9b',
+        'White Bugatti Chiron front study at night',
         'center'
       ),
     },
     {
-      slug: '1916-cyclone-board-track-racer',
-      name: '1916 Cyclone Board Track Racer',
-      brand: 'Cyclone',
-      year: 1916,
-      rarity: 'ULTRA-RARE',
+      slug: 'harley-davidson-heritage',
+      name: 'Harley-Davidson Heritage',
+      brand: 'Harley-Davidson',
+      year: 1948,
+      rarity: 'COLLECTIBLE',
       image: heroImg(
         'photo-1459372537964-e38c57a5e86f',
-        'Antique motorcycle study — demonstration stand-in for the 1916 Cyclone board tracker',
+        'Vintage Harley-Davidson motorcycle study',
         'center'
       ),
     },
   ],
   image: heroImg(
     'photo-1772550327967-4d9123809a65',
-    'Mercedes-Benz 300 SLR Uhlenhaut Coupé — rare archival hero object'
+    'Mercedes-Benz 300 SL Gullwing — archival hero object'
   ),
   galleryBackground: {
     url: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=70',
@@ -128,7 +128,7 @@ export const domainPaths = [
     href: '/discover?domain=car',
     image: img(
       'photo-1772550327967-4d9123809a65',
-      'Silver Mercedes coupe in the automotive chamber',
+      'Silver Mercedes-Benz 300 SL in the automotive chamber',
       'editorial',
       1800,
       1200,
@@ -143,7 +143,7 @@ export const domainPaths = [
     href: '/discover?domain=motorcycle',
     image: img(
       'photo-1459372537964-e38c57a5e86f',
-      'Antique motorcycle in the two-wheel chamber',
+      'Vintage Harley-Davidson in the two-wheel chamber',
       'editorial',
       1800,
       1200,
@@ -169,39 +169,31 @@ export const domainPaths = [
 
 export const objects = [
   {
-    id: 'demo-mercedes-uhlenhaut',
-    slug: 'mercedes-benz-300-slr-uhlenhaut-coupe',
-    name: 'Mercedes-Benz 300 SLR Uhlenhaut Coupé',
+    id: 'demo-mercedes-300-sl',
+    slug: 'mercedes-benz-300-sl',
+    name: 'Mercedes-Benz 300 SL',
     brand: 'Mercedes-Benz',
     productType: 'car',
     year: 1955,
-    rarity: 'ULTRA-RARE',
+    rarity: 'ICONIC',
     shortDescription:
-      'Only two road-going coupés were built from the legendary 1950s racer — both survive. One set a public auction record near $142 million.',
+      'The Gullwing coupe that defined postwar sports-car theatre — space-frame chassis, upward-hinging doors, and lasting collector myth.',
     images: [
-      heroImg(
-        'photo-1772550327967-4d9123809a65',
-        'Silver Mercedes-Benz 300-series coupe — demonstration stand-in for the Uhlenhaut Coupé'
-      ),
-      img('photo-1767023019012-30f747a1c87a', 'Classic silver Mercedes-Benz exhibition study', 'gallery'),
+      heroImg('photo-1772550327967-4d9123809a65', 'Silver Mercedes-Benz 300 SL Gullwing coupe'),
     ],
   },
   {
-    id: 'demo-traub-1919',
-    slug: '1919-traub-motorcycle',
-    name: '1919 Traub Motorcycle',
-    brand: 'Traub',
+    id: 'demo-suzuki-cafe',
+    slug: 'suzuki-cafe-racer',
+    name: 'Suzuki Café Racer',
+    brand: 'Suzuki',
     productType: 'motorcycle',
-    year: 1919,
-    rarity: 'UNIQUE',
+    year: 1975,
+    rarity: 'COLLECTIBLE',
     shortDescription:
-      'Exactly one known unit — discovered bricked inside a Chicago wall, with mechanical ideas years ahead of its time, and still running.',
+      'A stripped café-racer build — lean tank lines, clip-ons, and workshop craft over showroom gloss.',
     images: [
-      heroImg(
-        'photo-1508349661974-9927dbd8399c',
-        'Vintage motorcycle profile — demonstration stand-in for the 1919 Traub'
-      ),
-      img('photo-1554975461-777d5f4c3c2f', 'Weathered vintage motorcycle tank detail', 'detail'),
+      heroImg('photo-1508349661974-9927dbd8399c', 'Custom Suzuki café racer motorcycle profile'),
     ],
   },
   {
@@ -223,40 +215,31 @@ export const objects = [
     ],
   },
   {
-    id: 'demo-bugatti-atlantic',
-    slug: 'bugatti-type-57sc-atlantic',
-    name: 'Bugatti Type 57SC Atlantic',
+    id: 'demo-bugatti-chiron',
+    slug: 'bugatti-chiron',
+    name: 'Bugatti Chiron',
     brand: 'Bugatti',
     productType: 'car',
-    year: 1936,
-    rarity: 'ULTRA-RARE',
+    year: 2016,
+    rarity: 'ICONIC',
     shortDescription:
-      'Jean Bugatti’s Art Deco masterpiece in riveted lightweight aluminium — four built, three accounted for; a holy grail among collectors.',
+      'Molsheim’s modern hypercar — horseshoe grille, eight-eye lamps, and quad-turbo W16 theatre.',
     images: [
-      heroImg(
-        'photo-1492144534655-ae79c964c9d7',
-        'Classic sports car three-quarter — demonstration stand-in for the Type 57SC Atlantic',
-        'center'
-      ),
-      img('photo-1519245659620-e859806a8d3b', 'Classic sports-car silhouette study', 'gallery'),
+      heroImg('photo-1544636331-e26879cd4d9b', 'White Bugatti Chiron front study at night'),
     ],
   },
   {
-    id: 'demo-cyclone-1916',
-    slug: '1916-cyclone-board-track-racer',
-    name: '1916 Cyclone Board Track Racer',
-    brand: 'Cyclone',
+    id: 'demo-harley-heritage',
+    slug: 'harley-davidson-heritage',
+    name: 'Harley-Davidson Heritage',
+    brand: 'Harley-Davidson',
     productType: 'motorcycle',
-    year: 1916,
-    rarity: 'ULTRA-RARE',
+    year: 1948,
+    rarity: 'COLLECTIBLE',
     shortDescription:
-      'Fewer than fourteen survivors worldwide — built for wooden board-track racing, with an overhead-cam V-twin at the peak of early American race engineering.',
+      'Classic Milwaukee cruiser presence — tank badge, sprung seat language, and long-road character.',
     images: [
-      heroImg(
-        'photo-1459372537964-e38c57a5e86f',
-        'Antique motorcycle study — demonstration stand-in for the 1916 Cyclone board tracker'
-      ),
-      img('photo-1558980664-769d59546b3d', 'Motorcycle motion study', 'gallery'),
+      heroImg('photo-1459372537964-e38c57a5e86f', 'Vintage Harley-Davidson motorcycle study'),
     ],
   },
   {
@@ -274,35 +257,33 @@ export const objects = [
         objectPosition: 'center',
       }),
       img('photo-1726739569681-14cc0392b4bc', 'Red Ferrari F40 in garage light', 'gallery'),
-      img('photo-1762111215490-0afdb55466c2', 'White Ferrari F40 on the street', 'gallery'),
+      img('photo-1762111215490-0afdb55466c2', 'Cream Ferrari F40 on the street', 'gallery'),
     ],
   },
   {
     id: 'demo-porsche-911',
     slug: 'porsche-911-carrera',
-    name: 'Porsche 911 Carrera',
+    name: 'Porsche 911 Carrera 4',
     brand: 'Porsche',
     productType: 'car',
     year: 2019,
     rarity: 'COLLECTIBLE',
     shortDescription: 'The enduring 911 silhouette — precision, balance, and collector continuity.',
     images: [
-      img('photo-1578911717720-4272f961231b', 'Porsche 911 Carrera rear three-quarter', 'hero'),
-      img('photo-1503376780353-7e6692767b70', 'Black Porsche 911 profile', 'gallery'),
+      img('photo-1578911717720-4272f961231b', 'Porsche 911 Carrera 4 rear badge study', 'hero'),
     ],
   },
   {
-    id: 'demo-lamborghini-aventador',
-    slug: 'lamborghini-aventador',
-    name: 'Lamborghini Aventador',
+    id: 'demo-lamborghini-huracan',
+    slug: 'lamborghini-huracan',
+    name: 'Lamborghini Huracán',
     brand: 'Lamborghini',
     productType: 'car',
-    year: 2011,
+    year: 2014,
     rarity: 'RARE',
-    shortDescription: 'V12 wedge geometry that carried Sant’Agata into the modern era.',
+    shortDescription: 'Sant’Agata V10 wedge — sharp lamps, hexagonal intakes, and modern bull geometry.',
     images: [
-      img('photo-1617654114261-45f3cd39ce87', 'Lamborghini Aventador exterior', 'hero'),
-      img('photo-1618264362598-b7e844dd037f', 'Lamborghini Aventador parked study', 'gallery'),
+      img('photo-1519245659620-e859806a8d3b', 'Dark grey Lamborghini Huracán with racing stripes', 'hero'),
     ],
   },
   {
@@ -316,38 +297,32 @@ export const objects = [
     shortDescription: 'Hybrid hypercar craftsmanship with motorsport bloodline.',
     images: [
       img('photo-1748028265529-0be0aee7f674', 'McLaren P1 displayed front view', 'hero'),
-      img('photo-1748091677506-6d7147d3b688', 'McLaren with dihedral doors open', 'gallery'),
-      img('photo-1748028265529-0be0aee7f674', 'McLaren P1 detail crop study', 'detail'),
     ],
   },
   {
     id: 'demo-ducati-panigale',
     slug: 'ducati-panigale',
-    name: 'Ducati Panigale',
+    name: 'Ducati Panigale V4',
     brand: 'Ducati',
     productType: 'motorcycle',
-    year: 2011,
+    year: 2018,
     rarity: 'COLLECTIBLE',
-    shortDescription: 'Italian superbike form — successor spirit to the 916 lineage.',
+    shortDescription: 'Italian superbike form — winglet aero and Desmo character on asphalt.',
     images: [
-      img('photo-1632157256334-518122d788bd', 'Ducati superbike on mountain road', 'hero'),
-      img('photo-1760716801761-a2b7bd687979', 'Red Ducati Monster parked', 'gallery'),
-      img('photo-1568772585407-9361f9bf3a87', 'Red Ducati in garage light', 'side'),
+      img('photo-1632157256334-518122d788bd', 'Red Ducati Panigale V4 on mountain road', 'hero'),
     ],
   },
   {
-    id: 'demo-honda-cb750',
-    slug: 'honda-cb750',
-    name: 'Honda CB750',
+    id: 'demo-honda-scrambler',
+    slug: 'honda-scrambler',
+    name: 'Honda Scrambler',
     brand: 'Honda',
     productType: 'motorcycle',
-    year: 1969,
+    year: 1972,
     rarity: 'COLLECTIBLE',
-    shortDescription: 'The four-cylinder machine that opened modern motorcycle ambition.',
+    shortDescription: 'Custom Honda scrambler craft — knobby tires, wrapped exhaust, forest-road stance.',
     images: [
-      img('photo-1502744688674-c619d1586c9e', 'Honda motorcycle on forest trail', 'hero'),
-      img('photo-1558981359-219d6364c9c8', 'Motorcycle cockpit detail', 'detail'),
-      img('photo-1558981806-ec527fa84c39', 'Motorcycle on open road', 'gallery'),
+      img('photo-1502744688674-c619d1586c9e', 'Custom Honda scrambler on forest trail', 'hero'),
     ],
   },
   {
@@ -361,23 +336,19 @@ export const objects = [
     shortDescription: 'Sculptural supersport craftsmanship with archival track presence.',
     images: [
       img('photo-1609630875171-b1321377ee65', 'Yamaha YZF-R6 orange and black superbike', 'hero'),
-      img('photo-1558981359-219d6364c9c8', 'Motorcycle cockpit detail', 'detail'),
-      img('photo-1558981806-ec527fa84c39', 'Sport motorcycle on open road', 'gallery'),
     ],
   },
   {
     id: 'demo-ktm-rc',
-    slug: 'ktm-rc',
-    name: 'KTM RC',
+    slug: 'ktm-rc-390',
+    name: 'KTM RC 390',
     brand: 'KTM',
     productType: 'motorcycle',
     year: 2014,
     rarity: 'COLLECTIBLE',
-    shortDescription: 'Sharp orange-framed roadster energy shaped for contemporary collectors.',
+    shortDescription: 'Orange-framed Race Competition roadster energy for contemporary collectors.',
     images: [
-      img('photo-1449426468159-d96dbf08f19f', 'KTM RC sport motorcycle parked outdoors', 'hero'),
-      img('photo-1558981403-c5f9899a28bc', 'Modern motorcycle street study', 'gallery'),
-      img('photo-1558981359-219d6364c9c8', 'Motorcycle cockpit study', 'detail'),
+      img('photo-1449426468159-d96dbf08f19f', 'KTM RC 390 sport motorcycle parked outdoors', 'hero'),
     ],
   },
   {
@@ -430,14 +401,14 @@ export const objects = [
   },
 ];
 
-export const featuredCarId = 'demo-mercedes-uhlenhaut';
-export const featuredMotorcycleId = 'demo-traub-1919';
+export const featuredCarId = 'demo-mercedes-300-sl';
+export const featuredMotorcycleId = 'demo-harley-heritage';
 
 export const curatedObjectIds = [
-  'demo-mercedes-uhlenhaut',
-  'demo-bugatti-atlantic',
-  'demo-traub-1919',
-  'demo-cyclone-1916',
+  'demo-mercedes-300-sl',
+  'demo-bugatti-chiron',
+  'demo-suzuki-cafe',
+  'demo-harley-heritage',
   'demo-patek-henry-graves',
   'demo-ferrari-f40',
   'demo-ducati-panigale',
@@ -484,8 +455,8 @@ export const homeClose = {
 export const brands = [
   { id: 'mercedes-benz', name: 'Mercedes-Benz', domain: 'car', country: 'Germany' },
   { id: 'bugatti', name: 'Bugatti', domain: 'car', country: 'France' },
-  { id: 'traub', name: 'Traub', domain: 'motorcycle', country: 'United States' },
-  { id: 'cyclone', name: 'Cyclone', domain: 'motorcycle', country: 'United States' },
+  { id: 'suzuki', name: 'Suzuki', domain: 'motorcycle', country: 'Japan' },
+  { id: 'harley-davidson', name: 'Harley-Davidson', domain: 'motorcycle', country: 'United States' },
   { id: 'patek-philippe', name: 'Patek Philippe', domain: 'watch', country: 'Switzerland' },
   { id: 'ferrari', name: 'Ferrari', domain: 'car', country: 'Italy' },
   { id: 'porsche', name: 'Porsche', domain: 'car', country: 'Germany' },
