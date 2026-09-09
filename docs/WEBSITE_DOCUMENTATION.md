@@ -1,7 +1,7 @@
 # ArchiveX — Living Website Documentation
 
 **Status:** Living document — update this file whenever libraries, routes, components, APIs, or product behavior change.  
-**Last updated:** 2026-09-09 (Phase 4 seed complete)
+**Last updated:** 2026-09-09 (Phase 5 APIs)
 **Companion rules:** [PROJECT_RULES.md](./PROJECT_RULES.md) (product/tech contract; do not replace it)  
 **Setup guide:** [../README.md](../README.md)
 
@@ -40,7 +40,8 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | MongoDB Atlas connection | Done |
 | Phase 4 Mongoose models | Done — User, Brand, Category, Tag, Product + controlled specs |
 | Phase 4 seed → Atlas | Done — 16 approved products (6 cars, 6 motorcycles, 4 watches) |
-| Public REST catalog APIs | **Not yet** (health only) — UI still reads `demoData.js` |
+| Phase 5 public REST APIs | Done — products/brands/categories (approved/active only) |
+| Client wired to API | Done — Home signatures, Discover, Product detail, Brand marquee |
 | Auth / JWT | Env placeholders only |
 | Admin CMS | Layout shell only |
 
@@ -49,6 +50,18 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 ```bash
 npm run seed --prefix server
 ```
+
+**Public API (Phase 5)**
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| GET | `/api/v1/health` | Liveness + DB status |
+| GET | `/api/v1/products` | Approved only; `productType`, `featured`, `shuffle`, `seed`, `q`, `page`, `limit` |
+| GET | `/api/v1/products/:slug` | Approved only |
+| GET | `/api/v1/brands` | Active brands; optional `domain` |
+| GET | `/api/v1/brands/:slug` | Active brand |
+| GET | `/api/v1/categories` | Active categories; optional `productType` |
+| GET | `/api/v1/categories/:slug` | Active category |
 
 ---
 
@@ -153,11 +166,20 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `models/Product.js` | Domain-neutral Product + images, status gate, specs |
 | `models/shared/productSubdocuments.js` | `buildSpecifications`, `assertValidSpecifications` |
 | `models/index.js` | Barrel exports |
+| `services/productService.js` | Public product list/detail + serialize + shuffle |
+| `services/brandService.js` | Public brand list/detail |
+| `services/categoryService.js` | Public category list/detail |
+| `controllers/productController.js` | Thin product handlers |
+| `controllers/brandController.js` | Thin brand handlers |
+| `controllers/categoryController.js` | Thin category handlers |
+| `routes/productRoutes.js` | `/products` |
+| `routes/brandRoutes.js` | `/brands` |
+| `routes/categoryRoutes.js` | `/categories` |
 | `seeds/seedDemo.js` | Migrates website demo catalog into Atlas (approved) |
-| `services/` | Empty (Phase 5) |
 | `validators/` | Empty |
 | `tests/health.test.js` | Health endpoint |
 | `tests/models.test.js` | Spec validation + model CRUD (memory Mongo) |
+| `tests/catalogApi.test.js` | Public catalog approval gate |
 | `testSupport/http.js` | Ephemeral listen + fetch helper |
 
 ### 4.7 Domain constants (server)
@@ -337,6 +359,14 @@ App.jsx → global CSS → AppRoutes
 
 ## 9. Changelog (append newest on top)
 
+### 2026-09-09 (evening) — Phase 5 MVC APIs
+
+- Public REST: `/products`, `/brands`, `/categories` (approved/active only; pending never leaks).
+- Services + thin controllers; RTK Query endpoints on the client.
+- Home / Discover / Product detail / brand marquee read from Atlas via API.
+- Hero / chamber editorial copy still local in `demoData.js` until CMS phase.
+- Catalog API tests added (13 server tests passing).
+
 ### 2026-09-09 (evening) — Phase 4 data migration
 
 - Added Mongoose models: User, Brand, Category, Tag, Product + controlled spec helpers.
@@ -358,6 +388,4 @@ App.jsx → global CSS → AppRoutes
 
 ## 10. Next documentation updates expected
 
-When Phase 5 APIs land, document:
-
-- Every REST endpoint, auth/public filters (`status: approved`), and which client hooks replace `demoData.js`
+When Phase 6 auth lands, document registration/login, roles, and protected routes.

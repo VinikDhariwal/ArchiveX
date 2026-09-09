@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Breadcrumbs from '../components/layout/Breadcrumbs.jsx';
 import ObjectCard from '../components/archive/ObjectCard.jsx';
+import LoadingState from '../components/feedback/LoadingState.jsx';
+import ErrorState from '../components/feedback/ErrorState.jsx';
 import useDocumentTitle from '../hooks/useDocumentTitle.js';
-import { getShuffledDiscoverFeed } from '../data/demoData.js';
+import { useGetProductsQuery } from '../app/api.js';
 
 const DOMAIN_FILTERS = [
   { id: 'all', label: 'All' },
@@ -27,12 +29,18 @@ export default function DiscoverPage() {
     }
   }, [paramDomain, setSearchParams]);
 
-  const feed = useMemo(() => getShuffledDiscoverFeed(shuffleKey), [shuffleKey]);
+  const queryArgs = useMemo(() => {
+    const params = {
+      shuffle: 'true',
+      seed: String(shuffleKey + 1),
+      limit: 48,
+    };
+    if (domain !== 'all') params.productType = domain;
+    return params;
+  }, [domain, shuffleKey]);
 
-  const visible = useMemo(() => {
-    if (domain === 'all') return feed;
-    return feed.filter((object) => object.productType === domain);
-  }, [domain, feed]);
+  const { data, isLoading, isError, refetch, isFetching } = useGetProductsQuery(queryArgs);
+  const visible = data?.items || [];
 
   const setDomain = (next) => {
     if (next === 'all') {
@@ -78,7 +86,7 @@ export default function DiscoverPage() {
           </div>
           <div className="discover-page__toolbar-meta">
             <p className="demo-note discover-page__count">
-              {visible.length} objects · demonstration feed
+              {isLoading || isFetching ? 'Loading…' : `${visible.length} approved objects`}
             </p>
             <button
               type="button"
@@ -90,14 +98,19 @@ export default function DiscoverPage() {
           </div>
         </div>
 
-        <div className="object-grid object-grid--discover">
-          {visible.map((object) => (
-            <ObjectCard key={object.id} object={object} />
-          ))}
-        </div>
+        {isLoading ? <LoadingState /> : null}
+        {isError ? <ErrorState message="Could not load the feed." onRetry={refetch} /> : null}
 
-        {!visible.length ? (
-          <p className="discover-page__empty">No objects in this domain yet.</p>
+        {!isLoading && !isError ? (
+          <div className="object-grid object-grid--discover">
+            {visible.map((object) => (
+              <ObjectCard key={object.id || object.slug} object={object} />
+            ))}
+          </div>
+        ) : null}
+
+        {!isLoading && !isError && !visible.length ? (
+          <p className="discover-page__empty">No approved objects in this domain yet.</p>
         ) : null}
 
         <p className="discover-page__foot">
