@@ -72,7 +72,14 @@ const productSchema = new mongoose.Schema(
 
 productSchema.index({ productType: 1, status: 1, featured: -1 });
 productSchema.index({ brand: 1, status: 1 });
-productSchema.index({ name: 'text', shortDescription: 'text' });
+productSchema.index({ rarity: 1, status: 1 });
+productSchema.index({ releaseYear: -1, status: 1 });
+productSchema.index({
+  name: 'text',
+  reference: 'text',
+  shortDescription: 'text',
+  description: 'text',
+});
 
 productSchema.pre('validate', function validateSpecs() {
   if (!this.specifications) return;

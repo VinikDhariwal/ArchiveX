@@ -1,7 +1,7 @@
 # ArchiveX — Living Website Documentation
 
 **Status:** Living document — update this file whenever libraries, routes, components, APIs, or product behavior change.  
-**Last updated:** 2026-09-09 (Phase 5 APIs)
+**Last updated:** 2026-09-09 (Phase 7 discovery)
 **Companion rules:** [PROJECT_RULES.md](./PROJECT_RULES.md) (product/tech contract; do not replace it)  
 **Setup guide:** [../README.md](../README.md)
 
@@ -42,8 +42,9 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 4 seed → Atlas | Done — 16 approved products (6 cars, 6 motorcycles, 4 watches) |
 | Phase 5 public REST APIs | Done — products/brands/categories (approved/active only) |
 | Client wired to API | Done — Home signatures, Discover, Product detail, Brand marquee |
-| Auth / JWT | Env placeholders only |
-| Admin CMS | Layout shell only |
+| Phase 6 Authentication | Done — register/login/refresh/logout/me, JWT, route guards |
+| Phase 7 Discovery | Done — search, domain-aware filters, sort, pagination, URL sync |
+| Admin CMS | Layout shell only (auth-gated; CRUD in Phase 13) |
 
 **Migrate / re-seed Atlas**
 
@@ -56,12 +57,20 @@ npm run seed --prefix server
 | Method | Path | Notes |
 | --- | --- | --- |
 | GET | `/api/v1/health` | Liveness + DB status |
-| GET | `/api/v1/products` | Approved only; `productType`, `featured`, `shuffle`, `seed`, `q`, `page`, `limit` |
+| GET | `/api/v1/products` | Approved only; search/filters/sort/pagination (see Phase 7) |
+| GET | `/api/v1/products/filters/schema` | Domain-aware filter metadata for Discover UI |
 | GET | `/api/v1/products/:slug` | Approved only |
 | GET | `/api/v1/brands` | Active brands; optional `domain` |
 | GET | `/api/v1/brands/:slug` | Active brand |
 | GET | `/api/v1/categories` | Active categories; optional `productType` |
 | GET | `/api/v1/categories/:slug` | Active category |
+| POST | `/api/v1/auth/register` | Create collector account |
+| POST | `/api/v1/auth/login` | Access token + httpOnly refresh cookie |
+| POST | `/api/v1/auth/refresh` | Rotate tokens via refresh cookie |
+| POST | `/api/v1/auth/logout` | Revoke refresh (tokenVersion++) + clear cookie |
+| GET | `/api/v1/auth/me` | Current user (Bearer access token) |
+
+**Seed admin (local/dev):** `editor@archivex.local` / `ArchiveX!admin`
 
 ---
 
@@ -166,7 +175,8 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `models/Product.js` | Domain-neutral Product + images, status gate, specs |
 | `models/shared/productSubdocuments.js` | `buildSpecifications`, `assertValidSpecifications` |
 | `models/index.js` | Barrel exports |
-| `services/productService.js` | Public product list/detail + serialize + shuffle |
+| `services/searchService.js` | Public discovery filters, sort modes, shuffle, field selection |
+| `services/productService.js` | Public product list/detail + serialize via searchService |
 | `services/brandService.js` | Public brand list/detail |
 | `services/categoryService.js` | Public category list/detail |
 | `controllers/productController.js` | Thin product handlers |
@@ -231,8 +241,8 @@ App.jsx → global CSS → AppRoutes
 | Path | Page | Notes |
 | --- | --- | --- |
 | `/`, `/home` | `HomePage` | Full Ivory Museum composition |
-| `/discover` | `DiscoverPage` | Masonry feed + domain filter |
-| `/products/:slug` | `ProductDetailPage` | Gallery + metadata from demo data |
+| `/discover` | `DiscoverPage` | Search + domain-aware filters + sort + masonry feed |
+| `/products/:slug` | `ProductDetailPage` | Gallery + metadata from API |
 | `/search`, `/brands`, `/brands/:slug`, `/categories`, `/categories/:slug`, `/journal`, `/journal/:slug` | `RouteShellPage` | Structural placeholders |
 | `/compare` | redirect | → `/discover` (compare removed from public UX) |
 | `/account`, `/favorites`, `/collections`… | shells | Authenticated layout |
@@ -245,12 +255,22 @@ App.jsx → global CSS → AppRoutes
 | File | Role |
 | --- | --- |
 | `HomePage.jsx` | Hero → marquee → promise → chambers → signatures → editorial → close |
-| `DiscoverPage.jsx` | Shuffled objects; Pinterest-style CSS columns; Details modal |
+| `DiscoverPage.jsx` | URL-synced discovery: search, filters, sort, pagination, masonry |
+| `LoginPage.jsx` / `RegisterPage.jsx` / `AccountPage.jsx` | Auth surfaces |
 | `ProductDetailPage.jsx` | Full object plate by slug |
 | `RouteShellPage.jsx` | Wide placeholder for unfinished routes |
 | `NotFoundPage.jsx` / `UnauthorizedPage.jsx` / `ErrorPage.jsx` / `LoadingPage.jsx` | System states |
 
-### 5.7 Archive components
+### 5.7 Discover components
+
+| File | Role |
+| --- | --- |
+| `ProductFilters.jsx` | Domain-aware filter rail (shared + car/moto/watch specs) |
+| `ProductSort.jsx` | Sort control + result count |
+| `ProductGrid.jsx` / `ProductCard.jsx` | Masonry grid wrappers around `ObjectCard` |
+| `ProductGridSkeleton.jsx` | Loading skeleton for Discover |
+
+### 5.8 Archive components
 
 | File | Role |
 | --- | --- |
@@ -267,7 +287,7 @@ App.jsx → global CSS → AppRoutes
 | `MuseumFrame.jsx` | Subtle museum media frame |
 | `BrandIndex.jsx` / `JournalPreview.jsx` | Available brand/journal UI blocks |
 
-### 5.8 Layout & feedback components
+### 5.9 Layout & feedback components
 
 | File | Role |
 | --- | --- |
@@ -278,29 +298,32 @@ App.jsx → global CSS → AppRoutes
 | `Skeleton.jsx` / `PageSkeleton.jsx` | Loading placeholders |
 | `LoadingState.jsx` / `ErrorState.jsx` | Inline states |
 | `RouteErrorBoundary.jsx` | Catches render errors in routes |
+| `RequireAuth.jsx` / `RequireAdmin.jsx` | Route guards |
 
-### 5.9 Demo data (`data/demoData.js`)
+### 5.10 Redux features
 
-**Purpose:** Phase 2–3 local catalog until REST APIs exist. Titles are aligned to brand-correct Unsplash photos.
+| File | Role |
+| --- | --- |
+| `features/auth/authSlice.js` | Access token + user credentials |
+| `features/discover/filterSlice.js` | Mobile filter drawer + draft search query |
+| `features/favorites/favoriteSlice.js` | Local favorite ids (persistence in Phase 9) |
+| `features/products/productApi.js` | Discover URL ↔ query helpers |
+| `features/products/productSelectors.js` | Product list selectors |
+
+### 5.11 Demo data (`data/demoData.js`)
+
+**Purpose:** Hero plates and editorial copy still local until CMS. Catalog reads from Atlas APIs.
 
 | Export | Purpose |
 | --- | --- |
 | `hero` | Hero copy + `plates[]` carousel objects |
 | `archivePromise` | Promise section copy |
 | `domainPaths` | Chamber cards (car / motorcycle / watch) |
-| `objects` | Full demo catalog array |
-| `featuredCarId` / `featuredMotorcycleId` | Home signature picks |
-| `curatedObjectIds` | Curated subset |
+| `objects` | Legacy demo catalog (mostly superseded by API) |
+| `featuredCarId` / `featuredMotorcycleId` | Home signature picks (demo ids) |
 | `editorialStory` / `homeClose` | Home narrative blocks |
 | `brands` / `journalArticles` / `navLinks` | Supporting lists |
-| `getObjectById` / `getObjectBySlug` / `getObjectsByIds` | Lookups |
-| `getPrimaryImage` / `getSecondaryImage` | Image helpers |
-| `getPublisher` | Defaults to `ArchiveX` |
-| `getShuffledDiscoverFeed` | Deterministic shuffle for Discover |
 | `DEMO_DISCLAIMER` | Non-claim disclaimer |
-
-**Typical object fields:** `id`, `slug`, `name`, `brand`, `productType`, `year`, `rarity`, `shortDescription`, `images[]` (`url`, `alt`, `type`, `width`, `height`, `objectPosition?`).
-
 ---
 
 ## 6. Styles
@@ -359,6 +382,25 @@ App.jsx → global CSS → AppRoutes
 
 ## 9. Changelog (append newest on top)
 
+### 2026-09-09 (night) — Phase 7 Discovery
+
+- `searchService.js` builds public product filters: text search (name/reference/description/brand/category/tags), shared filters, and domain-aware specification filters.
+- Product list supports sort (`shuffle`, `popularity`, `newest`, `rarity`, `relevance`, `name`), pagination with correct totals, and optional `fields` projection.
+- `GET /products/filters/schema` returns domain-aware filter metadata.
+- Discover UI: filter rail, sort, search, URL sync, pagination, skeleton/empty/error; cars/motorcycles lead, watches secondary.
+- Public UX keeps Details modal (no compare/save on cards — collector actions remain Phase 9).
+- 25 server tests passing (includes discovery suite).
+- Fixed `RequireAuth` import paths.
+
+### 2026-09-09 (late) — Phase 6 Authentication
+
+- JWT access tokens + httpOnly refresh cookies; bcrypt password hashing.
+- Auth routes: register, login, refresh, logout, me.
+- Client: login/register/account pages, auth slice, RTK reauth, RequireAuth / RequireAdmin.
+- Account + admin layouts gated; header Sign in / Account.
+- Seed admin password set to `ArchiveX!admin` (re-seed applied).
+- 18 server tests passing.
+
 ### 2026-09-09 (evening) — Phase 5 MVC APIs
 
 - Public REST: `/products`, `/brands`, `/categories` (approved/active only; pending never leaks).
@@ -388,4 +430,5 @@ App.jsx → global CSS → AppRoutes
 
 ## 10. Next documentation updates expected
 
-When Phase 6 auth lands, document registration/login, roles, and protected routes.
+When Phase 8 product detail intelligence lands, document related objects and view tracking.
+When Phase 9 collector features land, document favorites/collections persistence.

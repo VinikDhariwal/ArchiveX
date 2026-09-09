@@ -25,6 +25,16 @@ const env = {
   ),
   mongodbUri: process.env.MONGODB_URI || '',
   mongodbDbName: process.env.MONGODB_DB_NAME || 'archivex',
+  jwtAccessSecret: requiredInProduction(
+    'JWT_ACCESS_SECRET',
+    process.env.JWT_ACCESS_SECRET || 'dev-access-secret-change-me'
+  ),
+  jwtRefreshSecret: requiredInProduction(
+    'JWT_REFRESH_SECRET',
+    process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret-change-me'
+  ),
+  jwtAccessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
+  jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   appName: APP_NAME,
   apiName: API_NAME,
   apiServiceId: API_SERVICE_ID,

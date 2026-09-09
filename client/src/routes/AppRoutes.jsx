@@ -11,6 +11,9 @@ import RouteShellPage from '../pages/RouteShellPage.jsx';
 const HomePage = lazy(() => import('../pages/HomePage.jsx'));
 const DiscoverPage = lazy(() => import('../pages/DiscoverPage.jsx'));
 const ProductDetailPage = lazy(() => import('../pages/ProductDetailPage.jsx'));
+const LoginPage = lazy(() => import('../pages/LoginPage.jsx'));
+const RegisterPage = lazy(() => import('../pages/RegisterPage.jsx'));
+const AccountPage = lazy(() => import('../pages/AccountPage.jsx'));
 
 function shell(props) {
   return <RouteShellPage {...props} />;
@@ -122,19 +125,13 @@ export default function AppRoutes() {
                 })}
               />
               <Route path="unauthorized" element={<UnauthorizedPage />} />
+              <Route path="login" element={<LoginPage />} />
+              <Route path="register" element={<RegisterPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
 
             <Route element={<AuthenticatedLayout />}>
-              <Route
-                path="account"
-                element={shell({
-                  eyebrow: 'Account',
-                  title: 'Collector account',
-                  summary: 'Profile and settings will appear here after authentication.',
-                  nextPhase: 'Phase 6',
-                })}
-              />
+              <Route path="account" element={<AccountPage />} />
               <Route
                 path="favorites"
                 element={shell({
@@ -176,7 +173,7 @@ export default function AppRoutes() {
                 element={shell({
                   eyebrow: 'Admin',
                   title: 'Operations overview',
-                  summary: 'Admin analytics and shortcuts will land here. Authorization is not enforced yet.',
+                  summary: 'Admin analytics and shortcuts will land here. Catalog CMS continues in Phase 13.',
                   nextPhase: 'Phase 13 / 15',
                   links: [{ label: 'Products', to: '/admin/products' }],
                 })}
