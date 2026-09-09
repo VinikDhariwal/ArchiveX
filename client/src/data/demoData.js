@@ -517,20 +517,7 @@ export function getObjectsByIds(ids) {
   return ids.map((id) => getObjectById(id)).filter(Boolean);
 }
 
-export function getPrimaryImage(object) {
-  if (!object?.images?.length) return null;
-  return object.images.find((item) => item.type === 'hero') || object.images[0];
-}
-
-/** Site operator / publisher identity for contributed and house objects. */
-export function getPublisher(object) {
-  return object?.publisher || 'ArchiveX';
-}
-
-export function getSecondaryImage(object) {
-  if (!object?.images?.length || object.images.length < 2) return null;
-  return object.images.find((item) => item.type !== 'hero') || object.images[1];
-}
+export { getPrimaryImage, getSecondaryImage, getPublisher } from '../utils/archiveObject.js';
 
 function shuffleArray(list) {
   const copy = [...list];

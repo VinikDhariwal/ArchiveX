@@ -1,17 +1,32 @@
 import { Link, useParams } from 'react-router-dom';
 import Breadcrumbs from '../components/layout/Breadcrumbs.jsx';
 import ProductGallery from '../components/archive/ProductGallery.jsx';
+import LoadingState from '../components/feedback/LoadingState.jsx';
+import ErrorState from '../components/feedback/ErrorState.jsx';
 import useDocumentTitle from '../hooks/useDocumentTitle.js';
-import { getObjectBySlug, getPublisher } from '../data/demoData.js';
+import { useGetProductBySlugQuery } from '../app/api.js';
+import { getPublisher } from '../utils/archiveObject.js';
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
-  const object = getObjectBySlug(slug);
+  const { data: object, isLoading, isError, refetch } = useGetProductBySlugQuery(slug, {
+    skip: !slug,
+  });
   const publisher = object ? getPublisher(object) : 'ArchiveX';
 
-  useDocumentTitle(object?.name || 'Missing object');
+  useDocumentTitle(object?.name || (isLoading ? 'Loading…' : 'Missing object'));
 
-  if (!object) {
+  if (isLoading) {
+    return (
+      <main className="route-shell">
+        <div className="route-shell__inner">
+          <LoadingState />
+        </div>
+      </main>
+    );
+  }
+
+  if (isError || !object) {
     return (
       <main className="route-shell">
         <div className="route-shell__inner">
@@ -24,11 +39,12 @@ export default function ProductDetailPage() {
           />
           <header className="page-head">
             <p className="meta">Missing object</p>
-            <h1 className="display page-head__title">This object is not in the demonstration archive</h1>
+            <h1 className="display page-head__title">This object is not in the public archive</h1>
           </header>
+          {isError ? <ErrorState message="Could not load this object." onRetry={refetch} /> : null}
           <p className="route-shell__actions">
-            <Link className="link-cta" to="/">
-              Back home
+            <Link className="link-cta" to="/discover">
+              Back to discover
             </Link>
           </p>
         </div>
@@ -43,7 +59,7 @@ export default function ProductDetailPage() {
           items={[
             { label: 'Home', to: '/' },
             { label: 'Discover', to: '/discover' },
-            { label: object.productType, to: '/categories' },
+            { label: object.productType, to: `/discover?domain=${object.productType}` },
             { label: object.name },
           ]}
         />
@@ -61,7 +77,7 @@ export default function ProductDetailPage() {
               <span>{object.productType}</span>
               <span>{object.year}</span>
               <span className="rarity">{object.rarity}</span>
-              <span>{object.images.length} plates</span>
+              <span>{object.images?.length || 0} plates</span>
             </div>
 
             <p className="product-detail__publisher">
@@ -74,10 +90,6 @@ export default function ProductDetailPage() {
                 Back to discover
               </Link>
             </div>
-
-            <p className="demo-note" style={{ marginTop: '1.5rem' }}>
-              Multi-image gallery is demonstration data. Full domain specifications arrive in Phase 8.
-            </p>
           </div>
         </div>
       </div>

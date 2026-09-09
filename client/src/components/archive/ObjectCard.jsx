@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getPrimaryImage, getPublisher } from '../../data/demoData.js';
+import { getPrimaryImage, getPublisher } from '../../utils/archiveObject.js';
 import ObjectDetailModal from './ObjectDetailModal.jsx';
 
 export default function ObjectCard({ object }) {

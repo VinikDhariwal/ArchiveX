@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { getPrimaryImage, getPublisher } from '../../data/demoData.js';
+import { getPrimaryImage, getPublisher } from '../../utils/archiveObject.js';
 
 export default function ObjectDetailModal({ object, onClose }) {
   const primary = getPrimaryImage(object);
