@@ -1,0 +1,28 @@
+import mongoose from 'mongoose';
+import { USER_ROLES, USER_STATUSES } from '../config/constants.js';
+
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true, maxlength: 120 },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      maxlength: 254,
+    },
+    passwordHash: { type: String, required: true },
+    role: { type: String, enum: USER_ROLES, default: 'user', index: true },
+    status: { type: String, enum: USER_STATUSES, default: 'active', index: true },
+    preferences: {
+      newsletter: { type: Boolean, default: false },
+      locale: { type: String, default: 'en', maxlength: 16 },
+    },
+    deletedAt: { type: Date, default: null },
+  },
+  { timestamps: true }
+);
+
+export const User = mongoose.models.User || mongoose.model('User', userSchema);
+export default User;

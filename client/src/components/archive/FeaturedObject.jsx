@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { getPrimaryImage, getPublisher } from '../../data/demoData.js';
 import ObjectDetailModal from './ObjectDetailModal.jsx';
 
@@ -55,9 +54,6 @@ export default function FeaturedObject({ object, eyebrow, sectionId, flipped = f
             <button type="button" className="link-cta" onClick={() => setDetailsOpen(true)}>
               Details
             </button>
-            <Link className="link-cta link-cta--muted" to={`/products/${object.slug}`}>
-              Open full plate →
-            </Link>
           </div>
         </div>
       </section>

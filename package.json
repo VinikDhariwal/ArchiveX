@@ -4,7 +4,8 @@
   "private": true,
   "description": "ArchiveX — multi-domain luxury discovery, archive, editorial, and collector platform",
   "scripts": {
-    "dev": "concurrently -n server,client -c green,blue \"npm run server\" \"npm run client\"",
+    "start": "concurrently -n server,client -c green,blue \"npm run server\" \"npm run client\"",
+    "dev": "npm start",
     "client": "npm run dev --prefix client",
     "server": "npm run dev --prefix server",
     "build": "npm run build --prefix client",

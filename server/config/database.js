@@ -2,12 +2,12 @@ import mongoose from 'mongoose';
 import env from './env.js';
 
 /**
- * Optional MongoDB Atlas connection foundation.
- * Phase 1 keeps this isolated so the API can boot without a URI.
+ * MongoDB Atlas connection for ArchiveX.
+ * Phase 4 models require a URI for seeding; the API can still boot without it in development.
  */
 export async function connectDatabase() {
   if (!env.mongodbUri) {
-    console.warn('[database] MONGODB_URI not set — skipping MongoDB connection (Phase 1).');
+    console.warn('[database] MONGODB_URI not set — skipping MongoDB connection.');
     return null;
   }
 
@@ -17,7 +17,7 @@ export async function connectDatabase() {
     dbName: env.mongodbDbName,
   });
 
-  console.info('[database] Connected to MongoDB Atlas');
+  console.info(`[database] Connected to MongoDB (${env.mongodbDbName})`);
   return mongoose.connection;
 }
 

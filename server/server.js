@@ -6,13 +6,23 @@ async function start() {
   try {
     await connectDatabase();
   } catch (error) {
-    console.error('[database] Connection failed — continuing without MongoDB in Phase 1.');
+    console.error('[database] Connection failed — API will start without MongoDB.');
     console.error(error.message);
   }
 
   const server = app.listen(env.port, () => {
     console.info(`[server] ${env.apiName} listening on port ${env.port}`);
     console.info(`[server] Health path: /api/${env.apiVersion}/health`);
+  });
+
+  server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+      console.error(
+        `[server] Port ${env.port} is already in use. Stop the other process (or run: lsof -ti :${env.port} | xargs kill) and try again.`
+      );
+      process.exit(1);
+    }
+    throw error;
   });
 
   const shutdown = (signal) => {
