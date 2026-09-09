@@ -191,13 +191,13 @@ export default function ArchiveHero() {
           </h1>
           <p className="archive-hero__lede">{hero.lede}</p>
           <div className="archive-hero__actions">
-            <a className="link-cta" href={hero.primaryCta.href}>
+            <a className="btn btn--soft" href={hero.primaryCta.href}>
               {hero.primaryCta.label}
             </a>
-            <Link className="link-cta" to={hero.secondaryCta.href}>
+            <Link className="btn btn--soft" to={hero.secondaryCta.href}>
               {hero.secondaryCta.label}
             </Link>
-            <Link className="link-cta" to={hero.tertiaryCta.href}>
+            <Link className="btn btn--soft" to={hero.tertiaryCta.href}>
               {hero.tertiaryCta.label}
             </Link>
           </div>

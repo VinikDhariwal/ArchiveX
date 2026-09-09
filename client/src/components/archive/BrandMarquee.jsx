@@ -14,7 +14,7 @@ export default function BrandMarquee({ brands }) {
             <p className="meta">The marques</p>
             <span className="hairline" aria-hidden="true" />
           </div>
-          <Link className="link-cta" to="/brands">
+          <Link className="btn btn--soft" to="/brands">
             View all brands
           </Link>
         </div>

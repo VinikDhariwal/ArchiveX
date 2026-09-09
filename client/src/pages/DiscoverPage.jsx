@@ -99,33 +99,36 @@ export default function DiscoverPage() {
   return (
     <main className="discover-page">
       <div className="section-inner discover-page__inner discover-page__inner--wide">
-        <Breadcrumbs
-          items={[
-            { label: 'Home', to: '/' },
-            { label: 'Discover' },
-          ]}
-        />
+        <div className="discover-page__top">
+          <Breadcrumbs
+            items={[
+              { label: 'Home', to: '/' },
+              { label: 'Discover' },
+            ]}
+          />
 
-        <header className="discover-page__head">
-          <div>
-            <h1 className="discover-page__title">Discover</h1>
-            <p className="discover-page__lede">
-              Browse cars and motorcycles first, then watches. Use filters to narrow the feed.
-            </p>
-          </div>
-          <div className="discover-page__head-actions">
-            <button
-              type="button"
-              className="discover-page__action discover-page__filters-toggle"
-              onClick={() => dispatch(setMobileFiltersOpen(!mobileFiltersOpen))}
-            >
-              {mobileFiltersOpen ? 'Hide filters' : `Filters${activeFilterCount ? ` (${activeFilterCount})` : ''}`}
-            </button>
-            <button type="button" className="discover-page__action" onClick={handleReshuffle}>
-              Reshuffle
-            </button>
-          </div>
-        </header>
+          <header className="discover-page__head">
+            <div>
+              <p className="discover-page__eyebrow">Archive</p>
+              <h1 className="discover-page__title">Discover</h1>
+              <p className="discover-page__lede">
+                A quieter chamber for cars and motorcycles — watches follow softly.
+              </p>
+            </div>
+            <div className="discover-page__head-actions">
+              <button
+                type="button"
+                className="discover-page__action discover-page__filters-toggle"
+                onClick={() => dispatch(setMobileFiltersOpen(!mobileFiltersOpen))}
+              >
+                {mobileFiltersOpen ? 'Hide filters' : `Filters${activeFilterCount ? ` (${activeFilterCount})` : ''}`}
+              </button>
+              <button type="button" className="discover-page__action" onClick={handleReshuffle}>
+                Reshuffle
+              </button>
+            </div>
+          </header>
+        </div>
 
         <div className={`discover-page__layout ${mobileFiltersOpen ? 'is-filters-open' : ''}`}>
           <div className="discover-page__rail">

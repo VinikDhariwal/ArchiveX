@@ -51,7 +51,7 @@ export default function FeaturedObject({ object, eyebrow, sectionId, flipped = f
             <span>Published by {publisher}</span>
           </div>
           <div className="featured-object__actions">
-            <button type="button" className="link-cta" onClick={() => setDetailsOpen(true)}>
+            <button type="button" className="btn btn--soft" onClick={() => setDetailsOpen(true)}>
               Details
             </button>
           </div>

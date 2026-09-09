@@ -14,7 +14,7 @@ export default function DomainPaths({ domains }) {
             Cars and motorcycles lead the archive. Watches remain a fully supported second chamber.
           </p>
         </div>
-        <Link className="link-cta" to="/discover">
+        <Link className="btn btn--soft" to="/discover">
           View the full feed
         </Link>
       </div>

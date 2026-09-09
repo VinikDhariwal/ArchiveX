@@ -179,7 +179,6 @@ button {
 }
 
 .page-head__title,
-.discover-page__title,
 .route-shell__title,
 .state-page__title,
 .product-detail__title {
@@ -191,7 +190,6 @@ button {
 }
 
 .page-lede,
-.discover-page__lede,
 .route-shell__summary,
 .state-page__copy,
 .product-detail__lede {
@@ -327,43 +325,73 @@ button {
 
 .btn {
   appearance: none;
-  border: 1px solid var(--ink);
-  background: transparent;
-  color: var(--ink);
-  padding: 0.8rem 1.2rem;
-  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.15rem;
+  padding: 0.42rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--brass) 34%, var(--ink) 8%);
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--paper) 78%, var(--white)) 0%,
+    color-mix(in srgb, var(--paper-mid) 70%, var(--blush)) 100%
+  );
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--white) 62%, transparent) inset,
+    0 6px 14px color-mix(in srgb, var(--ink) 3%, transparent);
+  color: var(--ink-soft);
   font-family: var(--font-ui);
   font-size: 0.72rem;
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   text-decoration: none;
+  cursor: pointer;
   transition:
-    background var(--duration-med) var(--ease-museum),
-    color var(--duration-med) var(--ease-museum),
-    border-color var(--duration-med) var(--ease-museum);
+    border-color var(--duration-fast) var(--ease-museum),
+    background var(--duration-fast) var(--ease-museum),
+    color var(--duration-fast) var(--ease-museum);
+}
+
+.btn:hover {
+  border-color: color-mix(in srgb, var(--brass) 58%, var(--ink) 7%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--blush) 52%, var(--paper)) 0%,
+    color-mix(in srgb, var(--paper-mid) 62%, var(--blush-deep)) 100%
+  );
+  color: var(--ink);
 }
 
 .btn--soft {
-  border-color: color-mix(in srgb, var(--brass) 45%, transparent);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--white) 88%, var(--brass-bright)) 0%, var(--blush) 100%);
-  color: var(--ink);
-  border-radius: 999px;
-  padding: 0.9rem 1.45rem;
+  border-color: color-mix(in srgb, var(--brass) 34%, var(--ink) 8%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--paper) 78%, var(--white)) 0%,
+    color-mix(in srgb, var(--paper-mid) 70%, var(--blush)) 100%
+  );
+  color: var(--ink-soft);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.55) inset,
-    0 10px 28px var(--glow);
+    0 1px 0 color-mix(in srgb, var(--white) 62%, transparent) inset,
+    0 6px 14px color-mix(in srgb, var(--ink) 3%, transparent);
 }
 
 .btn--soft:hover {
-  background: var(--navy);
-  color: var(--white);
-  border-color: var(--navy);
+  border-color: color-mix(in srgb, var(--brass) 58%, var(--ink) 7%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--blush) 52%, var(--paper)) 0%,
+    color-mix(in srgb, var(--paper-mid) 62%, var(--blush-deep)) 100%
+  );
+  color: var(--ink);
 }
 
 
 .btn--ghost {
   border-color: var(--line-strong);
+  background: transparent;
+  box-shadow: none;
   color: var(--muted-ink);
 }
 
@@ -371,6 +399,7 @@ button {
   border-color: var(--ink);
   color: var(--paper);
   background: var(--ink);
+  box-shadow: none;
 }
 
 .btn--icon {

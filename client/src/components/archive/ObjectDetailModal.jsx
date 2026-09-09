@@ -67,7 +67,7 @@ export default function ObjectDetailModal({ object, onClose }) {
             </p>
 
             <div className="object-modal__actions">
-              <button type="button" className="quiet-action" onClick={onClose}>
+              <button type="button" className="btn btn--soft" onClick={onClose}>
                 Back to feed
               </button>
             </div>
