@@ -3,6 +3,7 @@ export { Brand } from './Brand.js';
 export { Category } from './Category.js';
 export { Tag } from './Tag.js';
 export { Product } from './Product.js';
+export { ProductView } from './ProductView.js';
 export {
   buildSpecifications,
   assertValidSpecifications,

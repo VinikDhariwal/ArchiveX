@@ -127,6 +127,30 @@ export const api = createApi({
       transformResponse: (response) => response?.data ?? null,
       providesTags: (_result, _error, slug) => [{ type: 'Product', id: slug }],
     }),
+    recordProductView: builder.mutation({
+      query: ({ id, sessionKey, source = 'detail' }) => ({
+        url: `/products/${id}/view`,
+        method: 'POST',
+        body: { sessionKey, source },
+      }),
+      transformResponse: (response) => response?.data ?? null,
+    }),
+    getRelatedProducts: builder.query({
+      query: ({ id, limit = 6 }) => ({
+        url: `/products/${id}/related`,
+        params: { limit },
+      }),
+      transformResponse: (response) => response?.data || [],
+      providesTags: (_result, _error, arg) => [{ type: 'Product', id: `RELATED-${arg.id}` }],
+    }),
+    getProductJournal: builder.query({
+      query: (id) => `/products/${id}/journal`,
+      transformResponse: (response) => ({
+        items: response?.data || [],
+        meta: response?.meta || {},
+      }),
+      providesTags: (_result, _error, id) => [{ type: 'Product', id: `JOURNAL-${id}` }],
+    }),
     getBrands: builder.query({
       query: (params = {}) => ({
         url: '/brands',
@@ -165,6 +189,9 @@ export const {
   useGetProductsQuery,
   useGetProductFilterSchemaQuery,
   useGetProductBySlugQuery,
+  useRecordProductViewMutation,
+  useGetRelatedProductsQuery,
+  useGetProductJournalQuery,
   useGetBrandsQuery,
   useGetBrandBySlugQuery,
   useGetCategoriesQuery,

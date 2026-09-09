@@ -1,5 +1,6 @@
-import { Product } from '../models/index.js';
+import { Product, ProductView } from '../models/index.js';
 import ApiError from '../utils/ApiError.js';
+import mongoose from 'mongoose';
 import {
   applyFieldSelection,
   buildPublicProductFilter,
@@ -50,6 +51,7 @@ export function serializeProduct(doc) {
     featured: Boolean(plain.featured),
     shortDescription: plain.shortDescription || '',
     description: plain.description || '',
+    whyItMatters: plain.whyItMatters || '',
     publisher: plain.publisher || 'ArchiveX',
     materials: plain.materials || [],
     colors: plain.colors || [],
@@ -63,6 +65,19 @@ export function serializeProduct(doc) {
     })),
     specifications: toPlainFields(plain.specifications),
     rarityProfile: plain.rarityProfile || null,
+    marketSignals: plain.marketSignals
+      ? {
+          archiveEstimate: plain.marketSignals.archiveEstimate || '',
+          marketRange: plain.marketSignals.marketRange || '',
+          collectorInterest: plain.marketSignals.collectorInterest || '',
+          availabilitySignal: plain.marketSignals.availabilitySignal || '',
+          priceMovement: plain.marketSignals.priceMovement || '',
+          lastUpdated: plain.marketSignals.lastUpdated || null,
+          disclaimer:
+            plain.marketSignals.disclaimer ||
+            'Informational archive signals only — not a guarantee of price, availability, or investment outcome.',
+        }
+      : null,
     category: plain.category
       ? {
           id: String(plain.category._id || plain.category),
@@ -193,6 +208,34 @@ export async function getPublicProductBySlug(slug) {
   }
 
   return serializeProduct(product);
+}
+
+export async function getApprovedProductId(productId) {
+  if (!mongoose.isValidObjectId(productId)) {
+    throw new ApiError('Invalid product id', 400, 'INVALID_PRODUCT_ID');
+  }
+  const product = await Product.findOne({ _id: productId, ...PUBLIC_FILTER }).select('_id').lean();
+  if (!product) {
+    throw new ApiError('Product not found', 404, 'PRODUCT_NOT_FOUND');
+  }
+  return String(product._id);
+}
+
+export async function recordProductView(productId, { sessionKey, userId, source, userAgent } = {}) {
+  const id = await getApprovedProductId(productId);
+  const view = await ProductView.create({
+    product: id,
+    user: userId || null,
+    sessionKey: sessionKey ? String(sessionKey).slice(0, 120) : null,
+    source: source || 'detail',
+    userAgent: userAgent ? String(userAgent).slice(0, 400) : '',
+  });
+
+  return {
+    id: String(view._id),
+    productId: id,
+    createdAt: view.createdAt,
+  };
 }
 
 export function getPublicFilterSchema(query = {}) {
