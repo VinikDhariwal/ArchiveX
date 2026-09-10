@@ -1,9 +1,10 @@
-import { Brand } from '../models/index.js';
+import { Brand, Product } from '../models/index.js';
 import ApiError from '../utils/ApiError.js';
 
 const PUBLIC_FILTER = { status: 'active', deletedAt: null };
+const PRODUCT_PUBLIC = { status: 'approved', deletedAt: null };
 
-export function serializeBrand(doc) {
+export function serializeBrand(doc, productCount = 0) {
   if (!doc) return null;
   const plain = typeof doc.toObject === 'function' ? doc.toObject() : doc;
   return {
@@ -15,7 +16,17 @@ export function serializeBrand(doc) {
     country: plain.country || null,
     primaryDomains: plain.primaryDomains || [],
     logo: plain.logo || null,
+    productCount: Number(productCount) || 0,
   };
+}
+
+async function productCountsForBrandIds(brandIds) {
+  if (!brandIds.length) return new Map();
+  const rows = await Product.aggregate([
+    { $match: { ...PRODUCT_PUBLIC, brand: { $in: brandIds } } },
+    { $group: { _id: '$brand', count: { $sum: 1 } } },
+  ]);
+  return new Map(rows.map((row) => [String(row._id), row.count]));
 }
 
 export async function listPublicBrands(query = {}) {
@@ -23,9 +34,13 @@ export async function listPublicBrands(query = {}) {
   if (query.domain) {
     filter.primaryDomains = query.domain;
   }
+  if (query.q) {
+    filter.name = { $regex: String(query.q).trim(), $options: 'i' };
+  }
 
   const brands = await Brand.find(filter).sort({ name: 1 }).lean();
-  return brands.map(serializeBrand);
+  const counts = await productCountsForBrandIds(brands.map((item) => item._id));
+  return brands.map((item) => serializeBrand(item, counts.get(String(item._id)) || 0));
 }
 
 export async function getPublicBrandBySlug(slug) {
@@ -33,5 +48,6 @@ export async function getPublicBrandBySlug(slug) {
   if (!brand) {
     throw new ApiError('Brand not found', 404, 'BRAND_NOT_FOUND');
   }
-  return serializeBrand(brand);
+  const counts = await productCountsForBrandIds([brand._id]);
+  return serializeBrand(brand, counts.get(String(brand._id)) || 0);
 }

@@ -18,6 +18,7 @@ import {
   User,
   buildSpecifications,
 } from '../models/index.js';
+import { BRAND_CATALOG, CATEGORY_CATALOG } from './brandCatalog.js';
 
 /** Demo admin login (local/dev seed only): editor@archivex.local / ArchiveX!admin */
 const SEED_ADMIN_PASSWORD = 'ArchiveX!admin';
@@ -112,176 +113,31 @@ async function seed() {
     { upsert: true, new: true, setDefaultsOnInsert: true }
   );
 
-  const brands = {
-    mercedes: await upsertBySlug(Brand, 'mercedes-benz', {
-      name: 'Mercedes-Benz',
-      slug: 'mercedes-benz',
-      description: 'Stuttgart house of engineering and rare competition silhouettes.',
-      foundedYear: 1926,
-      country: 'Germany',
-      primaryDomains: ['car'],
+  const brands = {};
+  for (const entry of BRAND_CATALOG) {
+    const doc = await upsertBySlug(Brand, entry.slug, {
+      name: entry.name,
+      slug: entry.slug,
+      description: entry.description || '',
+      foundedYear: entry.foundedYear,
+      country: entry.country,
+      primaryDomains: entry.domains,
       status: 'active',
-    }),
-    ferrari: await upsertBySlug(Brand, 'ferrari', {
-      name: 'Ferrari',
-      slug: 'ferrari',
-      description: 'Maranello icons spanning racing myth and road legend.',
-      foundedYear: 1947,
-      country: 'Italy',
-      primaryDomains: ['car'],
-      status: 'active',
-    }),
-    bugatti: await upsertBySlug(Brand, 'bugatti', {
-      name: 'Bugatti',
-      slug: 'bugatti',
-      description: 'Molsheim hypercar craft and horseshoe-grille theatre.',
-      foundedYear: 1909,
-      country: 'France',
-      primaryDomains: ['car'],
-      status: 'active',
-    }),
-    porsche: await upsertBySlug(Brand, 'porsche', {
-      name: 'Porsche',
-      slug: 'porsche',
-      description: 'Enduring sports-car geometry and collector continuity.',
-      foundedYear: 1931,
-      country: 'Germany',
-      primaryDomains: ['car'],
-      status: 'active',
-    }),
-    lamborghini: await upsertBySlug(Brand, 'lamborghini', {
-      name: 'Lamborghini',
-      slug: 'lamborghini',
-      description: 'Sant’Agata wedge drama and V10/V12 presence.',
-      foundedYear: 1963,
-      country: 'Italy',
-      primaryDomains: ['car'],
-      status: 'active',
-    }),
-    mclaren: await upsertBySlug(Brand, 'mclaren', {
-      name: 'McLaren',
-      slug: 'mclaren',
-      description: 'Woking hybrid hypercar craftsmanship.',
-      foundedYear: 1963,
-      country: 'United Kingdom',
-      primaryDomains: ['car'],
-      status: 'active',
-    }),
-    yamaha: await upsertBySlug(Brand, 'yamaha', {
-      name: 'Yamaha',
-      slug: 'yamaha',
-      description: 'Sculptural supersport motorcycles with track presence.',
-      foundedYear: 1955,
-      country: 'Japan',
-      primaryDomains: ['motorcycle'],
-      status: 'active',
-    }),
-    ducati: await upsertBySlug(Brand, 'ducati', {
-      name: 'Ducati',
-      slug: 'ducati',
-      description: 'Bologna superbike geometry and Desmo lore.',
-      foundedYear: 1926,
-      country: 'Italy',
-      primaryDomains: ['motorcycle'],
-      status: 'active',
-    }),
-    harley: await upsertBySlug(Brand, 'harley-davidson', {
-      name: 'Harley-Davidson',
-      slug: 'harley-davidson',
-      description: 'Milwaukee cruiser heritage and tank-badge presence.',
-      foundedYear: 1903,
-      country: 'United States',
-      primaryDomains: ['motorcycle'],
-      status: 'active',
-    }),
-    suzuki: await upsertBySlug(Brand, 'suzuki', {
-      name: 'Suzuki',
-      slug: 'suzuki',
-      description: 'Japanese road craft spanning café builds and superbikes.',
-      foundedYear: 1909,
-      country: 'Japan',
-      primaryDomains: ['motorcycle'],
-      status: 'active',
-    }),
-    honda: await upsertBySlug(Brand, 'honda', {
-      name: 'Honda',
-      slug: 'honda',
-      description: 'Custom and production motorcycle craft.',
-      foundedYear: 1948,
-      country: 'Japan',
-      primaryDomains: ['motorcycle'],
-      status: 'active',
-    }),
-    ktm: await upsertBySlug(Brand, 'ktm', {
-      name: 'KTM',
-      slug: 'ktm',
-      description: 'Orange-framed Race Competition roadsters.',
-      foundedYear: 1934,
-      country: 'Austria',
-      primaryDomains: ['motorcycle'],
-      status: 'active',
-    }),
-    patek: await upsertBySlug(Brand, 'patek-philippe', {
-      name: 'Patek Philippe',
-      slug: 'patek-philippe',
-      description: 'Geneva complications and archival horology.',
-      foundedYear: 1839,
-      country: 'Switzerland',
-      primaryDomains: ['watch'],
-      status: 'active',
-    }),
-    omega: await upsertBySlug(Brand, 'omega', {
-      name: 'Omega',
-      slug: 'omega',
-      description: 'Precision instruments with expedition heritage.',
-      foundedYear: 1848,
-      country: 'Switzerland',
-      primaryDomains: ['watch'],
-      status: 'active',
-    }),
-    rolex: await upsertBySlug(Brand, 'rolex', {
-      name: 'Rolex',
-      slug: 'rolex',
-      description: 'Tool-watch language and chronometer heritage.',
-      foundedYear: 1905,
-      country: 'Switzerland',
-      primaryDomains: ['watch'],
-      status: 'active',
-    }),
-    cartier: await upsertBySlug(Brand, 'cartier', {
-      name: 'Cartier',
-      slug: 'cartier',
-      description: 'Early pilot wristwatch geometry still shaping dress codes.',
-      foundedYear: 1847,
-      country: 'France',
-      primaryDomains: ['watch'],
-      status: 'active',
-    }),
-  };
+    });
+    if (entry.key) brands[entry.key] = doc;
+  }
 
-  const categories = {
-    carIcons: await upsertBySlug(Category, 'automotive-icons', {
-      name: 'Automotive icons',
-      slug: 'automotive-icons',
-      description: 'Scarce silhouettes and engineering lore.',
-      productType: 'car',
+  const categories = {};
+  for (const entry of CATEGORY_CATALOG) {
+    const doc = await upsertBySlug(Category, entry.slug, {
+      name: entry.name,
+      slug: entry.slug,
+      description: entry.description || '',
+      productType: entry.productType,
       status: 'active',
-    }),
-    motoCraft: await upsertBySlug(Category, 'two-wheel-craft', {
-      name: 'Two-wheel craft',
-      slug: 'two-wheel-craft',
-      description: 'Superbikes and heritage roadsters.',
-      productType: 'motorcycle',
-      status: 'active',
-    }),
-    watchChamber: await upsertBySlug(Category, 'watch-chamber', {
-      name: 'Watch chamber',
-      slug: 'watch-chamber',
-      description: 'Secondary luxury watch archive.',
-      productType: 'watch',
-      status: 'active',
-    }),
-  };
+    });
+    if (entry.key) categories[entry.key] = doc;
+  }
 
   const tags = {
     ultraRare: await upsertBySlug(Tag, 'ultra-rare', { name: 'Ultra-rare', slug: 'ultra-rare' }),
@@ -851,6 +707,9 @@ async function seed() {
   const counts = {
     users: await User.countDocuments(),
     brands: await Brand.countDocuments(),
+    brandsCar: await Brand.countDocuments({ primaryDomains: 'car', status: 'active' }),
+    brandsMotorcycle: await Brand.countDocuments({ primaryDomains: 'motorcycle', status: 'active' }),
+    brandsWatch: await Brand.countDocuments({ primaryDomains: 'watch', status: 'active' }),
     categories: await Category.countDocuments(),
     tags: await Tag.countDocuments(),
     products: await Product.countDocuments(),

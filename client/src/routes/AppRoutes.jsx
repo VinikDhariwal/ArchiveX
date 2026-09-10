@@ -20,6 +20,10 @@ const CollectionsPage = lazy(() => import('../pages/CollectionsPage.jsx'));
 const CollectionDetailPage = lazy(() => import('../pages/CollectionDetailPage.jsx'));
 const JournalPage = lazy(() => import('../pages/JournalPage.jsx'));
 const ArticleDetailPage = lazy(() => import('../pages/ArticleDetailPage.jsx'));
+const BrandsPage = lazy(() => import('../pages/BrandsPage.jsx'));
+const BrandDetailPage = lazy(() => import('../pages/BrandDetailPage.jsx'));
+const CategoriesPage = lazy(() => import('../pages/CategoriesPage.jsx'));
+const CategoryDetailPage = lazy(() => import('../pages/CategoryDetailPage.jsx'));
 
 function shell(props) {
   return <RouteShellPage {...props} />;
@@ -49,61 +53,10 @@ export default function AppRoutes() {
                   ],
                 })}
               />
-              <Route
-                path="brands"
-                element={shell({
-                  eyebrow: 'Brands',
-                  title: 'Houses, A–Z',
-                  summary: 'Brands will list alphabetically by default, with filters for cars, motorcycles, watches, and other domains.',
-                  nextPhase: 'Phase 11',
-                  breadcrumbs: [
-                    { label: 'Home', to: '/' },
-                    { label: 'Brands' },
-                  ],
-                  links: [{ label: 'View categories', to: '/categories' }],
-                })}
-              />
-              <Route
-                path="brands/:slug"
-                element={shell({
-                  eyebrow: 'Brand',
-                  title: 'Brand chamber',
-                  summary: 'Individual brand pages with related objects will live at this route.',
-                  nextPhase: 'Phase 11',
-                  breadcrumbs: [
-                    { label: 'Home', to: '/' },
-                    { label: 'Brands', to: '/brands' },
-                    { label: 'Brand' },
-                  ],
-                })}
-              />
-              <Route
-                path="categories"
-                element={shell({
-                  eyebrow: 'Categories',
-                  title: 'Taxonomy',
-                  summary: 'Category paths for cars, motorcycles, and watches will open here.',
-                  nextPhase: 'Phase 11',
-                  breadcrumbs: [
-                    { label: 'Home', to: '/' },
-                    { label: 'Categories' },
-                  ],
-                })}
-              />
-              <Route
-                path="categories/:slug"
-                element={shell({
-                  eyebrow: 'Category',
-                  title: 'Category chamber',
-                  summary: 'Domain taxonomy detail pages will resolve here.',
-                  nextPhase: 'Phase 11',
-                  breadcrumbs: [
-                    { label: 'Home', to: '/' },
-                    { label: 'Categories', to: '/categories' },
-                    { label: 'Category' },
-                  ],
-                })}
-              />
+              <Route path="brands" element={<BrandsPage />} />
+              <Route path="brands/:slug" element={<BrandDetailPage />} />
+              <Route path="categories" element={<CategoriesPage />} />
+              <Route path="categories/:slug" element={<CategoryDetailPage />} />
               <Route path="journal" element={<JournalPage />} />
               <Route path="journal/:slug" element={<ArticleDetailPage />} />
               <Route path="unauthorized" element={<UnauthorizedPage />} />

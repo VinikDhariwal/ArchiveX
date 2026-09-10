@@ -3,15 +3,15 @@ import MuseumFrame from './MuseumFrame.jsx';
 
 export default function JournalPreview({ articles }) {
   return (
-    <section className="journal-preview" id="journal" aria-labelledby="journal-title" data-reveal>
-      <div className="journal-preview__head">
+    <section className="journal-preview" id="journal" aria-labelledby="journal-title">
+      <div className="journal-preview__head" data-reveal>
         <div>
           <p className="meta">Journal</p>
           <span className="hairline" aria-hidden="true" />
           <h2 id="journal-title">Stories from the archive</h2>
         </div>
       </div>
-      <div className="journal-preview__grid">
+      <div className="journal-preview__grid" data-reveal>
         {articles.map((article, index) => {
           const href = article.slug ? `/journal/${article.slug}` : null;
           const media = article.image?.url ? (
