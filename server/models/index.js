@@ -7,6 +7,8 @@ export { ProductView } from './ProductView.js';
 export { Favorite } from './Favorite.js';
 export { Collection, COLLECTION_VISIBILITY } from './Collection.js';
 export { Article } from './Article.js';
+export { AuditLog } from './AuditLog.js';
+export { MediaAsset } from './MediaAsset.js';
 export {
   buildSpecifications,
   assertValidSpecifications,

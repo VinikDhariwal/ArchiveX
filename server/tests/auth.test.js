@@ -22,7 +22,7 @@ describe('Phase 6 auth APIs', () => {
     if (mongod) await mongod.stop();
   });
 
-  it('registers a new collector', async () => {
+  it('rejects public self-registration', async () => {
     const response = await request('/api/v1/auth/register', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -33,11 +33,8 @@ describe('Phase 6 auth APIs', () => {
       }),
     });
 
-    assert.equal(response.status, 201);
-    assert.equal(response.body.success, true);
-    assert.equal(response.body.data.user.email, 'collector@test.local');
-    assert.equal(response.body.data.user.role, 'user');
-    assert.ok(response.body.data.accessToken);
+    assert.equal(response.status, 403);
+    assert.equal(response.body.success, false);
   });
 
   it('logs in with valid credentials', async () => {

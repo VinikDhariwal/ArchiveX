@@ -50,7 +50,7 @@ Set `MONGODB_URI` in `server/.env`, then seed the multi-domain demo catalog:
 npm run seed --prefix server
 ```
 
-Seed admin (Phase 6): `editor@archivex.local` / `ArchiveX!admin`
+Seed admin: see `LOCAL_CREDENTIALS.md` (local only, gitignored). Public self-registration is closed; create accounts from `/admin/users`.
 
 ## Scripts
 
@@ -109,7 +109,9 @@ Never commit real `.env` files or secrets. Do not hardcode production hosts, cat
 - Phase 10: Journal — complete
 - Phase 11: Brands / categories — complete
 - Phase 12: Search / recommendations — complete
-- Later phases: not started
+- Phase 13: Admin CMS — complete (analytics deferred to Phase 15)
+- Phase 14: Media — complete (local upload library + catalog image wiring)
+- Later phases: analytics, hardening, deployment — not started
 
 ## Phase 4 data model notes
 

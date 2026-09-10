@@ -7,6 +7,7 @@ import articleRoutes from './articleRoutes.js';
 import authRoutes from './authRoutes.js';
 import favoriteRoutes from './favoriteRoutes.js';
 import collectionRoutes from './collectionRoutes.js';
+import adminRoutes from './adminRoutes.js';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/categories', categoryRoutes);
 router.use('/articles', articleRoutes);
 router.use('/favorites', favoriteRoutes);
 router.use('/collections', collectionRoutes);
+router.use('/admin', adminRoutes);
 
 export default router;

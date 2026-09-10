@@ -52,6 +52,14 @@ export const api = createApi({
     'Favorite',
     'Collection',
     'RecentlyViewed',
+    'AdminOverview',
+    'AdminProduct',
+    'AdminBrand',
+    'AdminCategory',
+    'AdminArticle',
+    'AdminUser',
+    'AdminAudit',
+    'AdminMedia',
   ],
   endpoints: (builder) => ({
     getHealth: builder.query({
@@ -309,6 +317,250 @@ export const api = createApi({
       transformResponse: (response) => response?.data || [],
       providesTags: [{ type: 'RecentlyViewed', id: 'LIST' }],
     }),
+
+    getAdminOverview: builder.query({
+      query: () => '/admin/overview',
+      transformResponse: (response) => response?.data || {},
+      providesTags: ['AdminOverview'],
+    }),
+    getAdminProducts: builder.query({
+      query: (params = {}) => ({ url: '/admin/products', params }),
+      transformResponse: (response) => ({
+        items: response?.data || [],
+        meta: response?.meta || {},
+      }),
+      providesTags: (result) =>
+        result?.items
+          ? [
+              ...result.items.map(({ id }) => ({ type: 'AdminProduct', id })),
+              { type: 'AdminProduct', id: 'LIST' },
+            ]
+          : [{ type: 'AdminProduct', id: 'LIST' }],
+    }),
+    getAdminProduct: builder.query({
+      query: (id) => `/admin/products/${id}`,
+      transformResponse: (response) => response?.data,
+      providesTags: (_result, _error, id) => [{ type: 'AdminProduct', id }],
+    }),
+    createAdminProduct: builder.mutation({
+      query: (body) => ({ url: '/admin/products', method: 'POST', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: [
+        { type: 'AdminProduct', id: 'LIST' },
+        'AdminOverview',
+        'AdminAudit',
+        { type: 'Product', id: 'LIST' },
+      ],
+    }),
+    updateAdminProduct: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/admin/products/${id}`, method: 'PATCH', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: (_r, _e, arg) => [
+        { type: 'AdminProduct', id: arg.id },
+        { type: 'AdminProduct', id: 'LIST' },
+        'AdminOverview',
+        'AdminAudit',
+        { type: 'Product', id: 'LIST' },
+      ],
+    }),
+    setAdminProductStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `/admin/products/${id}/status`,
+        method: 'PATCH',
+        body: { status },
+      }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: (_r, _e, arg) => [
+        { type: 'AdminProduct', id: arg.id },
+        { type: 'AdminProduct', id: 'LIST' },
+        'AdminOverview',
+        'AdminAudit',
+        { type: 'Product', id: 'LIST' },
+      ],
+    }),
+    deleteAdminProduct: builder.mutation({
+      query: (id) => ({ url: `/admin/products/${id}`, method: 'DELETE' }),
+      invalidatesTags: [
+        { type: 'AdminProduct', id: 'LIST' },
+        'AdminOverview',
+        'AdminAudit',
+        { type: 'Product', id: 'LIST' },
+      ],
+    }),
+    getAdminBrands: builder.query({
+      query: (params = {}) => ({ url: '/admin/brands', params }),
+      transformResponse: (response) => response?.data || [],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'AdminBrand', id })),
+              { type: 'AdminBrand', id: 'LIST' },
+            ]
+          : [{ type: 'AdminBrand', id: 'LIST' }],
+    }),
+    createAdminBrand: builder.mutation({
+      query: (body) => ({ url: '/admin/brands', method: 'POST', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: [{ type: 'AdminBrand', id: 'LIST' }, 'AdminOverview', 'AdminAudit', 'Brand'],
+    }),
+    updateAdminBrand: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/admin/brands/${id}`, method: 'PATCH', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: (_r, _e, arg) => [
+        { type: 'AdminBrand', id: arg.id },
+        { type: 'AdminBrand', id: 'LIST' },
+        'AdminAudit',
+        'Brand',
+      ],
+    }),
+    deleteAdminBrand: builder.mutation({
+      query: (id) => ({ url: `/admin/brands/${id}`, method: 'DELETE' }),
+      invalidatesTags: [{ type: 'AdminBrand', id: 'LIST' }, 'AdminOverview', 'AdminAudit', 'Brand'],
+    }),
+    getAdminCategories: builder.query({
+      query: (params = {}) => ({ url: '/admin/categories', params }),
+      transformResponse: (response) => response?.data || [],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'AdminCategory', id })),
+              { type: 'AdminCategory', id: 'LIST' },
+            ]
+          : [{ type: 'AdminCategory', id: 'LIST' }],
+    }),
+    createAdminCategory: builder.mutation({
+      query: (body) => ({ url: '/admin/categories', method: 'POST', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: [
+        { type: 'AdminCategory', id: 'LIST' },
+        'AdminOverview',
+        'AdminAudit',
+        'Category',
+      ],
+    }),
+    updateAdminCategory: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/admin/categories/${id}`, method: 'PATCH', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: (_r, _e, arg) => [
+        { type: 'AdminCategory', id: arg.id },
+        { type: 'AdminCategory', id: 'LIST' },
+        'AdminAudit',
+        'Category',
+      ],
+    }),
+    deleteAdminCategory: builder.mutation({
+      query: (id) => ({ url: `/admin/categories/${id}`, method: 'DELETE' }),
+      invalidatesTags: [
+        { type: 'AdminCategory', id: 'LIST' },
+        'AdminOverview',
+        'AdminAudit',
+        'Category',
+      ],
+    }),
+    getAdminArticles: builder.query({
+      query: (params = {}) => ({ url: '/admin/articles', params }),
+      transformResponse: (response) => response?.data || [],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'AdminArticle', id })),
+              { type: 'AdminArticle', id: 'LIST' },
+            ]
+          : [{ type: 'AdminArticle', id: 'LIST' }],
+    }),
+    getAdminArticle: builder.query({
+      query: (id) => `/admin/articles/${id}`,
+      transformResponse: (response) => response?.data,
+      providesTags: (_r, _e, id) => [{ type: 'AdminArticle', id }],
+    }),
+    createAdminArticle: builder.mutation({
+      query: (body) => ({ url: '/admin/articles', method: 'POST', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: [
+        { type: 'AdminArticle', id: 'LIST' },
+        'AdminOverview',
+        'AdminAudit',
+        'Article',
+      ],
+    }),
+    updateAdminArticle: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/admin/articles/${id}`, method: 'PATCH', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: (_r, _e, arg) => [
+        { type: 'AdminArticle', id: arg.id },
+        { type: 'AdminArticle', id: 'LIST' },
+        'AdminOverview',
+        'AdminAudit',
+        'Article',
+      ],
+    }),
+    deleteAdminArticle: builder.mutation({
+      query: (id) => ({ url: `/admin/articles/${id}`, method: 'DELETE' }),
+      invalidatesTags: [
+        { type: 'AdminArticle', id: 'LIST' },
+        'AdminOverview',
+        'AdminAudit',
+        'Article',
+      ],
+    }),
+    getAdminUsers: builder.query({
+      query: () => '/admin/users',
+      transformResponse: (response) => response?.data || [],
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'AdminUser', id })), { type: 'AdminUser', id: 'LIST' }]
+          : [{ type: 'AdminUser', id: 'LIST' }],
+    }),
+    createAdminUser: builder.mutation({
+      query: (body) => ({ url: '/admin/users', method: 'POST', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: [{ type: 'AdminUser', id: 'LIST' }, 'AdminOverview', 'AdminAudit'],
+    }),
+    updateAdminUser: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/admin/users/${id}`, method: 'PATCH', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: (_r, _e, arg) => [
+        { type: 'AdminUser', id: arg.id },
+        { type: 'AdminUser', id: 'LIST' },
+        'AdminAudit',
+      ],
+    }),
+    getAdminAudit: builder.query({
+      query: (params = {}) => ({ url: '/admin/audit', params }),
+      transformResponse: (response) => response?.data || [],
+      providesTags: ['AdminAudit'],
+    }),
+    getAdminMedia: builder.query({
+      query: (params = {}) => ({ url: '/admin/media', params }),
+      transformResponse: (response) => response?.data || [],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'AdminMedia', id })),
+              { type: 'AdminMedia', id: 'LIST' },
+            ]
+          : [{ type: 'AdminMedia', id: 'LIST' }],
+    }),
+    uploadAdminMedia: builder.mutation({
+      query: ({ file, alt = '', type = 'gallery' }) => {
+        const body = new FormData();
+        body.append('file', file);
+        if (alt) body.append('alt', alt);
+        if (type) body.append('type', type);
+        return { url: '/admin/media/upload', method: 'POST', body };
+      },
+      transformResponse: (response) => response?.data,
+      invalidatesTags: [{ type: 'AdminMedia', id: 'LIST' }, 'AdminAudit'],
+    }),
+    registerAdminMediaUrl: builder.mutation({
+      query: (body) => ({ url: '/admin/media/url', method: 'POST', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: [{ type: 'AdminMedia', id: 'LIST' }, 'AdminAudit'],
+    }),
+    deleteAdminMedia: builder.mutation({
+      query: (id) => ({ url: `/admin/media/${id}`, method: 'DELETE' }),
+      invalidatesTags: [{ type: 'AdminMedia', id: 'LIST' }, 'AdminAudit'],
+    }),
   }),
 });
 
@@ -342,4 +594,32 @@ export const {
   useAddProductToCollectionMutation,
   useRemoveProductFromCollectionMutation,
   useGetRecentlyViewedQuery,
+  useGetAdminOverviewQuery,
+  useGetAdminProductsQuery,
+  useGetAdminProductQuery,
+  useCreateAdminProductMutation,
+  useUpdateAdminProductMutation,
+  useSetAdminProductStatusMutation,
+  useDeleteAdminProductMutation,
+  useGetAdminBrandsQuery,
+  useCreateAdminBrandMutation,
+  useUpdateAdminBrandMutation,
+  useDeleteAdminBrandMutation,
+  useGetAdminCategoriesQuery,
+  useCreateAdminCategoryMutation,
+  useUpdateAdminCategoryMutation,
+  useDeleteAdminCategoryMutation,
+  useGetAdminArticlesQuery,
+  useGetAdminArticleQuery,
+  useCreateAdminArticleMutation,
+  useUpdateAdminArticleMutation,
+  useDeleteAdminArticleMutation,
+  useGetAdminUsersQuery,
+  useCreateAdminUserMutation,
+  useUpdateAdminUserMutation,
+  useGetAdminAuditQuery,
+  useGetAdminMediaQuery,
+  useUploadAdminMediaMutation,
+  useRegisterAdminMediaUrlMutation,
+  useDeleteAdminMediaMutation,
 } = api;

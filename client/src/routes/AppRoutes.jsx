@@ -13,7 +13,6 @@ const DiscoverPage = lazy(() => import('../pages/DiscoverPage.jsx'));
 const ProductDetailPage = lazy(() => import('../pages/ProductDetailPage.jsx'));
 const ComparisonPage = lazy(() => import('../pages/ComparisonPage.jsx'));
 const LoginPage = lazy(() => import('../pages/LoginPage.jsx'));
-const RegisterPage = lazy(() => import('../pages/RegisterPage.jsx'));
 const AccountPage = lazy(() => import('../pages/AccountPage.jsx'));
 const FavoritesPage = lazy(() => import('../pages/FavoritesPage.jsx'));
 const CollectionsPage = lazy(() => import('../pages/CollectionsPage.jsx'));
@@ -25,6 +24,16 @@ const BrandDetailPage = lazy(() => import('../pages/BrandDetailPage.jsx'));
 const CategoriesPage = lazy(() => import('../pages/CategoriesPage.jsx'));
 const CategoryDetailPage = lazy(() => import('../pages/CategoryDetailPage.jsx'));
 const SearchPage = lazy(() => import('../pages/SearchPage.jsx'));
+const AdminOverviewPage = lazy(() => import('../pages/admin/AdminOverviewPage.jsx'));
+const AdminProductsPage = lazy(() => import('../pages/admin/AdminProductsPage.jsx'));
+const AdminProductFormPage = lazy(() => import('../pages/admin/AdminProductFormPage.jsx'));
+const AdminApprovalsPage = lazy(() => import('../pages/admin/AdminApprovalsPage.jsx'));
+const AdminBrandsPage = lazy(() => import('../pages/admin/AdminBrandsPage.jsx'));
+const AdminCategoriesPage = lazy(() => import('../pages/admin/AdminCategoriesPage.jsx'));
+const AdminArticlesPage = lazy(() => import('../pages/admin/AdminArticlesPage.jsx'));
+const AdminMediaPage = lazy(() => import('../pages/admin/AdminMediaPage.jsx'));
+const AdminUsersPage = lazy(() => import('../pages/admin/AdminUsersPage.jsx'));
+const AdminAuditPage = lazy(() => import('../pages/admin/AdminAuditPage.jsx'));
 
 function shell(props) {
   return <RouteShellPage {...props} />;
@@ -50,7 +59,7 @@ export default function AppRoutes() {
               <Route path="journal/:slug" element={<ArticleDetailPage />} />
               <Route path="unauthorized" element={<UnauthorizedPage />} />
               <Route path="login" element={<LoginPage />} />
-              <Route path="register" element={<RegisterPage />} />
+              <Route path="register" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
 
@@ -62,89 +71,17 @@ export default function AppRoutes() {
             </Route>
 
             <Route path="admin" element={<AdminLayout />}>
-              <Route
-                index
-                element={shell({
-                  eyebrow: 'Admin',
-                  title: 'Operations overview',
-                  summary: 'Admin analytics and shortcuts will land here. Catalog CMS continues in Phase 13.',
-                  nextPhase: 'Phase 13 / 15',
-                  links: [{ label: 'Products', to: '/admin/products' }],
-                })}
-              />
-              <Route
-                path="products"
-                element={shell({
-                  eyebrow: 'Admin · Products',
-                  title: 'Product catalog',
-                  summary: 'Editors will manage multi-domain products from this list.',
-                  nextPhase: 'Phase 13',
-                  links: [{ label: 'New product', to: '/admin/products/new' }],
-                })}
-              />
-              <Route
-                path="products/new"
-                element={shell({
-                  eyebrow: 'Admin · Products',
-                  title: 'New product',
-                  summary: 'Domain-aware create form for cars, motorcycles, watches, and future types.',
-                  nextPhase: 'Phase 13',
-                })}
-              />
-              <Route
-                path="products/:id/edit"
-                element={shell({
-                  eyebrow: 'Admin · Products',
-                  title: 'Edit product',
-                  summary: 'Edit an existing catalog object, including multi-image plates.',
-                  nextPhase: 'Phase 13–14',
-                })}
-              />
-              <Route
-                path="brands"
-                element={shell({
-                  eyebrow: 'Admin · Brands',
-                  title: 'Brand management',
-                  summary: 'Create and edit houses in the archive.',
-                  nextPhase: 'Phase 13',
-                })}
-              />
-              <Route
-                path="categories"
-                element={shell({
-                  eyebrow: 'Admin · Categories',
-                  title: 'Category management',
-                  summary: 'Maintain domain taxonomy trees.',
-                  nextPhase: 'Phase 13',
-                })}
-              />
-              <Route
-                path="articles"
-                element={shell({
-                  eyebrow: 'Admin · Journal',
-                  title: 'Article management',
-                  summary: 'Editorial publishing tools will live here.',
-                  nextPhase: 'Phase 13',
-                })}
-              />
-              <Route
-                path="users"
-                element={shell({
-                  eyebrow: 'Admin · Users',
-                  title: 'User management',
-                  summary: 'Role and account administration for editors and collectors.',
-                  nextPhase: 'Phase 13',
-                })}
-              />
-              <Route
-                path="audit"
-                element={shell({
-                  eyebrow: 'Admin · Audit',
-                  title: 'Audit log',
-                  summary: 'Immutable operational history for catalog and user changes.',
-                  nextPhase: 'Phase 13',
-                })}
-              />
+              <Route index element={<AdminOverviewPage />} />
+              <Route path="products" element={<AdminProductsPage />} />
+              <Route path="products/new" element={<AdminProductFormPage />} />
+              <Route path="products/:id/edit" element={<AdminProductFormPage />} />
+              <Route path="approvals" element={<AdminApprovalsPage />} />
+              <Route path="brands" element={<AdminBrandsPage />} />
+              <Route path="categories" element={<AdminCategoriesPage />} />
+              <Route path="articles" element={<AdminArticlesPage />} />
+              <Route path="media" element={<AdminMediaPage />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="audit" element={<AdminAuditPage />} />
               <Route
                 path="analytics"
                 element={shell({
