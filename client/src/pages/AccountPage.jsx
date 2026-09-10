@@ -35,6 +35,9 @@ export default function AccountPage() {
           <Link className="link-cta link-cta--muted" to="/collections">
             Collections
           </Link>
+          <Link className="link-cta link-cta--muted" to="/compare">
+            Compare
+          </Link>
           {isAdmin ? (
             <Link className="link-cta link-cta--muted" to="/admin">
               Admin

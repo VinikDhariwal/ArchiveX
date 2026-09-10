@@ -41,7 +41,18 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Product', 'Brand', 'Category', 'Article', 'User', 'Health', 'Auth'],
+  tagTypes: [
+    'Product',
+    'Brand',
+    'Category',
+    'Article',
+    'User',
+    'Health',
+    'Auth',
+    'Favorite',
+    'Collection',
+    'RecentlyViewed',
+  ],
   endpoints: (builder) => ({
     getHealth: builder.query({
       query: () => '/health',
@@ -134,6 +145,7 @@ export const api = createApi({
         body: { sessionKey, source },
       }),
       transformResponse: (response) => response?.data ?? null,
+      invalidatesTags: [{ type: 'RecentlyViewed', id: 'LIST' }],
     }),
     getRelatedProducts: builder.query({
       query: ({ id, limit = 6 }) => ({
@@ -177,6 +189,102 @@ export const api = createApi({
       transformResponse: (response) => response?.data ?? null,
       providesTags: (_result, _error, slug) => [{ type: 'Category', id: slug }],
     }),
+    getFavorites: builder.query({
+      query: () => '/favorites',
+      transformResponse: (response) => response?.data || [],
+      providesTags: [{ type: 'Favorite', id: 'LIST' }],
+    }),
+    addFavorite: builder.mutation({
+      query: (productId) => ({
+        url: `/favorites/${productId}`,
+        method: 'POST',
+      }),
+      transformResponse: (response) => response?.data ?? null,
+      invalidatesTags: [{ type: 'Favorite', id: 'LIST' }],
+    }),
+    removeFavorite: builder.mutation({
+      query: (productId) => ({
+        url: `/favorites/${productId}`,
+        method: 'DELETE',
+      }),
+      transformResponse: (response) => response?.data ?? null,
+      invalidatesTags: [{ type: 'Favorite', id: 'LIST' }],
+    }),
+    getCollections: builder.query({
+      query: () => '/collections',
+      transformResponse: (response) => response?.data || [],
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map((item) => ({ type: 'Collection', id: item.id })),
+              { type: 'Collection', id: 'LIST' },
+            ]
+          : [{ type: 'Collection', id: 'LIST' }],
+    }),
+    getCollection: builder.query({
+      query: (id) => `/collections/${id}`,
+      transformResponse: (response) => response?.data ?? null,
+      providesTags: (_result, _error, id) => [{ type: 'Collection', id }],
+    }),
+    createCollection: builder.mutation({
+      query: (body) => ({
+        url: '/collections',
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (response) => response?.data ?? null,
+      invalidatesTags: [{ type: 'Collection', id: 'LIST' }],
+    }),
+    updateCollection: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/collections/${id}`,
+        method: 'PATCH',
+        body,
+      }),
+      transformResponse: (response) => response?.data ?? null,
+      invalidatesTags: (_result, _error, arg) => [
+        { type: 'Collection', id: arg.id },
+        { type: 'Collection', id: 'LIST' },
+      ],
+    }),
+    deleteCollection: builder.mutation({
+      query: (id) => ({
+        url: `/collections/${id}`,
+        method: 'DELETE',
+      }),
+      transformResponse: (response) => response?.data ?? null,
+      invalidatesTags: [{ type: 'Collection', id: 'LIST' }],
+    }),
+    addProductToCollection: builder.mutation({
+      query: ({ collectionId, productId }) => ({
+        url: `/collections/${collectionId}/products/${productId}`,
+        method: 'POST',
+      }),
+      transformResponse: (response) => response?.data ?? null,
+      invalidatesTags: (_result, _error, arg) => [
+        { type: 'Collection', id: arg.collectionId },
+        { type: 'Collection', id: 'LIST' },
+      ],
+    }),
+    removeProductFromCollection: builder.mutation({
+      query: ({ collectionId, productId }) => ({
+        url: `/collections/${collectionId}/products/${productId}`,
+        method: 'DELETE',
+      }),
+      transformResponse: (response) => response?.data ?? null,
+      invalidatesTags: (_result, _error, arg) => [
+        { type: 'Collection', id: arg.collectionId },
+        { type: 'Collection', id: 'LIST' },
+      ],
+    }),
+    getRecentlyViewed: builder.query({
+      query: (params = {}) => ({
+        url: '/products/recently-viewed',
+        params,
+      }),
+      transformResponse: (response) => response?.data || [],
+      providesTags: [{ type: 'RecentlyViewed', id: 'LIST' }],
+    }),
   }),
 });
 
@@ -196,4 +304,15 @@ export const {
   useGetBrandBySlugQuery,
   useGetCategoriesQuery,
   useGetCategoryBySlugQuery,
+  useGetFavoritesQuery,
+  useAddFavoriteMutation,
+  useRemoveFavoriteMutation,
+  useGetCollectionsQuery,
+  useGetCollectionQuery,
+  useCreateCollectionMutation,
+  useUpdateCollectionMutation,
+  useDeleteCollectionMutation,
+  useAddProductToCollectionMutation,
+  useRemoveProductFromCollectionMutation,
+  useGetRecentlyViewedQuery,
 } = api;

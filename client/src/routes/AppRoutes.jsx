@@ -11,9 +11,13 @@ import RouteShellPage from '../pages/RouteShellPage.jsx';
 const HomePage = lazy(() => import('../pages/HomePage.jsx'));
 const DiscoverPage = lazy(() => import('../pages/DiscoverPage.jsx'));
 const ProductDetailPage = lazy(() => import('../pages/ProductDetailPage.jsx'));
+const ComparisonPage = lazy(() => import('../pages/ComparisonPage.jsx'));
 const LoginPage = lazy(() => import('../pages/LoginPage.jsx'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage.jsx'));
 const AccountPage = lazy(() => import('../pages/AccountPage.jsx'));
+const FavoritesPage = lazy(() => import('../pages/FavoritesPage.jsx'));
+const CollectionsPage = lazy(() => import('../pages/CollectionsPage.jsx'));
+const CollectionDetailPage = lazy(() => import('../pages/CollectionDetailPage.jsx'));
 
 function shell(props) {
   return <RouteShellPage {...props} />;
@@ -29,6 +33,7 @@ export default function AppRoutes() {
               <Route path="home" element={<HomePage />} />
               <Route path="products/:slug" element={<ProductDetailPage />} />
               <Route path="discover" element={<DiscoverPage />} />
+              <Route path="compare" element={<ComparisonPage />} />
               <Route
                 path="search"
                 element={shell({
@@ -132,39 +137,9 @@ export default function AppRoutes() {
 
             <Route element={<AuthenticatedLayout />}>
               <Route path="account" element={<AccountPage />} />
-              <Route
-                path="favorites"
-                element={shell({
-                  eyebrow: 'Favorites',
-                  title: 'Saved objects',
-                  summary: 'Authenticated favorites will sync here.',
-                  nextPhase: 'Phase 9',
-                  links: [{ label: 'Browse discover', to: '/discover' }],
-                })}
-              />
-              <Route
-                path="collections"
-                element={shell({
-                  eyebrow: 'Collections',
-                  title: 'Private collections',
-                  summary: 'Saved collector collections will appear here after authentication.',
-                  nextPhase: 'Phase 9',
-                })}
-              />
-              <Route
-                path="collections/:id"
-                element={shell({
-                  eyebrow: 'Collection',
-                  title: 'Collection detail',
-                  summary: 'A single private collection will open at this route.',
-                  nextPhase: 'Phase 9',
-                  breadcrumbs: [
-                    { label: 'Collections', to: '/collections' },
-                    { label: 'Detail' },
-                  ],
-                })}
-              />
-              <Route path="compare" element={<Navigate to="/discover" replace />} />
+              <Route path="favorites" element={<FavoritesPage />} />
+              <Route path="collections" element={<CollectionsPage />} />
+              <Route path="collections/:id" element={<CollectionDetailPage />} />
             </Route>
 
             <Route path="admin" element={<AdminLayout />}>

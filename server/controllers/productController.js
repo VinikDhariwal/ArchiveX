@@ -21,7 +21,7 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
 export const recordProductView = asyncHandler(async (req, res) => {
   const result = await productService.recordProductView(req.params.id, {
     sessionKey: req.body?.sessionKey || req.headers['x-session-key'],
-    userId: req.user?.id || null,
+    userId: req.auth?.sub || req.user?.id || null,
     source: req.body?.source || 'detail',
     userAgent: req.get('user-agent') || '',
   });
@@ -38,4 +38,13 @@ export const getRelatedProducts = asyncHandler(async (req, res) => {
 export const getProductJournal = asyncHandler(async (req, res) => {
   const payload = await recommendationService.getProductJournal(req.params.id);
   return successResponse(res, payload.items, payload.meta);
+});
+
+export const getRecentlyViewed = asyncHandler(async (req, res) => {
+  const products = await productService.listRecentlyViewed({
+    userId: req.auth?.sub || null,
+    sessionKey: req.query.sessionKey || req.headers['x-session-key'],
+    limit: req.query.limit,
+  });
+  return successResponse(res, products, { total: products.length });
 });

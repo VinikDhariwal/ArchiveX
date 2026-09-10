@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const MAX_COMPARE = 3;
+const MAX_COMPARE = 4;
 
 const compareSlice = createSlice({
   name: 'compare',
@@ -20,13 +20,16 @@ const compareSlice = createSlice({
       }
       state.ids.push(id);
     },
+    removeCompare(state, action) {
+      state.ids = state.ids.filter((item) => item !== action.payload);
+    },
     clearCompare(state) {
       state.ids = [];
     },
   },
 });
 
-export const { toggleCompare, clearCompare } = compareSlice.actions;
+export const { toggleCompare, removeCompare, clearCompare } = compareSlice.actions;
 export const selectCompareIds = (state) => state.compare.ids;
 export const selectIsCompared = (id) => (state) => state.compare.ids.includes(id);
 export const MAX_COMPARE_ITEMS = MAX_COMPARE;

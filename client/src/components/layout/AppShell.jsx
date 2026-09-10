@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import DesktopHeader from './DesktopHeader.jsx';
 import MobileHeader from './MobileHeader.jsx';
 import Footer from './Footer.jsx';
+import ComparisonTray from '../compare/ComparisonTray.jsx';
+import FavoriteHydrator from '../collector/FavoriteHydrator.jsx';
 
 export default function AppShell({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -23,6 +25,7 @@ export default function AppShell({ children }) {
 
   return (
     <div className="page-shell">
+      <FavoriteHydrator />
       <div className={`site-header ${condensed ? 'is-condensed' : ''}`}>
         <DesktopHeader />
         <MobileHeader
@@ -33,6 +36,7 @@ export default function AppShell({ children }) {
       </div>
       {children}
       <Footer />
+      <ComparisonTray />
     </div>
   );
 }
