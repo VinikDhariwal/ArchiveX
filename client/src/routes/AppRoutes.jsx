@@ -24,6 +24,7 @@ const BrandsPage = lazy(() => import('../pages/BrandsPage.jsx'));
 const BrandDetailPage = lazy(() => import('../pages/BrandDetailPage.jsx'));
 const CategoriesPage = lazy(() => import('../pages/CategoriesPage.jsx'));
 const CategoryDetailPage = lazy(() => import('../pages/CategoryDetailPage.jsx'));
+const SearchPage = lazy(() => import('../pages/SearchPage.jsx'));
 
 function shell(props) {
   return <RouteShellPage {...props} />;
@@ -40,19 +41,7 @@ export default function AppRoutes() {
               <Route path="products/:slug" element={<ProductDetailPage />} />
               <Route path="discover" element={<DiscoverPage />} />
               <Route path="compare" element={<ComparisonPage />} />
-              <Route
-                path="search"
-                element={shell({
-                  eyebrow: 'Search',
-                  title: 'Search the archive',
-                  summary: 'Full-text and faceted search across domains will open here.',
-                  nextPhase: 'Phase 12',
-                  breadcrumbs: [
-                    { label: 'Home', to: '/' },
-                    { label: 'Search' },
-                  ],
-                })}
-              />
+              <Route path="search" element={<SearchPage />} />
               <Route path="brands" element={<BrandsPage />} />
               <Route path="brands/:slug" element={<BrandDetailPage />} />
               <Route path="categories" element={<CategoriesPage />} />

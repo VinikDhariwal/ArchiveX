@@ -76,6 +76,40 @@ export async function getRelatedProducts(productId, { limit = 6 } = {}) {
 }
 
 /**
+ * Archive recommendations for Search landing / empty results.
+ * Featured first, then rarity and recency — approved public objects only.
+ */
+export async function getRecommendedProducts({ limit = 8, productType } = {}) {
+  const capped = Math.min(Math.max(Number(limit) || 8, 1), 24);
+  const filter = { ...PUBLIC_FILTER };
+  if (productType) filter.productType = productType;
+
+  const candidates = await Product.find(filter)
+    .populate('brand', 'name slug')
+    .populate('category', 'name slug')
+    .populate('tags', 'name slug')
+    .limit(60)
+    .lean();
+
+  const scored = candidates
+    .map((item) => {
+      let score = 0;
+      if (item.featured) score += 8;
+      score += RARITY_RANK[item.rarity] || 0;
+      score += Math.min(Math.max((item.releaseYear || 1900) - 1950, 0) / 20, 4);
+      return { item, score };
+    })
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        (b.item.releaseYear || 0) - (a.item.releaseYear || 0) ||
+        String(a.item.name || '').localeCompare(String(b.item.name || ''))
+    );
+
+  return scored.slice(0, capped).map(({ item }) => serializeProduct(item));
+}
+
+/**
  * Journal coverage for a product — approved essays linked via Article.relatedProducts.
  */
 export async function getProductJournal(productId) {

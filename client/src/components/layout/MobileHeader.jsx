@@ -41,6 +41,9 @@ export default function MobileHeader({ menuOpen, onOpenMenu, onCloseMenu }) {
           </button>
         </div>
         <nav aria-label="Mobile">
+          <Link to="/search" onClick={onCloseMenu}>
+            Search
+          </Link>
           {navLinks.map((link) => (
             <Link key={link.href + link.label} to={link.href} onClick={onCloseMenu}>
               {link.label}

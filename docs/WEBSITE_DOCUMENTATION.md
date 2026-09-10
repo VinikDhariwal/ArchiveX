@@ -1,7 +1,7 @@
 # ArchiveX — Living Website Documentation
 
 **Status:** Living document — update this file whenever libraries, routes, components, APIs, or product behavior change.  
-**Last updated:** 2026-09-10 (Phase 11 brands / categories)
+**Last updated:** 2026-09-10 (Phase 12 Search / recommendations)
 **Companion rules:** [PROJECT_RULES.md](./PROJECT_RULES.md) (product/tech contract; do not replace it)  
 **Setup guide:** [../README.md](../README.md)
 
@@ -49,6 +49,7 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 9 Collector features | Done — favorites, collections, compare tray/page, recently viewed |
 | Phase 10 Journal | Done — Article model, public `/articles`, `/journal` pages, product journal links |
 | Phase 11 Brands / categories | Done — live A–Z brands + category taxonomy; expanded seed houses |
+| Phase 12 Search / recommendations | Done — `/search` page, recommended products API, relevance results |
 | Admin CMS | Layout shell only (auth-gated; CRUD in Phase 13) |
 
 **Migrate / re-seed Atlas**
@@ -66,6 +67,7 @@ npm run seed --prefix server
 | GET | `/api/v1/products/filters/schema` | Domain-aware filter metadata for Discover UI |
 | GET | `/api/v1/products/:slug` | Approved only; includes specs, rarity, market signals |
 | POST | `/api/v1/products/:id/view` | Record detail view (sessionKey optional) |
+| GET | `/api/v1/products/recommended` | Featured/rarity-led recommendations for Search |
 | GET | `/api/v1/products/:id/related` | Related approved objects |
 | GET | `/api/v1/products/:id/journal` | Approved essays linked to the product |
 | GET | `/api/v1/brands` | Active brands A–Z; optional `domain`, `q`; includes `productCount` |
@@ -190,7 +192,7 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `models/shared/productSubdocuments.js` | `buildSpecifications`, `assertValidSpecifications` |
 | `models/index.js` | Barrel exports |
 | `services/searchService.js` | Public discovery filters, sort modes, shuffle, field selection |
-| `services/recommendationService.js` | Related objects scoring; product journal via articleService |
+| `services/recommendationService.js` | Related objects + Search recommendations; product journal via articleService |
 | `services/articleService.js` | Public article list/detail + product journal links |
 | `services/productService.js` | Product list/detail serialize, view recording |
 | `services/brandService.js` | Public brand list/detail + product counts + name search |
@@ -215,6 +217,7 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `tests/journal.test.js` | Phase 10 articles + product journal links |
 | `tests/collector.test.js` | Favorites, collections, product ids filter |
 | `tests/brandsCategories.test.js` | Phase 11 brands/categories filters, counts, approval gates |
+| `tests/searchRecommend.test.js` | Phase 12 search + recommended products |
 | `testSupport/http.js` | Ephemeral listen + fetch helper |
 
 ### 4.7 Domain constants (server)
@@ -268,7 +271,7 @@ App.jsx → global CSS → AppRoutes
 | `/`, `/home` | `HomePage` | Full Ivory Museum composition |
 | `/discover` | `DiscoverPage` | Search + domain-aware filters + sort + masonry feed |
 | `/products/:slug` | `ProductDetailPage` | Domain-aware detail: gallery, specs, rarity, market, related |
-| `/search` | `RouteShellPage` | Structural placeholder (Phase 12) |
+| `/search` | `SearchPage` | Query-first archive search + recommendations |
 | `/brands` | `BrandsPage` | A–Z houses with domain filter + search |
 | `/brands/:slug` | `BrandDetailPage` | Brand chamber + approved objects |
 | `/categories` | `CategoriesPage` | Domain taxonomy index |
@@ -299,6 +302,7 @@ App.jsx → global CSS → AppRoutes
 | `ArticleDetailPage.jsx` | Journal essay detail |
 | `BrandsPage.jsx` / `BrandDetailPage.jsx` | Brand A–Z index + chamber |
 | `CategoriesPage.jsx` / `CategoryDetailPage.jsx` | Category taxonomy index + chamber |
+| `SearchPage.jsx` | Query-first search + suggested recommendations |
 | `RouteShellPage.jsx` | Wide placeholder for unfinished routes |
 | `NotFoundPage.jsx` / `UnauthorizedPage.jsx` / `ErrorPage.jsx` / `LoadingPage.jsx` | System states |
 
@@ -487,12 +491,20 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 4. **Product page** — `/products/:slug` gallery + identity, overview, why it matters, specs, rarity, market signals, related, linked journal essays; records a view  
 5. **Journal** — `/journal` essay index; `/journal/:slug` long-form + related objects  
 6. **Brands / Categories** — A–Z houses and taxonomy chambers with linked approved objects  
-7. **Search / Admin** — shells until later phases  
-8. **API health** — `GET /api/v1/health` (+ Mongo connected when URI set)
+7. **Search** — `/search` query-first results with suggested recommendations  
+8. **Admin** — shells until Phase 13  
+9. **API health** — `GET /api/v1/health` (+ Mongo connected when URI set)
 
 ---
 
 ## 9. Changelog (append newest on top)
+
+### 2026-09-10 (Phase 12) — Search / recommendations
+
+- Live `/search` page: query-first input, domain pills, relevance results, pagination.
+- `GET /products/recommended` returns featured/rarity-led public suggestions for landing and zero-result states.
+- Mobile drawer includes Search; header search icon already routes to `/search`.
+- `searchRecommend.test.js` covers text search approval gates and recommendations.
 
 ### 2026-09-10 (Phase 11) — Brands / categories
 
@@ -585,4 +597,4 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 10. Next documentation updates expected
 
-When Phase 12 search/recommendations land, replace the `/search` RouteShell with live faceted search.
+When Phase 13 Admin CMS lands, replace admin RouteShell pages with live catalog/editorial management.
