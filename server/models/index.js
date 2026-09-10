@@ -6,6 +6,7 @@ export { Product } from './Product.js';
 export { ProductView } from './ProductView.js';
 export { Favorite } from './Favorite.js';
 export { Collection, COLLECTION_VISIBILITY } from './Collection.js';
+export { Article } from './Article.js';
 export {
   buildSpecifications,
   assertValidSpecifications,

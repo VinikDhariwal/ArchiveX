@@ -10,6 +10,7 @@ import bcrypt from 'bcryptjs';
 import env from '../config/env.js';
 import { connectDatabase } from '../config/database.js';
 import {
+  Article,
   Brand,
   Category,
   Product,
@@ -700,6 +701,136 @@ async function seed() {
     );
   }
 
+  const productBySlug = Object.fromEntries(
+    (
+      await Product.find({
+        slug: {
+          $in: [
+            'ferrari-f40',
+            'bugatti-chiron',
+            'ducati-panigale',
+            'mercedes-benz-300-sl',
+            'omega-seamaster-planet-ocean',
+            'rolex-air-king',
+          ],
+        },
+      }).select('_id slug')
+    ).map((doc) => [doc.slug, doc._id])
+  );
+
+  const publishedAt = new Date('2026-09-09T16:00:00.000Z');
+
+  const articles = [
+    {
+      title: 'The private garage as museum',
+      slug: 'the-private-garage-as-museum',
+      articleType: 'Archive Essay',
+      excerpt: 'How collectors curate mechanical memory beyond the sales floor.',
+      featured: true,
+      domains: ['car'],
+      relatedProducts: [productBySlug['ferrari-f40'], productBySlug['mercedes-benz-300-sl']].filter(
+        Boolean
+      ),
+      heroImage: img(
+        unsplash('photo-1726739569681-14cc0392b4bc'),
+        'Ferrari garage archive atmosphere',
+        'editorial',
+        0,
+        1200,
+        750
+      ),
+      sections: [
+        {
+          heading: 'A quieter inventory',
+          body: 'Collectors rarely begin with a sales floor. They begin with a room that holds machines like evidence — of travel, of risk, of a decade’s taste. ArchiveX treats that room as a museum chamber: objects are studied for silhouette, provenance language, and the stories that survive between workshops.',
+        },
+        {
+          heading: 'Beyond the listing',
+          body: 'A private garage becomes archival when attention replaces urgency. Reference numbers, production windows, and rarity signals matter, but so does the atmosphere around the machine. Essays in this journal keep that atmosphere intact while still serving discovery.',
+        },
+      ],
+      status: 'approved',
+      publishedAt,
+      byline: 'ArchiveX Editorial',
+      publisher: 'ArchiveX',
+      createdBy: admin._id,
+      updatedBy: admin._id,
+    },
+    {
+      title: 'Italian superbike memory',
+      slug: 'italian-superbike-memory',
+      articleType: 'Model History',
+      excerpt: 'Form, sound, and racing inheritance in one silhouette.',
+      featured: false,
+      domains: ['motorcycle'],
+      relatedProducts: [productBySlug['ducati-panigale']].filter(Boolean),
+      heroImage: img(
+        unsplash('photo-1632157256334-518122d788bd'),
+        'Ducati superbike journal plate',
+        'editorial',
+        0,
+        1200,
+        750
+      ),
+      sections: [
+        {
+          heading: 'Geometry with intent',
+          body: 'Italian superbike silhouettes carry racing inheritance into road language. Seat height, fairing tension, and Desmo lore are not accessories — they are the archive’s way of reading a motorcycle as a composed object.',
+        },
+        {
+          heading: 'Sound as provenance',
+          body: 'Collectors remember engines by character as much as by displacement. This model history follows that memory trail: how Bologna craft, track myth, and street presence braid into a single chamber object.',
+        },
+      ],
+      status: 'approved',
+      publishedAt: new Date('2026-09-08T16:00:00.000Z'),
+      byline: 'ArchiveX Editorial',
+      publisher: 'ArchiveX',
+      createdBy: admin._id,
+      updatedBy: admin._id,
+    },
+    {
+      title: 'Chronographs that traveled',
+      slug: 'chronographs-that-traveled',
+      articleType: 'Design Study',
+      excerpt: 'Secondary domain notes on watches that earned archival attention.',
+      featured: false,
+      domains: ['watch'],
+      relatedProducts: [
+        productBySlug['omega-seamaster-planet-ocean'],
+        productBySlug['rolex-air-king'],
+      ].filter(Boolean),
+      heroImage: img(
+        unsplash('photo-1523170335258-f5ed11844a49'),
+        'Watch editorial demonstration plate',
+        'editorial',
+        0,
+        1200,
+        750
+      ),
+      sections: [
+        {
+          heading: 'Secondary, not secondary thought',
+          body: 'Watches sit behind cars and motorcycles in ArchiveX priority, yet they still earn chamber time. Chronographs that traveled — across oceans, air routes, and workshop benches — hold design studies worth preserving beside primary-domain machines.',
+        },
+        {
+          heading: 'Dial as landscape',
+          body: 'Case geometry, movement language, and dial atmosphere become the archive’s reading tools. This essay treats those tools as carefully as horsepower charts on a product plate.',
+        },
+      ],
+      status: 'approved',
+      publishedAt: new Date('2026-09-07T16:00:00.000Z'),
+      byline: 'ArchiveX Editorial',
+      publisher: 'ArchiveX',
+      createdBy: admin._id,
+      updatedBy: admin._id,
+    },
+  ];
+
+  for (const article of articles) {
+    await upsertBySlug(Article, article.slug, article);
+  }
+
   // Remove superseded demo plates from earlier mismatched catalog names.
   await Product.deleteMany({
     slug: {
@@ -723,10 +854,12 @@ async function seed() {
     categories: await Category.countDocuments(),
     tags: await Tag.countDocuments(),
     products: await Product.countDocuments(),
+    articles: await Article.countDocuments(),
     cars: await Product.countDocuments({ productType: 'car' }),
     motorcycles: await Product.countDocuments({ productType: 'motorcycle' }),
     watches: await Product.countDocuments({ productType: 'watch' }),
     approved: await Product.countDocuments({ status: 'approved' }),
+    approvedArticles: await Article.countDocuments({ status: 'approved' }),
   };
 
   console.info('[seed] Demo catalog migrated to MongoDB Atlas');

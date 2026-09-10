@@ -65,6 +65,19 @@ export const PRODUCT_STATUSES = Object.freeze([
   'archived',
 ]);
 
+/**
+ * Article publish statuses mirror product moderation so public journal
+ * surfaces only expose approved, non-deleted essays.
+ */
+export const ARTICLE_STATUSES = PRODUCT_STATUSES;
+
+export const ARTICLE_TYPES = Object.freeze([
+  'Archive Essay',
+  'Model History',
+  'Design Study',
+  'Collector Note',
+]);
+
 export const CATALOG_STATUSES = Object.freeze(['active', 'inactive']);
 
 export const IMAGE_TYPES = Object.freeze([

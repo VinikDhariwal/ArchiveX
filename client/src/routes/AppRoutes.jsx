@@ -18,6 +18,8 @@ const AccountPage = lazy(() => import('../pages/AccountPage.jsx'));
 const FavoritesPage = lazy(() => import('../pages/FavoritesPage.jsx'));
 const CollectionsPage = lazy(() => import('../pages/CollectionsPage.jsx'));
 const CollectionDetailPage = lazy(() => import('../pages/CollectionDetailPage.jsx'));
+const JournalPage = lazy(() => import('../pages/JournalPage.jsx'));
+const ArticleDetailPage = lazy(() => import('../pages/ArticleDetailPage.jsx'));
 
 function shell(props) {
   return <RouteShellPage {...props} />;
@@ -102,33 +104,8 @@ export default function AppRoutes() {
                   ],
                 })}
               />
-              <Route
-                path="journal"
-                element={shell({
-                  eyebrow: 'Journal',
-                  title: 'Editorial archive',
-                  summary: 'Museum essays, model histories, and collector notes will live here.',
-                  nextPhase: 'Phase 10',
-                  breadcrumbs: [
-                    { label: 'Home', to: '/' },
-                    { label: 'Journal' },
-                  ],
-                })}
-              />
-              <Route
-                path="journal/:slug"
-                element={shell({
-                  eyebrow: 'Article',
-                  title: 'Journal essay',
-                  summary: 'Long-form editorial articles will resolve at this route.',
-                  nextPhase: 'Phase 10',
-                  breadcrumbs: [
-                    { label: 'Home', to: '/' },
-                    { label: 'Journal', to: '/journal' },
-                    { label: 'Article' },
-                  ],
-                })}
-              />
+              <Route path="journal" element={<JournalPage />} />
+              <Route path="journal/:slug" element={<ArticleDetailPage />} />
               <Route path="unauthorized" element={<UnauthorizedPage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="register" element={<RegisterPage />} />
@@ -205,7 +182,7 @@ export default function AppRoutes() {
                   eyebrow: 'Admin · Journal',
                   title: 'Article management',
                   summary: 'Editorial publishing tools will live here.',
-                  nextPhase: 'Phase 10 / 13',
+                  nextPhase: 'Phase 13',
                 })}
               />
               <Route

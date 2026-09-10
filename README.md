@@ -105,6 +105,8 @@ Never commit real `.env` files or secrets. Do not hardcode production hosts, cat
 - Phase 2: Ivory Museum website — complete
 - Phase 3: Routing / layouts / page shells — complete
 - Phase 4: Multi-domain Mongo models + seeds — complete
+- Phase 5–9: Public APIs, auth, discovery, product detail, collector features — complete
+- Phase 10: Journal — complete
 - Later phases: not started
 
 ## Phase 4 data model notes

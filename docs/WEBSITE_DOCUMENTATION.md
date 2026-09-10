@@ -1,7 +1,7 @@
 # ArchiveX — Living Website Documentation
 
 **Status:** Living document — update this file whenever libraries, routes, components, APIs, or product behavior change.  
-**Last updated:** 2026-09-09 (Phase 9 collector features)
+**Last updated:** 2026-09-10 (Phase 10 Journal)
 **Companion rules:** [PROJECT_RULES.md](./PROJECT_RULES.md) (product/tech contract; do not replace it)  
 **Setup guide:** [../README.md](../README.md)
 
@@ -46,6 +46,8 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 7 Discovery | Done — search, domain-aware filters, sort, pagination, URL sync |
 | Phase 7 UI polish | Done — ivory-gold pills, brand search, Discover chamber layout, reveal fix |
 | Phase 8 Product detail | Done — domain-aware detail, related, views, gallery lightbox |
+| Phase 9 Collector features | Done — favorites, collections, compare tray/page, recently viewed |
+| Phase 10 Journal | Done — Article model, public `/articles`, `/journal` pages, product journal links |
 | Admin CMS | Layout shell only (auth-gated; CRUD in Phase 13) |
 
 **Migrate / re-seed Atlas**
@@ -64,11 +66,13 @@ npm run seed --prefix server
 | GET | `/api/v1/products/:slug` | Approved only; includes specs, rarity, market signals |
 | POST | `/api/v1/products/:id/view` | Record detail view (sessionKey optional) |
 | GET | `/api/v1/products/:id/related` | Related approved objects |
-| GET | `/api/v1/products/:id/journal` | Journal stub until Phase 10 |
+| GET | `/api/v1/products/:id/journal` | Approved essays linked to the product |
 | GET | `/api/v1/brands` | Active brands; optional `domain` |
 | GET | `/api/v1/brands/:slug` | Active brand |
 | GET | `/api/v1/categories` | Active categories; optional `productType` |
 | GET | `/api/v1/categories/:slug` | Active category |
+| GET | `/api/v1/articles` | Approved journal essays; optional `type`, `domain`, `featured` |
+| GET | `/api/v1/articles/:slug` | Approved essay detail + related products |
 | POST | `/api/v1/auth/register` | Create collector account |
 | POST | `/api/v1/auth/login` | Access token + httpOnly refresh cookie |
 | POST | `/api/v1/auth/refresh` | Rotate tokens via refresh cookie |
@@ -179,21 +183,26 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `models/Tag.js` | Tags |
 | `models/Product.js` | Domain-neutral Product + images, status, specs, rarityProfile, marketSignals, whyItMatters |
 | `models/ProductView.js` | Detail view events (session/user/source) |
+| `models/Favorite.js` | User ↔ product favorites |
+| `models/Collection.js` | Collector collections |
+| `models/Article.js` | Journal essays (status-gated, related products) |
 | `models/shared/productSubdocuments.js` | `buildSpecifications`, `assertValidSpecifications` |
 | `models/index.js` | Barrel exports |
 | `services/searchService.js` | Public discovery filters, sort modes, shuffle, field selection |
-| `services/recommendationService.js` | Related objects scoring + journal stub |
+| `services/recommendationService.js` | Related objects scoring; product journal via articleService |
+| `services/articleService.js` | Public article list/detail + product journal links |
 | `services/productService.js` | Product list/detail serialize, view recording |
-| `services/productService.js` | Public product list/detail + serialize via searchService |
 | `services/brandService.js` | Public brand list/detail |
 | `services/categoryService.js` | Public category list/detail |
 | `controllers/productController.js` | Thin product handlers |
 | `controllers/brandController.js` | Thin brand handlers |
 | `controllers/categoryController.js` | Thin category handlers |
+| `controllers/articleController.js` | Thin article handlers |
 | `routes/productRoutes.js` | `/products` |
 | `routes/brandRoutes.js` | `/brands` |
 | `routes/categoryRoutes.js` | `/categories` |
-| `seeds/seedDemo.js` | Migrates website demo catalog into Atlas (approved) |
+| `routes/articleRoutes.js` | `/articles` |
+| `seeds/seedDemo.js` | Migrates website demo catalog + 3 journal essays into Atlas (approved) |
 | `validators/` | Empty |
 | `tests/health.test.js` | Health endpoint |
 | `tests/models.test.js` | Spec validation + model CRUD (memory Mongo) |
@@ -201,6 +210,8 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `tests/auth.test.js` | Auth register/login/me |
 | `tests/discovery.test.js` | Discovery filters/sort/fields |
 | `tests/productDetail.test.js` | Phase 8 view/related/journal + intelligence payload |
+| `tests/journal.test.js` | Phase 10 articles + product journal links |
+| `tests/collector.test.js` | Favorites, collections, product ids filter |
 | `tests/health.test.js` | Health endpoint |
 | `tests/catalogApi.test.js` | Public catalog approval gate |
 | `testSupport/http.js` | Ephemeral listen + fetch helper |
@@ -256,7 +267,9 @@ App.jsx → global CSS → AppRoutes
 | `/`, `/home` | `HomePage` | Full Ivory Museum composition |
 | `/discover` | `DiscoverPage` | Search + domain-aware filters + sort + masonry feed |
 | `/products/:slug` | `ProductDetailPage` | Domain-aware detail: gallery, specs, rarity, market, related |
-| `/search`, `/brands`, `/brands/:slug`, `/categories`, `/categories/:slug`, `/journal`, `/journal/:slug` | `RouteShellPage` | Structural placeholders |
+| `/search`, `/brands`, `/brands/:slug`, `/categories`, `/categories/:slug` | `RouteShellPage` | Structural placeholders (Phase 11+) |
+| `/journal` | `JournalPage` | Approved essay index |
+| `/journal/:slug` | `ArticleDetailPage` | Long-form essay + related objects |
 | `/compare` | `ComparisonPage` | Domain-aware side-by-side compare (up to 4; public tray) |
 | `/account` | `AccountPage` | Authenticated collector hub |
 | `/favorites` | `FavoritesPage` | Synced favorites + recently viewed |
@@ -277,6 +290,8 @@ App.jsx → global CSS → AppRoutes
 | `ComparisonPage.jsx` | Wide compare table from tray ids |
 | `FavoritesPage.jsx` | Saved favorites + recently viewed |
 | `CollectionsPage.jsx` / `CollectionDetailPage.jsx` | Collector collections |
+| `JournalPage.jsx` | Editorial archive index |
+| `ArticleDetailPage.jsx` | Journal essay detail |
 | `RouteShellPage.jsx` | Wide placeholder for unfinished routes |
 | `NotFoundPage.jsx` / `UnauthorizedPage.jsx` / `ErrorPage.jsx` / `LoadingPage.jsx` | System states |
 
@@ -299,7 +314,7 @@ App.jsx → global CSS → AppRoutes
 | `components/product/RarityProfile.jsx` | Production / interest / significance |
 | `components/product/MarketSignals.jsx` | Informational market reading + disclaimer |
 | `components/product/RelatedObjects.jsx` | Related approved plates |
-| `components/product/ProductJournal.jsx` | Journal stub (Phase 10) |
+| `components/product/ProductJournal.jsx` | Linked essays on product detail |
 | `components/archive/ProductGallery.jsx` | Thumbs, prev/next, keyboard, accessible lightbox |
 | `components/compare/ComparisonTray.jsx` | Fixed bottom tray (max 4) |
 | `components/compare/ComparisonTable.jsx` | Domain-aware compare sections |
@@ -318,6 +333,7 @@ App.jsx → global CSS → AppRoutes
 | `FeaturedObject.jsx` | Signature spread in **same soft bordered box**; opens Details modal only (no “View” link) |
 | `EditorialStory.jsx` | Journal teaser |
 | `HomeClose.jsx` | Discover / Journal closing paths |
+| `JournalPreview.jsx` | Essay card grid (links to `/journal/:slug`) |
 | `ObjectCard.jsx` | Discover card; Details + Compare; links to `/products/:slug` |
 | `ObjectDetailModal.jsx` | Legacy portal details dialog (superseded by product page) |
 | `MuseumFrame.jsx` | Subtle museum media frame |
@@ -461,13 +477,22 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 1. **Land on Home** — hero plates, brand marquee, promise, domain chambers, two signature objects (Details), editorial close  
 2. **Enter a chamber** — domain path links into Discover filtered by domain  
 3. **Discover feed** — masonry of cars/motorcycles/watches; open Details modal  
-4. **Product page** — `/products/:slug` gallery + identity, overview, why it matters, specs, rarity, market signals, related, journal stub; records a view  
-5. **Journal / Brands / Search / Admin / Account** — shells until later phases  
-6. **API health** — `GET /api/v1/health` (+ Mongo connected when URI set)
+4. **Product page** — `/products/:slug` gallery + identity, overview, why it matters, specs, rarity, market signals, related, linked journal essays; records a view  
+5. **Journal** — `/journal` essay index; `/journal/:slug` long-form + related objects  
+6. **Brands / Search / Admin** — shells until later phases  
+7. **API health** — `GET /api/v1/health` (+ Mongo connected when URI set)
 
 ---
 
 ## 9. Changelog (append newest on top)
+
+### 2026-09-10 (Phase 10) — Journal
+
+- `Article` model with publish statuses, article types, sections, hero image, related products, domains.
+- Public APIs: `GET /articles`, `GET /articles/:slug` (approved only); product journal returns linked essays.
+- Seed adds three essays (car / motorcycle / watch) linked to catalog objects.
+- Client: `JournalPage`, `ArticleDetailPage`, RTK article endpoints; `JournalPreview` and product journal link to essays.
+- `journal.test.js` covers list/detail approval gates and product journal links.
 
 ### 2026-09-09 (Phase 9) — Collector features + proper compare
 
@@ -543,4 +568,4 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 10. Next documentation updates expected
 
-When Phase 10 journal lands, replace the product journal stub with real essays.
+When Phase 11 brands/categories land, replace remaining RouteShell brand/category pages with live indexes.
