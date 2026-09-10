@@ -20,8 +20,10 @@ import {
 } from '../models/index.js';
 import { BRAND_CATALOG, CATEGORY_CATALOG } from './brandCatalog.js';
 
-/** Demo admin login (local/dev seed only): editor@archivex.local / ArchiveX!admin */
-const SEED_ADMIN_PASSWORD = 'ArchiveX!admin';
+/** Seed operator — set SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD in server/.env (see LOCAL_CREDENTIALS.md). */
+const SEED_ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL;
+const SEED_ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD;
+const LEGACY_ADMIN_EMAIL = 'editor@archivex.local';
 
 function img(url, alt, type = 'gallery', sortOrder = 0, width = 1400, height = 933) {
   return { url, alt, type, sortOrder, width, height };
@@ -92,17 +94,24 @@ async function seed() {
   if (!env.mongodbUri) {
     throw new Error('MONGODB_URI is required to run the Phase 4 seed');
   }
+  if (!SEED_ADMIN_EMAIL || !SEED_ADMIN_PASSWORD) {
+    throw new Error(
+      'Set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD in server/.env (see LOCAL_CREDENTIALS.md)'
+    );
+  }
 
   await connectDatabase();
 
   const passwordHash = await bcrypt.hash(SEED_ADMIN_PASSWORD, 10);
 
+  await User.deleteOne({ email: LEGACY_ADMIN_EMAIL });
+
   const admin = await User.findOneAndUpdate(
-    { email: 'editor@archivex.local' },
+    { email: SEED_ADMIN_EMAIL },
     {
       $set: {
-        name: 'ArchiveX Editor',
-        email: 'editor@archivex.local',
+        name: 'ArchiveX Admin',
+        email: SEED_ADMIN_EMAIL,
         passwordHash,
         role: 'admin',
         status: 'active',

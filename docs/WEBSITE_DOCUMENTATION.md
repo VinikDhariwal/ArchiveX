@@ -50,7 +50,8 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 10 Journal | Done — Article model, public `/articles`, `/journal` pages, product journal links |
 | Phase 11 Brands / categories | Done — live A–Z brands + category taxonomy; expanded seed houses |
 | Phase 12 Search / recommendations | Done — `/search` page, recommended products API, relevance results |
-| Admin CMS | Layout shell only (auth-gated; CRUD in Phase 13) |
+| Phase 13 Admin CMS | Done — `/admin` CRUD, approvals, users, audit; analytics still Phase 15 |
+| Phase 14 Media | Done — upload library, static `/media`, product/brand/article image wiring |
 
 **Migrate / re-seed Atlas**
 
@@ -76,13 +77,26 @@ npm run seed --prefix server
 | GET | `/api/v1/categories/:slug` | Active category chamber payload + `productCount` |
 | GET | `/api/v1/articles` | Approved journal essays; optional `type`, `domain`, `featured` |
 | GET | `/api/v1/articles/:slug` | Approved essay detail + related products |
-| POST | `/api/v1/auth/register` | Create collector account |
+| POST | `/api/v1/auth/register` | **Closed** (403) — accounts created via Admin |
 | POST | `/api/v1/auth/login` | Access token + httpOnly refresh cookie |
 | POST | `/api/v1/auth/refresh` | Rotate tokens via refresh cookie |
 | POST | `/api/v1/auth/logout` | Revoke refresh (tokenVersion++) + clear cookie |
 | GET | `/api/v1/auth/me` | Current user (Bearer access token) |
+| GET | `/api/v1/admin/overview` | Staff counts (pending, catalog, users) |
+| GET/POST/PATCH/DELETE | `/api/v1/admin/products…` | Catalog CMS + `PATCH …/status` approvals |
+| GET/POST/PATCH/DELETE | `/api/v1/admin/brands…` | Brand CMS |
+| GET/POST/PATCH/DELETE | `/api/v1/admin/categories…` | Category CMS |
+| GET/POST/PATCH/DELETE | `/api/v1/admin/articles…` | Journal CMS |
+| GET/POST/PATCH | `/api/v1/admin/users…` | Create users + role/status (admin+) |
+| GET | `/api/v1/admin/audit` | Thin audit log |
+| GET | `/api/v1/admin/media` | Media library list |
+| POST | `/api/v1/admin/media/upload` | Multipart image upload (staff) |
+| POST | `/api/v1/admin/media/url` | Register remote image URL |
+| DELETE | `/api/v1/admin/media/:id` | Soft-delete media (admin+) |
 
-**Seed admin (local/dev):** `editor@archivex.local` / `ArchiveX!admin`
+Uploaded files are served from `PUBLIC_ORIGIN` + `/media/…` (local `uploads/` in development).
+
+**Seed admin:** local only — see `LOCAL_CREDENTIALS.md` (gitignored). Public registration is closed.
 
 ---
 
@@ -189,11 +203,16 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `models/Favorite.js` | User ↔ product favorites |
 | `models/Collection.js` | Collector collections |
 | `models/Article.js` | Journal essays (status-gated, related products) |
+| `models/AuditLog.js` | Thin admin audit trail |
+| `models/MediaAsset.js` | Uploaded / registered media library assets |
 | `models/shared/productSubdocuments.js` | `buildSpecifications`, `assertValidSpecifications` |
 | `models/index.js` | Barrel exports |
 | `services/searchService.js` | Public discovery filters, sort modes, shuffle, field selection |
 | `services/recommendationService.js` | Related objects + Search recommendations; product journal via articleService |
 | `services/articleService.js` | Public article list/detail + product journal links |
+| `services/adminService.js` | Admin CMS CRUD, approvals, user updates |
+| `services/auditService.js` | `recordAudit` / `listAuditLogs` |
+| `services/mediaService.js` | Local upload + remote URL media library |
 | `services/productService.js` | Product list/detail serialize, view recording |
 | `services/brandService.js` | Public brand list/detail + product counts + name search |
 | `services/categoryService.js` | Public category list/detail + product counts |
@@ -203,10 +222,13 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `controllers/brandController.js` | Thin brand handlers |
 | `controllers/categoryController.js` | Thin category handlers |
 | `controllers/articleController.js` | Thin article handlers |
+| `controllers/adminController.js` | Thin admin CMS handlers |
+| `controllers/mediaController.js` | Thin media upload/list handlers |
 | `routes/productRoutes.js` | `/products` |
 | `routes/brandRoutes.js` | `/brands` |
 | `routes/categoryRoutes.js` | `/categories` |
 | `routes/articleRoutes.js` | `/articles` |
+| `routes/adminRoutes.js` | `/admin` (staff-gated) |
 | `validators/` | Empty |
 | `tests/health.test.js` | Health endpoint |
 | `tests/models.test.js` | Spec validation + model CRUD (memory Mongo) |
@@ -218,6 +240,8 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `tests/collector.test.js` | Favorites, collections, product ids filter |
 | `tests/brandsCategories.test.js` | Phase 11 brands/categories filters, counts, approval gates |
 | `tests/searchRecommend.test.js` | Phase 12 search + recommended products |
+| `tests/admin.test.js` | Phase 13 admin auth gate, approvals, CRUD, audit |
+| `tests/media.test.js` | Phase 14 upload + remote URL media library |
 | `testSupport/http.js` | Ephemeral listen + fetch helper |
 
 ### 4.7 Domain constants (server)
@@ -283,7 +307,17 @@ App.jsx → global CSS → AppRoutes
 | `/favorites` | `FavoritesPage` | Synced favorites + recently viewed |
 | `/collections` | `CollectionsPage` | Collection list + create |
 | `/collections/:id` | `CollectionDetailPage` | Collection detail / manage objects |
-| `/admin/*` | shells | Admin layout |
+| `/admin` | `AdminOverviewPage` | CMS overview counts + shortcuts |
+| `/admin/approvals` | `AdminApprovalsPage` | Pending product queue |
+| `/admin/products` | `AdminProductsPage` | Catalog list + status actions |
+| `/admin/products/new` · `/admin/products/:id/edit` | `AdminProductFormPage` | Create / edit product |
+| `/admin/brands` | `AdminBrandsPage` | Brand CMS |
+| `/admin/categories` | `AdminCategoriesPage` | Category CMS |
+| `/admin/articles` | `AdminArticlesPage` | Journal CMS |
+| `/admin/media` | `AdminMediaPage` | Upload library + remote URLs |
+| `/admin/users` | `AdminUsersPage` | Role / status (admin+) |
+| `/admin/audit` | `AdminAuditPage` | Audit trail |
+| `/admin/analytics` | shell | Phase 15 placeholder |
 | `/unauthorized` | `UnauthorizedPage` | Forbidden placeholder |
 | `*` | `NotFoundPage` | 404 |
 
@@ -293,7 +327,7 @@ App.jsx → global CSS → AppRoutes
 | --- | --- |
 | `HomePage.jsx` | Hero → marquee → promise → chambers → signatures → editorial → close |
 | `DiscoverPage.jsx` | URL-synced discovery: search, filters, sort, pagination, masonry |
-| `LoginPage.jsx` / `RegisterPage.jsx` / `AccountPage.jsx` | Auth surfaces |
+| `LoginPage.jsx` / `AccountPage.jsx` | Auth surfaces (invite-only; no public register) |
 | `ProductDetailPage.jsx` | Domain-aware product intelligence page |
 | `ComparisonPage.jsx` | Wide compare table from tray ids |
 | `FavoritesPage.jsx` | Saved favorites + recently viewed |
@@ -303,7 +337,8 @@ App.jsx → global CSS → AppRoutes
 | `BrandsPage.jsx` / `BrandDetailPage.jsx` | Brand A–Z index + chamber |
 | `CategoriesPage.jsx` / `CategoryDetailPage.jsx` | Category taxonomy index + chamber |
 | `SearchPage.jsx` | Query-first search + suggested recommendations |
-| `RouteShellPage.jsx` | Wide placeholder for unfinished routes |
+| `pages/admin/*` | Admin CMS: overview, products, approvals, brands, categories, articles, media, users, audit |
+| `RouteShellPage.jsx` | Wide placeholder for unfinished routes (analytics) |
 | `NotFoundPage.jsx` / `UnauthorizedPage.jsx` / `ErrorPage.jsx` / `LoadingPage.jsx` | System states |
 
 ### 5.7 Discover components
@@ -373,7 +408,7 @@ App.jsx → global CSS → AppRoutes
 | `features/compare/compareSlice.js` | Local compare tray ids (max 4) |
 | `features/products/productApi.js` | Discover URL ↔ query helpers |
 | `features/products/productSelectors.js` | Product list selectors |
-| `app/api.js` | RTK Query: products, auth, favorites, collections, recently viewed |
+| `app/api.js` | RTK Query: products, auth, favorites, collections, recently viewed, admin CMS |
 
 ### 5.12 Demo data (`data/demoData.js`)
 
@@ -492,12 +527,34 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 5. **Journal** — `/journal` essay index; `/journal/:slug` long-form + related objects  
 6. **Brands / Categories** — A–Z houses and taxonomy chambers with linked approved objects  
 7. **Search** — `/search` query-first results with suggested recommendations  
-8. **Admin** — shells until Phase 13  
+8. **Admin** — `/admin` CMS: approvals, products, brands, categories, articles, users, audit  
 9. **API health** — `GET /api/v1/health` (+ Mongo connected when URI set)
 
 ---
 
 ## 9. Changelog (append newest on top)
+
+### 2026-09-10 (Phase 14) — Media
+
+- `MediaAsset` library with staff upload (`multipart`) and remote URL registration.
+- Local files served from `/media/*` (`uploads/` on disk; `PUBLIC_ORIGIN` for absolute URLs).
+- Admin Media page; product form image plates; brand logo + article hero URL fields.
+- `media.test.js` covers upload, remote register, and list.
+
+### 2026-09-10 — Invite-only accounts
+
+- Removed public “Create an account” from Sign in; `/register` redirects to `/login`.
+- `POST /auth/register` returns 403 (`REGISTRATION_CLOSED`).
+- Operators create accounts from `/admin/users` (`POST /admin/users`).
+- Seed admin credentials live in `server/.env` + `LOCAL_CREDENTIALS.md` (gitignored); legacy `editor@archivex.local` removed on re-seed.
+
+### 2026-09-10 (Phase 13) — Admin CMS
+
+- Staff-gated `/api/v1/admin/*`: overview, products (CRUD + status), brands, categories, articles, users (admin+), audit log.
+- `AuditLog` model + `auditService`; soft deletes for catalog entities.
+- Client admin pages replace RouteShells (analytics remains Phase 15 shell); Approvals queue in nav.
+- Public surfaces stay approved/active-only; pending submissions never leak.
+- `admin.test.js` covers 403 for collectors, approve gate, create flows, and audit writes.
 
 ### 2026-09-10 (Phase 12) — Search / recommendations
 
@@ -565,7 +622,7 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 - Auth routes: register, login, refresh, logout, me.
 - Client: login/register/account pages, auth slice, RTK reauth, RequireAuth / RequireAdmin.
 - Account + admin layouts gated; header Sign in / Account.
-- Seed admin password set to `ArchiveX!admin` (re-seed applied).
+- Seed admin password set for local operator (re-seed applied). Legacy editor account retired.
 - 18 server tests passing.
 
 ### 2026-09-09 (evening) — Phase 5 MVC APIs
@@ -597,4 +654,4 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 10. Next documentation updates expected
 
-When Phase 13 Admin CMS lands, replace admin RouteShell pages with live catalog/editorial management.
+When Phase 15 Analytics lands, replace the analytics RouteShell with live signals.

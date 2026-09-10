@@ -10,12 +10,17 @@ import requestIdMiddleware from './middleware/requestIdMiddleware.js';
 import notFoundMiddleware from './middleware/notFoundMiddleware.js';
 import errorMiddleware from './middleware/errorMiddleware.js';
 import { successResponse } from './utils/response.js';
+import { getUploadRoot } from './services/mediaService.js';
 
 const app = express();
 
 app.disable('x-powered-by');
 app.use(requestIdMiddleware);
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
 app.use(
   cors({
     origin: env.clientOrigin,
@@ -35,6 +40,8 @@ app.get('/', (req, res) => {
     domains: env.supportedProductTypes,
   });
 });
+
+app.use(env.mediaPublicPath, express.static(getUploadRoot()));
 
 app.use(`/api/${env.apiVersion}`, apiRoutes);
 

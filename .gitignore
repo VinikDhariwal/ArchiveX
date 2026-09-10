@@ -19,6 +19,8 @@ client/.env
 client/.env.local
 server/.env
 server/.env.local
+LOCAL_CREDENTIALS.md
+**/LOCAL_CREDENTIALS.md
 
 # Logs
 logs/
