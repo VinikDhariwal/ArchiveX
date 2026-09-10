@@ -19,19 +19,46 @@ import {
   buildSpecifications,
 } from '../models/index.js';
 import { BRAND_CATALOG, CATEGORY_CATALOG } from './brandCatalog.js';
+import { buildProductCatalog, img, unsplash } from './productCatalog.js';
+import { PRODUCT_STORIES } from './productStories.js';
 
 /** Seed operator — set SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD in server/.env (see LOCAL_CREDENTIALS.md). */
 const SEED_ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL;
 const SEED_ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD;
 const LEGACY_ADMIN_EMAIL = 'editor@archivex.local';
 
-function img(url, alt, type = 'gallery', sortOrder = 0, width = 1400, height = 933) {
-  return { url, alt, type, sortOrder, width, height };
-}
-
-function unsplash(id, w = 1400) {
-  return `https://images.unsplash.com/${id}?auto=format&fit=max&w=${w}&q=80`;
-}
+/** Clearbit-style domains for house marks stored as remote URLs in Atlas. */
+const BRAND_LOGO_DOMAINS = {
+  'mercedes-benz': 'mercedes-benz.com',
+  ferrari: 'ferrari.com',
+  bugatti: 'bugatti.com',
+  porsche: 'porsche.com',
+  lamborghini: 'lamborghini.com',
+  mclaren: 'mclaren.com',
+  'aston-martin': 'astonmartin.com',
+  jaguar: 'jaguar.com',
+  bmw: 'bmw.com',
+  ford: 'ford.com',
+  chevrolet: 'chevrolet.com',
+  nissan: 'nissanusa.com',
+  'rolls-royce': 'rolls-roycemotorcars.com',
+  'harley-davidson': 'harley-davidson.com',
+  suzuki: 'suzukicycles.com',
+  ducati: 'ducati.com',
+  honda: 'honda.com',
+  yamaha: 'yamaha-motor.com',
+  ktm: 'ktm.com',
+  triumph: 'triumphmotorcycles.com',
+  kawasaki: 'kawasaki.com',
+  'bmw-motorrad': 'bmw-motorrad.com',
+  'patek-philippe': 'patek.com',
+  omega: 'omegawatches.com',
+  rolex: 'rolex.com',
+  cartier: 'cartier.com',
+  'audemars-piguet': 'audemarspiguet.com',
+  iwc: 'iwc.com',
+  'grand-seiko': 'grand-seiko.com',
+};
 
 function intelligenceFor(product) {
   const type = product.productType;
@@ -45,40 +72,81 @@ function intelligenceFor(product) {
     watch: `${name} holds horological language that collectors still return to — movement, case geometry, and quiet historical presence.`,
   };
 
+  const baseRarity = {
+    productionHistory:
+      product.productionPeriod
+        ? `Documented production window ${product.productionPeriod}.`
+        : year
+          ? `Associated with the ${year} era in the ArchiveX catalog.`
+          : 'Production history preserved for collector study.',
+    collectorInterest:
+      type === 'watch'
+        ? 'Secondary-domain interest remains steady among archive readers.'
+        : 'Primary-domain collector attention stays high across Discover and journal paths.',
+    historicalSignificance:
+      type === 'watch'
+        ? 'Horological and design context matter as much as technical specification.'
+        : 'Engineering, design, and cultural impact define its place in the chamber.',
+  };
+
+  const baseMarket = {
+    archiveEstimate: 'Archive study range — not a formal appraisal',
+    marketRange:
+      product.rarity === 'ICONIC' || product.rarity === 'UNIQUE' || product.rarity === 'ULTRA-RARE'
+        ? 'Elevated private / auction band'
+        : product.rarity === 'RARE'
+          ? 'Selective private band'
+          : 'Broader collector band',
+    collectorInterest:
+      product.featured ? 'High among returning readers' : 'Steady within its chamber',
+    availabilitySignal: availability,
+    priceMovement: 'Observational — no guaranteed trajectory',
+    lastUpdated: new Date('2026-09-09T12:00:00.000Z'),
+    disclaimer:
+      'Informational archive signals only — not a guarantee of price, availability, or investment outcome.',
+  };
+
   return {
-    whyItMatters: whyByType[type] || whyByType.car,
-    rarityProfile: {
-      productionHistory:
-        product.productionPeriod
-          ? `Documented production window ${product.productionPeriod}.`
-          : year
-            ? `Associated with the ${year} era in the ArchiveX catalog.`
-            : 'Production history preserved for collector study.',
-      collectorInterest:
-        type === 'watch'
-          ? 'Secondary-domain interest remains steady among archive readers.'
-          : 'Primary-domain collector attention stays high across Discover and journal paths.',
-      historicalSignificance:
-        type === 'watch'
-          ? 'Horological and design context matter as much as technical specification.'
-          : 'Engineering, design, and cultural impact define its place in the chamber.',
-    },
+    whyItMatters: product.whyItMatters || whyByType[type] || whyByType.car,
+    rarityProfile: { ...baseRarity, ...(product.rarityProfile || {}) },
     marketSignals: {
-      archiveEstimate: 'Archive study range — not a formal appraisal',
-      marketRange:
-        product.rarity === 'ICONIC' || product.rarity === 'UNIQUE' || product.rarity === 'ULTRA-RARE'
-          ? 'Elevated private / auction band'
-          : product.rarity === 'RARE'
-            ? 'Selective private band'
-            : 'Broader collector band',
-      collectorInterest:
-        product.featured ? 'High among returning readers' : 'Steady within its chamber',
-      availabilitySignal: availability,
-      priceMovement: 'Observational — no guaranteed trajectory',
-      lastUpdated: new Date('2026-09-09T12:00:00.000Z'),
-      disclaimer:
-        'Informational archive signals only — not a guarantee of price, availability, or investment outcome.',
+      ...baseMarket,
+      ...(product.marketSignals || {}),
+      lastUpdated: product.marketSignals?.lastUpdated || baseMarket.lastUpdated,
+      disclaimer: product.marketSignals?.disclaimer || baseMarket.disclaimer,
     },
+  };
+}
+
+function applyStory(product) {
+  const story = PRODUCT_STORIES[product.slug];
+  if (!story) return product;
+
+  const {
+    specifications: storySpecs,
+    shortDescription,
+    description,
+    whyItMatters,
+    materials,
+    colors,
+    productionPeriod,
+    rarityProfile,
+    marketSignals,
+  } = story;
+
+  return {
+    ...product,
+    ...(shortDescription ? { shortDescription } : {}),
+    ...(description ? { description } : {}),
+    ...(whyItMatters ? { whyItMatters } : {}),
+    ...(materials ? { materials } : {}),
+    ...(colors ? { colors } : {}),
+    ...(productionPeriod ? { productionPeriod } : {}),
+    ...(rarityProfile ? { rarityProfile } : {}),
+    ...(marketSignals ? { marketSignals } : {}),
+    ...(storySpecs
+      ? { specifications: buildSpecifications(product.productType, storySpecs) }
+      : {}),
   };
 }
 
@@ -124,6 +192,7 @@ async function seed() {
 
   const brands = {};
   for (const entry of BRAND_CATALOG) {
+    const logoDomain = BRAND_LOGO_DOMAINS[entry.slug];
     const doc = await upsertBySlug(Brand, entry.slug, {
       name: entry.name,
       slug: entry.slug,
@@ -132,7 +201,18 @@ async function seed() {
       country: entry.country,
       primaryDomains: entry.domains,
       status: 'active',
+      ...(logoDomain
+        ? {
+            logo: {
+              url: `https://logo.clearbit.com/${logoDomain}`,
+              alt: `${entry.name} mark`,
+              type: 'other',
+              sortOrder: 0,
+            },
+          }
+        : {}),
     });
+    brands[entry.slug] = doc;
     if (entry.key) brands[entry.key] = doc;
   }
 
@@ -145,6 +225,7 @@ async function seed() {
       productType: entry.productType,
       status: 'active',
     });
+    categories[entry.slug] = doc;
     if (entry.key) categories[entry.key] = doc;
   }
 
@@ -155,408 +236,24 @@ async function seed() {
     competition: await upsertBySlug(Tag, 'competition', { name: 'Competition', slug: 'competition' }),
   };
 
-  const products = [
-    {
-      name: 'Mercedes-Benz 300 SL',
-      slug: 'mercedes-benz-300-sl',
-      reference: 'AX-0001',
-      productType: 'car',
-      brand: brands.mercedes._id,
-      category: categories.carIcons._id,
-      tags: [tags.iconic._id, tags.heritage._id],
-      shortDescription:
-        'The Gullwing coupe that defined postwar sports-car theatre.',
-      description:
-        'Space-frame chassis and upward-hinging doors — archival engineering and collector myth.',
-      releaseYear: 1955,
-      productionPeriod: '1954–1957',
-      rarity: 'ICONIC',
-      availability: 'private',
-      featured: true,
-      status: 'approved',
-      publisher: 'ArchiveX',
-      materials: ['aluminium', 'steel'],
-      colors: ['silver'],
-      images: [
-        img(unsplash('photo-1772550327967-4d9123809a65'), 'Silver Mercedes-Benz 300 SL Gullwing coupe', 'hero', 0),
-      ],
-      specifications: buildSpecifications('car', {
-        engine: 'Inline-6',
-        power: '215 PS',
-        bodyStyle: 'coupe',
-        productionPeriod: '1954–1957',
-      }),
-    },
-    {
-      name: 'Bugatti Chiron',
-      slug: 'bugatti-chiron',
-      reference: 'AX-0057',
-      productType: 'car',
-      brand: brands.bugatti._id,
-      category: categories.carIcons._id,
-      tags: [tags.iconic._id],
-      shortDescription: 'Molsheim’s modern hypercar — horseshoe grille and W16 theatre.',
-      description: 'Eight-eye lamps, quad-turbo W16 presence, and contemporary Bugatti geometry.',
-      releaseYear: 2016,
-      rarity: 'ICONIC',
-      availability: 'private',
-      featured: true,
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1544636331-e26879cd4d9b'), 'White Bugatti Chiron front study at night', 'hero', 0),
-      ],
-      specifications: buildSpecifications('car', {
-        engine: 'W16 quad-turbo',
-        bodyStyle: 'coupe',
-      }),
-    },
-    {
-      name: 'Ferrari F40',
-      slug: 'ferrari-f40',
-      reference: 'AX-0108',
-      productType: 'car',
-      brand: brands.ferrari._id,
-      category: categories.carIcons._id,
-      tags: [tags.iconic._id],
-      shortDescription: 'Twin-turbo V8 legend — raw engineering made collectible myth.',
-      description: 'Enzo’s final road car and a cornerstone of modern collector mythology.',
-      releaseYear: 1987,
-      rarity: 'ICONIC',
-      availability: 'private',
-      featured: true,
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1750712344309-b62744ffae18'), 'Black Ferrari F40 on display', 'hero', 0),
-        img(unsplash('photo-1726739569681-14cc0392b4bc'), 'Red Ferrari F40 in garage light', 'gallery', 1),
-        img(unsplash('photo-1762111215490-0afdb55466c2'), 'Cream Ferrari F40 on the street', 'gallery', 2),
-      ],
-      specifications: buildSpecifications('car', {
-        engine: 'V8 twin-turbo',
-        power: '478 PS',
-        aspiration: 'twin-turbo',
-        bodyStyle: 'coupe',
-      }),
-    },
-    {
-      name: 'Porsche 911 Carrera 4',
-      slug: 'porsche-911-carrera',
-      reference: 'AX-0911',
-      productType: 'car',
-      brand: brands.porsche._id,
-      category: categories.carIcons._id,
-      tags: [tags.iconic._id],
-      shortDescription: 'The enduring 911 silhouette — precision, balance, and collector continuity.',
-      description: 'A modern Carrera 4 plate for the demonstration archive.',
-      releaseYear: 2019,
-      rarity: 'COLLECTIBLE',
-      availability: 'production',
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1578911717720-4272f961231b'), 'Porsche 911 Carrera 4 rear badge study', 'hero', 0),
-      ],
-      specifications: buildSpecifications('car', {
-        engine: 'Flat-six',
-        drivetrain: 'AWD',
-        bodyStyle: 'coupe',
-      }),
-    },
-    {
-      name: 'Lamborghini Huracán',
-      slug: 'lamborghini-huracan',
-      reference: 'AX-0012',
-      productType: 'car',
-      brand: brands.lamborghini._id,
-      category: categories.carIcons._id,
-      tags: [tags.iconic._id],
-      shortDescription: 'Sant’Agata V10 wedge — sharp lamps and hexagonal intake geometry.',
-      description: 'Modern bull presence for the automotive chamber.',
-      releaseYear: 2014,
-      rarity: 'RARE',
-      availability: 'private',
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1519245659620-e859806a8d3b'), 'Dark grey Lamborghini Huracán with racing stripes', 'hero', 0),
-      ],
-      specifications: buildSpecifications('car', {
-        engine: 'V10',
-        drivetrain: 'AWD',
-        bodyStyle: 'coupe',
-      }),
-    },
-    {
-      name: 'McLaren P1',
-      slug: 'mclaren-p1',
-      reference: 'AX-0003',
-      productType: 'car',
-      brand: brands.mclaren._id,
-      category: categories.carIcons._id,
-      tags: [tags.iconic._id, tags.competition._id],
-      shortDescription: 'Hybrid hypercar craftsmanship with motorsport bloodline.',
-      description: 'Woking’s hybrid flagship — demonstration plate for modern hypercar craft.',
-      releaseYear: 2013,
-      rarity: 'ICONIC',
-      availability: 'private',
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1748028265529-0be0aee7f674'), 'McLaren P1 displayed front view', 'hero', 0),
-      ],
-      specifications: buildSpecifications('car', {
-        engine: 'V8 hybrid',
-        aspiration: 'twin-turbo',
-        bodyStyle: 'coupe',
-        productionUnits: '375',
-      }),
-    },
-    {
-      name: 'Harley-Davidson Heritage',
-      slug: 'harley-davidson-heritage',
-      reference: 'AX-1916',
-      productType: 'motorcycle',
-      brand: brands.harley._id,
-      category: categories.motoCraft._id,
-      tags: [tags.heritage._id],
-      shortDescription: 'Classic Milwaukee cruiser presence with long-road character.',
-      description: 'Tank-badge heritage for the two-wheel chamber.',
-      releaseYear: 1948,
-      rarity: 'COLLECTIBLE',
-      availability: 'private',
-      featured: true,
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1459372537964-e38c57a5e86f'), 'Vintage Harley-Davidson motorcycle study', 'hero', 0),
-      ],
-      specifications: buildSpecifications('motorcycle', {
-        engine: 'V-twin',
-        productionPeriod: '1948',
-      }),
-    },
-    {
-      name: 'Suzuki Café Racer',
-      slug: 'suzuki-cafe-racer',
-      reference: 'AX-1919',
-      productType: 'motorcycle',
-      brand: brands.suzuki._id,
-      category: categories.motoCraft._id,
-      tags: [tags.heritage._id],
-      shortDescription: 'A stripped café-racer build with lean tank lines and workshop craft.',
-      description: 'Custom Suzuki café geometry for the two-wheel chamber.',
-      releaseYear: 1975,
-      rarity: 'COLLECTIBLE',
-      availability: 'private',
-      featured: true,
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1508349661974-9927dbd8399c'), 'Custom Suzuki café racer motorcycle profile', 'hero', 0),
-      ],
-      specifications: buildSpecifications('motorcycle', {
-        modelGeneration: 'Café racer',
-        productionPeriod: '1975',
-      }),
-    },
-    {
-      name: 'Ducati Panigale V4',
-      slug: 'ducati-panigale',
-      reference: 'AX-0DUC',
-      productType: 'motorcycle',
-      brand: brands.ducati._id,
-      category: categories.motoCraft._id,
-      tags: [tags.iconic._id],
-      shortDescription: 'Italian superbike form — winglet aero and Desmo character.',
-      description: 'Bologna Panigale V4 presence for the two-wheel chamber.',
-      releaseYear: 2018,
-      rarity: 'COLLECTIBLE',
-      availability: 'private',
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1632157256334-518122d788bd'), 'Red Ducati Panigale V4 on mountain road', 'hero', 0),
-      ],
-      specifications: buildSpecifications('motorcycle', {
-        engine: 'V4',
-        finalDrive: 'chain',
-      }),
-    },
-    {
-      name: 'Honda Scrambler',
-      slug: 'honda-scrambler',
-      reference: 'AX-0HON',
-      productType: 'motorcycle',
-      brand: brands.honda._id,
-      category: categories.motoCraft._id,
-      tags: [tags.heritage._id],
-      shortDescription: 'Custom Honda scrambler craft — knobby tires and forest-road stance.',
-      description: 'Demonstration Honda scrambler for the two-wheel chamber.',
-      releaseYear: 1972,
-      rarity: 'COLLECTIBLE',
-      availability: 'private',
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1502744688674-c619d1586c9e'), 'Custom Honda scrambler on forest trail', 'hero', 0),
-      ],
-      specifications: buildSpecifications('motorcycle', {
-        modelGeneration: 'Scrambler',
-      }),
-    },
-    {
-      name: 'Yamaha YZF-R6',
-      slug: 'yamaha-yzf-r6',
-      reference: 'AX-0R6',
-      productType: 'motorcycle',
-      brand: brands.yamaha._id,
-      category: categories.motoCraft._id,
-      tags: [tags.competition._id],
-      shortDescription: 'Sculptural supersport craftsmanship with archival track presence.',
-      description: 'A modern supersport plate for the motorcycle chamber.',
-      releaseYear: 2008,
-      rarity: 'COLLECTIBLE',
-      availability: 'production',
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1609630875171-b1321377ee65'), 'Yamaha YZF-R6 orange and black superbike', 'hero', 0),
-      ],
-      specifications: buildSpecifications('motorcycle', {
-        engine: 'Inline-4',
-        displacement: '599 cc',
-        transmission: '6-speed',
-      }),
-    },
-    {
-      name: 'KTM RC 390',
-      slug: 'ktm-rc-390',
-      reference: 'AX-0KTM',
-      productType: 'motorcycle',
-      brand: brands.ktm._id,
-      category: categories.motoCraft._id,
-      tags: [tags.competition._id],
-      shortDescription: 'Orange-framed Race Competition roadster energy.',
-      description: 'KTM RC 390 for the two-wheel chamber.',
-      releaseYear: 2014,
-      rarity: 'COLLECTIBLE',
-      availability: 'production',
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1449426468159-d96dbf08f19f'), 'KTM RC 390 sport motorcycle parked outdoors', 'hero', 0),
-      ],
-      specifications: buildSpecifications('motorcycle', {
-        displacement: '373 cc',
-        modelGeneration: 'RC 390',
-      }),
-    },
-    {
-      name: 'Patek Philippe Henry Graves Supercomplication',
-      slug: 'patek-philippe-henry-graves-supercomplication',
-      reference: 'AX-1933',
-      productType: 'watch',
-      brand: brands.patek._id,
-      category: categories.watchChamber._id,
-      tags: [tags.ultraRare._id, tags.heritage._id],
-      shortDescription: 'A unique pocket-watch summit of twentieth-century complications.',
-      description: 'Secondary-domain horology plate — demonstration stand-in for the Graves Supercomplication.',
-      releaseYear: 1933,
-      rarity: 'UNIQUE',
-      availability: 'private',
-      featured: true,
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1509048191080-d2984bad6ae5'), 'Antique pocket watch', 'hero', 0),
-      ],
-      specifications: buildSpecifications('watch', {
-        movement: 'manual',
-        productionPeriod: '1925–1933',
-      }),
-    },
-    {
-      name: 'Rolex Air-King',
-      slug: 'rolex-air-king',
-      reference: 'AX-0AIR',
-      productType: 'watch',
-      brand: brands.rolex._id,
-      category: categories.watchChamber._id,
-      tags: [tags.heritage._id],
-      shortDescription: 'Aviation chronometer language preserved for collector study.',
-      description: 'Secondary watch chamber plate.',
-      releaseYear: 1945,
-      rarity: 'RARE',
-      availability: 'production',
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1547996160-81dfa63595aa'), 'Rolex Air-King on book surface', 'hero', 0),
-      ],
-      specifications: buildSpecifications('watch', {
-        movement: 'automatic',
-        bracelet: 'metal',
-      }),
-    },
-    {
-      name: 'Omega Seamaster Planet Ocean',
-      slug: 'omega-seamaster-planet-ocean',
-      reference: 'AX-0SEA',
-      productType: 'watch',
-      brand: brands.omega._id,
-      category: categories.watchChamber._id,
-      tags: [tags.iconic._id, tags.heritage._id],
-      shortDescription: 'Diving chronograph history with enduring archival significance.',
-      description: 'Secondary watch chamber plate for the demonstration catalog.',
-      releaseYear: 2005,
-      rarity: 'ICONIC',
-      availability: 'production',
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1523170335258-f5ed11844a49'), 'Omega Seamaster Planet Ocean chronograph', 'hero', 0),
-      ],
-      specifications: buildSpecifications('watch', {
-        movement: 'automatic',
-        waterResistance: '300m',
-        bracelet: 'metal',
-      }),
-    },
-    {
-      name: 'Cartier Santos',
-      slug: 'cartier-santos',
-      reference: 'AX-0SAN',
-      productType: 'watch',
-      brand: brands.cartier._id,
-      category: categories.watchChamber._id,
-      tags: [tags.heritage._id],
-      shortDescription: 'Early pilot wristwatch geometry still shaping dress codes.',
-      description: 'Square case geometry as a quieter secondary-domain entry.',
-      releaseYear: 1904,
-      rarity: 'COLLECTIBLE',
-      availability: 'production',
-      status: 'approved',
-      publisher: 'ArchiveX',
-      images: [
-        img(unsplash('photo-1523170335258-f5ed11844a49'), 'Luxury wristwatch study', 'hero', 0),
-      ],
-      specifications: buildSpecifications('watch', {
-        caseMaterial: 'steel/gold',
-        dialColor: 'white',
-        bracelet: 'metal',
-      }),
-    },
-  ];
+  const products = buildProductCatalog({
+    brands,
+    categories,
+    tags,
+    buildSpecifications,
+  }).map(applyStory);
 
   for (const product of products) {
     const intelligence = intelligenceFor(product);
+    const { rarityProfile, marketSignals, whyItMatters, ...productFields } = product;
     await Product.findOneAndUpdate(
       { slug: product.slug },
       {
         $set: {
-          ...product,
-          ...intelligence,
+          ...productFields,
+          whyItMatters: intelligence.whyItMatters,
+          rarityProfile: intelligence.rarityProfile,
+          marketSignals: intelligence.marketSignals,
           createdBy: admin._id,
           updatedBy: admin._id,
           submittedBy: admin._id,
@@ -712,6 +409,31 @@ async function seed() {
     },
   });
   await Brand.deleteMany({ slug: { $in: ['cyclone', 'traub'] } });
+
+  // Denormalize product hero → brand.coverImage so Brands index stays fast.
+  const plated = await Product.find({ status: 'approved', deletedAt: null, 'images.0': { $exists: true } })
+    .select('brand images featured updatedAt')
+    .sort({ featured: -1, updatedAt: -1 })
+    .lean();
+  const coverByBrand = new Map();
+  for (const product of plated) {
+    const brandId = String(product.brand);
+    if (coverByBrand.has(brandId)) continue;
+    const hero = product.images.find((image) => image.type === 'hero') || product.images[0];
+    if (!hero?.url) continue;
+    coverByBrand.set(brandId, {
+      url: hero.url,
+      alt: hero.alt || '',
+      type: 'editorial',
+      sortOrder: 0,
+      width: hero.width,
+      height: hero.height,
+    });
+  }
+  await Brand.updateMany({}, { $unset: { coverImage: 1 } });
+  for (const [brandId, coverImage] of coverByBrand) {
+    await Brand.updateOne({ _id: brandId }, { $set: { coverImage } });
+  }
 
   const counts = {
     users: await User.countDocuments(),

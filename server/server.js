@@ -6,8 +6,9 @@ async function start() {
   try {
     await connectDatabase();
   } catch (error) {
-    console.error('[database] Connection failed — API will start without MongoDB.');
+    console.error('[database] Atlas connection required — refusing to start without MongoDB.');
     console.error(error.message);
+    process.exit(1);
   }
 
   const server = app.listen(env.port, () => {

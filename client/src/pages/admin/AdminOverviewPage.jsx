@@ -109,7 +109,7 @@ export default function AdminOverviewPage() {
               <li>
                 <Link to="/admin/analytics">
                   <span className="admin-shortcut-list__label">Analytics</span>
-                  <span className="admin-muted">Phase 15</span>
+                  <span className="admin-muted">Views & catalog health</span>
                 </Link>
               </li>
             </ul>

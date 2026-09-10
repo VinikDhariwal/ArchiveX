@@ -1,20 +1,12 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import bcrypt from 'bcryptjs';
 import request from '../testSupport/http.js';
-import { User } from '../models/index.js';
-import { getUploadRoot } from '../services/mediaService.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const fixturePath = path.join(__dirname, 'fixtures', 'plate.png');
+import { MediaAsset, User } from '../models/index.js';
 
 function tinyPngBuffer() {
-  // 1x1 PNG
   return Buffer.from(
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
     'base64'
@@ -38,9 +30,6 @@ describe('Phase 14 media APIs', () => {
     process.env.JWT_REFRESH_SECRET = 'test-refresh-secret';
     process.env.PUBLIC_ORIGIN = 'http://127.0.0.1:5001';
 
-    fs.mkdirSync(path.dirname(fixturePath), { recursive: true });
-    fs.writeFileSync(fixturePath, tinyPngBuffer());
-
     const passwordHash = await bcrypt.hash('ArchiveX!admin', 10);
     await User.create({
       name: 'Admin',
@@ -61,11 +50,6 @@ describe('Phase 14 media APIs', () => {
   after(async () => {
     await mongoose.disconnect();
     await mongod.stop();
-    try {
-      fs.rmSync(path.dirname(fixturePath), { recursive: true, force: true });
-    } catch {
-      /* ignore */
-    }
   });
 
   it('registers a remote media URL', async () => {
@@ -80,10 +64,10 @@ describe('Phase 14 media APIs', () => {
     });
     assert.equal(response.status, 201);
     assert.equal(response.body.data.url, 'https://images.example.com/plates/f40.jpg');
-    assert.equal(response.body.data.type, 'hero');
+    assert.equal(response.body.data.storage, 'remote');
   });
 
-  it('uploads an image file into the media library', async () => {
+  it('uploads an image into Atlas GridFS and streams it back', async () => {
     const form = new FormData();
     const blob = new Blob([tinyPngBuffer()], { type: 'image/png' });
     form.append('file', blob, 'plate.png');
@@ -97,12 +81,39 @@ describe('Phase 14 media APIs', () => {
     });
 
     assert.equal(response.status, 201);
-    assert.match(response.body.data.url, /\/media\//);
-    assert.equal(response.body.data.type, 'gallery');
+    assert.equal(response.body.data.storage, 'atlas');
+    assert.match(response.body.data.url, /\/api\/v1\/media\/files\//);
 
-    const filename = response.body.data.filename;
-    const diskPath = path.join(getUploadRoot(), filename);
-    assert.equal(fs.existsSync(diskPath), true);
+    const asset = await MediaAsset.findById(response.body.data.id).lean();
+    assert.ok(asset.gridFsId);
+
+    const files = await mongoose.connection.db
+      .collection('archivex_media.files')
+      .find({ _id: asset.gridFsId })
+      .toArray();
+    assert.equal(files.length, 1);
+
+    // Stream endpoint should return the PNG bytes (not JSON).
+    const app = (await import('../app.js')).default;
+    const binary = await new Promise((resolve, reject) => {
+      const server = app.listen(0, async () => {
+        try {
+          const { port } = server.address();
+          const res = await fetch(
+            `http://127.0.0.1:${port}/api/v1/media/files/${response.body.data.id}`
+          );
+          const buffer = Buffer.from(await res.arrayBuffer());
+          resolve({ status: res.status, contentType: res.headers.get('content-type'), buffer });
+        } catch (error) {
+          reject(error);
+        } finally {
+          server.close();
+        }
+      });
+    });
+    assert.equal(binary.status, 200);
+    assert.match(binary.contentType || '', /image\/png/);
+    assert.ok(binary.buffer.length > 0);
   });
 
   it('lists media assets for staff', async () => {

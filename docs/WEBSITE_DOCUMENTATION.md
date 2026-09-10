@@ -50,8 +50,9 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 10 Journal | Done — Article model, public `/articles`, `/journal` pages, product journal links |
 | Phase 11 Brands / categories | Done — live A–Z brands + category taxonomy; expanded seed houses |
 | Phase 12 Search / recommendations | Done — `/search` page, recommended products API, relevance results |
-| Phase 13 Admin CMS | Done — `/admin` CRUD, approvals, users, audit; analytics still Phase 15 |
-| Phase 14 Media | Done — upload library, static `/media`, product/brand/article image wiring |
+| Phase 13 Admin CMS | Done — `/admin` CRUD, approvals, users, audit |
+| Phase 14 Media | Done — Atlas GridFS uploads + media library |
+| Phase 15 Analytics | Done — staff `/admin/analytics` views, favorites, catalog health |
 
 **Migrate / re-seed Atlas**
 
@@ -83,6 +84,7 @@ npm run seed --prefix server
 | POST | `/api/v1/auth/logout` | Revoke refresh (tokenVersion++) + clear cookie |
 | GET | `/api/v1/auth/me` | Current user (Bearer access token) |
 | GET | `/api/v1/admin/overview` | Staff counts (pending, catalog, users) |
+| GET | `/api/v1/admin/analytics` | Views, favorites, collections, catalog health signals |
 | GET/POST/PATCH/DELETE | `/api/v1/admin/products…` | Catalog CMS + `PATCH …/status` approvals |
 | GET/POST/PATCH/DELETE | `/api/v1/admin/brands…` | Brand CMS |
 | GET/POST/PATCH/DELETE | `/api/v1/admin/categories…` | Category CMS |
@@ -94,9 +96,9 @@ npm run seed --prefix server
 | POST | `/api/v1/admin/media/url` | Register remote image URL |
 | DELETE | `/api/v1/admin/media/:id` | Soft-delete media (admin+) |
 
-Uploaded files are served from `PUBLIC_ORIGIN` + `/media/…` (local `uploads/` in development).
+**All durable data is on MongoDB Atlas** (`archivex`): users/admin, products, brands, categories, articles, favorites, collections, audit, media metadata, and uploaded image bytes (GridFS bucket `archivex_media`). There is no local MongoDB and no local upload disk. Public image URLs: `/api/v1/media/files/:id`. Remote Unsplash/CDN URLs stay as external links stored in Atlas.
 
-**Seed admin:** local only — see `LOCAL_CREDENTIALS.md` (gitignored). Public registration is closed.
+**Seed admin credentials** (password for `og@archivex.com`) live only in gitignored `server/.env` / `LOCAL_CREDENTIALS.md` — the account itself is in Atlas. Public registration is closed.
 
 ---
 
@@ -241,7 +243,8 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `tests/brandsCategories.test.js` | Phase 11 brands/categories filters, counts, approval gates |
 | `tests/searchRecommend.test.js` | Phase 12 search + recommended products |
 | `tests/admin.test.js` | Phase 13 admin auth gate, approvals, CRUD, audit |
-| `tests/media.test.js` | Phase 14 upload + remote URL media library |
+| `tests/media.test.js` | Phase 14 upload + remote URL / GridFS media library |
+| `tests/analytics.test.js` | Phase 15 staff analytics aggregates |
 | `testSupport/http.js` | Ephemeral listen + fetch helper |
 
 ### 4.7 Domain constants (server)
@@ -317,7 +320,7 @@ App.jsx → global CSS → AppRoutes
 | `/admin/media` | `AdminMediaPage` | Upload library + remote URLs |
 | `/admin/users` | `AdminUsersPage` | Role / status (admin+) |
 | `/admin/audit` | `AdminAuditPage` | Audit trail |
-| `/admin/analytics` | shell | Phase 15 placeholder |
+| `/admin/analytics` | live | Views, favorites, collections, catalog health |
 | `/unauthorized` | `UnauthorizedPage` | Forbidden placeholder |
 | `*` | `NotFoundPage` | 404 |
 
@@ -338,7 +341,7 @@ App.jsx → global CSS → AppRoutes
 | `CategoriesPage.jsx` / `CategoryDetailPage.jsx` | Category taxonomy index + chamber |
 | `SearchPage.jsx` | Query-first search + suggested recommendations |
 | `pages/admin/*` | Admin CMS: overview, products, approvals, brands, categories, articles, media, users, audit |
-| `RouteShellPage.jsx` | Wide placeholder for unfinished routes (analytics) |
+| `RouteShellPage.jsx` | Wide placeholder for unfinished routes |
 | `NotFoundPage.jsx` / `UnauthorizedPage.jsx` / `ErrorPage.jsx` / `LoadingPage.jsx` | System states |
 
 ### 5.7 Discover components
@@ -534,12 +537,32 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 9. Changelog (append newest on top)
 
+### 2026-09-11 (Phase 15) — Analytics
+
+- Staff `GET /api/v1/admin/analytics` aggregates ProductView, Favorite, and Collection signals.
+- `/admin/analytics` live page: attention metrics, catalog health, top viewed/favorited plates.
+- Informational disclaimer only — not market or traffic guarantees.
+
+### 2026-09-11 — Sitewide readability
+
+- Stronger ink contrast, larger base type, looser leading, clearer nav/buttons, and prose-friendly product/article body copy across public + admin surfaces.
+
+### 2026-09-11 — Full product stories
+
+- Every seeded product now carries overview copy, why-it-matters, denser specs, materials/colors, and specific rarity/market notes (Atlas).
+
+### 2026-09-10 — Live Atlas catalog refresh
+
+- Expanded seed to **29** imaged products across more houses; brand logos + product cover images on Brands index.
+- Home hero, domain chambers, and editorial pull from Atlas APIs (featured/recommended/articles).
+- Uploaded media remains Atlas GridFS; catalog photos use remote Unsplash URLs stored in Atlas.
+
 ### 2026-09-10 (Phase 14) — Media
 
 - `MediaAsset` library with staff upload (`multipart`) and remote URL registration.
-- Local files served from `/media/*` (`uploads/` on disk; `PUBLIC_ORIGIN` for absolute URLs).
+- Uploaded bytes live in Atlas GridFS (`archivex_media`); streamed at `/api/v1/media/files/:id`.
 - Admin Media page; product form image plates; brand logo + article hero URL fields.
-- `media.test.js` covers upload, remote register, and list.
+- `media.test.js` covers upload, GridFS stream, remote register, and list.
 
 ### 2026-09-10 — Invite-only accounts
 
@@ -552,7 +575,7 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 - Staff-gated `/api/v1/admin/*`: overview, products (CRUD + status), brands, categories, articles, users (admin+), audit log.
 - `AuditLog` model + `auditService`; soft deletes for catalog entities.
-- Client admin pages replace RouteShells (analytics remains Phase 15 shell); Approvals queue in nav.
+- Client admin pages replace RouteShells; Approvals queue in nav.
 - Public surfaces stay approved/active-only; pending submissions never leak.
 - `admin.test.js` covers 403 for collectors, approve gate, create flows, and audit writes.
 
@@ -654,4 +677,4 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 10. Next documentation updates expected
 
-When Phase 15 Analytics lands, replace the analytics RouteShell with live signals.
+Phase 16 API documentation — OpenAPI/reference for public + admin endpoints.

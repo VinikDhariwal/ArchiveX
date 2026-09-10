@@ -109,7 +109,15 @@ export default function ProductDetailPage() {
               <h2 id="product-overview-title" className="product-section__title">
                 Overview
               </h2>
-              <p className="product-section__body">{object.description || object.shortDescription}</p>
+              <div className="product-section__stack">
+                {(object.description || object.shortDescription || '')
+                  .split(/\n{2,}/)
+                  .map((paragraph) => paragraph.trim())
+                  .filter(Boolean)
+                  .map((paragraph, index) => (
+                    <p key={`overview-${index}`}>{paragraph}</p>
+                  ))}
+              </div>
             </section>
 
             {object.whyItMatters ? (
@@ -117,7 +125,15 @@ export default function ProductDetailPage() {
                 <h2 id="product-why-title" className="product-section__title">
                   Why it matters
                 </h2>
-                <p className="product-section__body">{object.whyItMatters}</p>
+                <div className="product-section__stack">
+                  {object.whyItMatters
+                    .split(/\n{2,}/)
+                    .map((paragraph) => paragraph.trim())
+                    .filter(Boolean)
+                    .map((paragraph, index) => (
+                      <p key={`why-${index}`}>{paragraph}</p>
+                    ))}
+                </div>
               </section>
             ) : null}
           </div>

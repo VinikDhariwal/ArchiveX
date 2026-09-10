@@ -25,6 +25,8 @@ const brandSchema = new mongoose.Schema(
       default: [],
     },
     logo: brandImageSchema,
+    /** First product hero plate — denormalized at seed for fast Brands index. */
+    coverImage: brandImageSchema,
     status: { type: String, enum: CATALOG_STATUSES, default: 'active', index: true },
     deletedAt: { type: Date, default: null },
   },
