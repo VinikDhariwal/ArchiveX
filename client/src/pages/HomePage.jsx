@@ -7,8 +7,13 @@ import FeaturedObject from '../components/archive/FeaturedObject.jsx';
 import EditorialStory from '../components/archive/EditorialStory.jsx';
 import HomeClose from '../components/archive/HomeClose.jsx';
 import LoadingState from '../components/feedback/LoadingState.jsx';
-import { useGetBrandsQuery, useGetProductsQuery } from '../app/api.js';
+import {
+  useGetArticlesQuery,
+  useGetBrandsQuery,
+  useGetProductsQuery,
+} from '../app/api.js';
 import { archivePromise, domainPaths, editorialStory, homeClose } from '../data/demoData.js';
+import { getPrimaryImage } from '../utils/archiveObject.js';
 
 export default function HomePage() {
   useDocumentTitle('Home');
@@ -24,17 +29,64 @@ export default function HomePage() {
     featured: 'true',
     limit: 1,
   });
+  const { data: featuredWatches } = useGetProductsQuery({
+    productType: 'watch',
+    featured: 'true',
+    limit: 1,
+  });
+  const { data: articles } = useGetArticlesQuery({ limit: 1 });
 
   const featuredCar = featuredCars?.items?.[0] || null;
   const featuredMotorcycle = featuredMotorcycles?.items?.[0] || null;
+  const featuredWatch = featuredWatches?.items?.[0] || null;
   const loadingFeatured = carsLoading || motoLoading;
+
+  const liveDomains = domainPaths.map((domain) => {
+    const source =
+      domain.id === 'car'
+        ? featuredCar
+        : domain.id === 'motorcycle'
+          ? featuredMotorcycle
+          : featuredWatch;
+    const image = getPrimaryImage(source);
+    if (!image?.url) return domain;
+    return {
+      ...domain,
+      image: {
+        ...domain.image,
+        url: image.url,
+        alt: image.alt || domain.image.alt,
+        width: image.width || domain.image.width,
+        height: image.height || domain.image.height,
+      },
+    };
+  });
+
+  const journalItem = articles?.items?.[0];
+  const liveEditorial = journalItem
+    ? {
+        type: journalItem.articleType || editorialStory.type,
+        title: journalItem.title,
+        excerpt: journalItem.excerpt || editorialStory.excerpt,
+        href: `/journal/${journalItem.slug}`,
+        cta: 'Continue reading',
+        image: journalItem.image?.url
+          ? {
+              url: journalItem.image.url,
+              alt: journalItem.image.alt || journalItem.title,
+              width: journalItem.image.width || 1400,
+              height: journalItem.image.height || 1750,
+            }
+          : editorialStory.image,
+      }
+    : editorialStory;
 
   return (
     <>
       <ArchiveHero />
       {brandsLoading ? null : <BrandMarquee brands={brands} />}
       <ArchivePromise promise={archivePromise} />
-      <DomainPaths domains={domainPaths} />
+      <DomainPaths domains={liveDomains} />
 
       <section className="signatures" aria-labelledby="signatures-title" data-reveal>
         <div className="signatures__head">
@@ -67,7 +119,7 @@ export default function HomePage() {
         />
       ) : null}
 
-      <EditorialStory story={editorialStory} />
+      <EditorialStory story={liveEditorial} />
       <HomeClose close={homeClose} />
     </>
   );

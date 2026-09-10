@@ -1,29 +1,51 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { hero } from '../../data/demoData.js';
+import { useGetProductsQuery, useGetRecommendedProductsQuery } from '../../app/api.js';
+import { getPrimaryImage } from '../../utils/archiveObject.js';
 
 const HOLD_MS = 4200;
 const CROSSFADE_MS = 780;
 const SWIPE_THRESHOLD = 56;
 const CLICK_TOLERANCE = 10;
 
+function toPlate(product) {
+  const image = getPrimaryImage(product);
+  if (!product?.slug || !image?.url) return null;
+  return {
+    slug: product.slug,
+    name: product.name,
+    brand: typeof product.brand === 'string' ? product.brand : product.brand?.name || '',
+    year: product.year || product.releaseYear || '',
+    rarity: product.rarity || '',
+    image: {
+      url: image.url,
+      alt: image.alt || product.name,
+      width: image.width || 1600,
+      height: image.height || 1200,
+      objectPosition: 'center',
+    },
+  };
+}
+
 export default function ArchiveHero() {
   const navigate = useNavigate();
+  const { data: featured } = useGetProductsQuery({ featured: 'true', limit: 10 });
+  const { data: recommended = [] } = useGetRecommendedProductsQuery({ limit: 10 });
+
   const plates = useMemo(() => {
-    if (hero.plates?.length) return hero.plates;
-    return hero.image
-      ? [
-          {
-            slug: hero.featuredSlug,
-            name: 'Featured object',
-            brand: 'ArchiveX',
-            year: '',
-            rarity: '',
-            image: hero.image,
-          },
-        ]
-      : [];
-  }, []);
+    const seen = new Set();
+    const fromApi = [];
+    for (const product of [...(featured?.items || []), ...recommended]) {
+      const plate = toPlate(product);
+      if (!plate || seen.has(plate.slug)) continue;
+      seen.add(plate.slug);
+      fromApi.push(plate);
+      if (fromApi.length >= 5) break;
+    }
+    if (fromApi.length >= 3) return fromApi;
+    return hero.plates?.length ? hero.plates : [];
+  }, [featured, recommended]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [resumeToken, setResumeToken] = useState(0);
@@ -37,9 +59,13 @@ export default function ArchiveHero() {
   });
   const suppressClickRef = useRef(false);
 
-  const active = plates[activeIndex];
-  const prevIndex = (activeIndex - 1 + plates.length) % plates.length;
-  const nextIndex = (activeIndex + 1) % plates.length;
+  const active = plates[activeIndex] || plates[0];
+  const prevIndex = plates.length ? (activeIndex - 1 + plates.length) % plates.length : 0;
+  const nextIndex = plates.length ? (activeIndex + 1) % plates.length : 0;
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [plates]);
 
   useEffect(() => {
     plates.forEach((plate) => {

@@ -5,10 +5,11 @@
   --paper-deep: #dfd0c2;
   --blush: #f0ddd6;
   --blush-deep: #e4c8be;
-  --ink: #1c2430;
-  --ink-soft: #2c3644;
-  --muted-ink: #6f675f;
-  --brass: #b08d4f;
+  --ink: #151b24;
+  --ink-soft: #243040;
+  /* Stronger muted text for WCAG-friendlier body/UI contrast on paper */
+  --muted-ink: #4e4841;
+  --brass: #9a7843;
   --brass-bright: #c9a86a;
   --brass-soft: rgba(176, 141, 79, 0.32);
   --navy: #243044;
@@ -17,8 +18,8 @@
   --forest-deep: #1f2a26;
   --oxide: #a34f32;
   --white: #fff8f2;
-  --line: rgba(28, 36, 48, 0.1);
-  --line-strong: rgba(28, 36, 48, 0.18);
+  --line: rgba(28, 36, 48, 0.12);
+  --line-strong: rgba(28, 36, 48, 0.2);
   --line-brass: rgba(176, 141, 79, 0.55);
   --glow: rgba(201, 168, 106, 0.18);
 
@@ -26,6 +27,19 @@
   --font-editorial: "Cormorant Garamond", "Fraunces", Georgia, serif;
   --font-ui: "Manrope", "IBM Plex Sans", system-ui, sans-serif;
   --font-meta: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Readability scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-md: 1.125rem;
+  --text-lg: 1.2rem;
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-body: 1.7;
+  --leading-prose: 1.8;
+  --measure: 38rem;
+  --measure-wide: 42rem;
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;

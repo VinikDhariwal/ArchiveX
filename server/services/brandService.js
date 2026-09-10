@@ -16,6 +16,7 @@ export function serializeBrand(doc, productCount = 0) {
     country: plain.country || null,
     primaryDomains: plain.primaryDomains || [],
     logo: plain.logo || null,
+    coverImage: plain.coverImage || plain.logo || null,
     productCount: Number(productCount) || 0,
   };
 }

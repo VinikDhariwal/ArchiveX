@@ -13,6 +13,7 @@ const mediaAssetSchema = new mongoose.Schema(
     width: { type: Number, default: undefined },
     height: { type: Number, default: undefined },
     storageKey: { type: String, required: true, trim: true },
+    gridFsId: { type: mongoose.Schema.Types.ObjectId, default: null, index: true },
     uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     deletedAt: { type: Date, default: null, index: true },
   },

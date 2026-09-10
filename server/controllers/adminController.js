@@ -1,12 +1,18 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import { successResponse } from '../utils/response.js';
 import * as adminService from '../services/adminService.js';
+import { getAdminAnalytics } from '../services/analyticsService.js';
 import { listAuditLogs } from '../services/auditService.js';
 
 const actorId = (req) => req.auth?.sub || req.user?._id;
 
 export const getOverview = asyncHandler(async (_req, res) => {
   const data = await adminService.getAdminOverview();
+  return successResponse(res, data);
+});
+
+export const getAnalytics = asyncHandler(async (_req, res) => {
+  const data = await getAdminAnalytics();
   return successResponse(res, data);
 });
 

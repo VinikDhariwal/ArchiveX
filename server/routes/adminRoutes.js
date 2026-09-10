@@ -11,6 +11,7 @@ const managers = ['admin', 'superadmin'];
 router.use(requireAuth);
 
 router.get('/overview', requireRoles(...staff), admin.getOverview);
+router.get('/analytics', requireRoles(...staff), admin.getAnalytics);
 
 router.get('/media', requireRoles(...staff), media.listMedia);
 router.post('/media/upload', requireRoles(...staff), mediaUpload.single('file'), media.uploadMedia);

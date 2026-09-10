@@ -6,7 +6,6 @@ import AdminLayout from '../layouts/AdminLayout.jsx';
 import RouteErrorBoundary from '../components/feedback/RouteErrorBoundary.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import UnauthorizedPage from '../pages/UnauthorizedPage.jsx';
-import RouteShellPage from '../pages/RouteShellPage.jsx';
 
 const HomePage = lazy(() => import('../pages/HomePage.jsx'));
 const DiscoverPage = lazy(() => import('../pages/DiscoverPage.jsx'));
@@ -34,10 +33,7 @@ const AdminArticlesPage = lazy(() => import('../pages/admin/AdminArticlesPage.js
 const AdminMediaPage = lazy(() => import('../pages/admin/AdminMediaPage.jsx'));
 const AdminUsersPage = lazy(() => import('../pages/admin/AdminUsersPage.jsx'));
 const AdminAuditPage = lazy(() => import('../pages/admin/AdminAuditPage.jsx'));
-
-function shell(props) {
-  return <RouteShellPage {...props} />;
-}
+const AdminAnalyticsPage = lazy(() => import('../pages/admin/AdminAnalyticsPage.jsx'));
 
 export default function AppRoutes() {
   return (
@@ -82,15 +78,7 @@ export default function AppRoutes() {
               <Route path="media" element={<AdminMediaPage />} />
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="audit" element={<AdminAuditPage />} />
-              <Route
-                path="analytics"
-                element={shell({
-                  eyebrow: 'Admin · Analytics',
-                  title: 'Basic analytics',
-                  summary: 'Views, favorites, and catalog health signals.',
-                  nextPhase: 'Phase 15',
-                })}
-              />
+              <Route path="analytics" element={<AdminAnalyticsPage />} />
               <Route path="*" element={<Navigate to="/admin" replace />} />
             </Route>
           </Routes>

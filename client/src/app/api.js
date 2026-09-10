@@ -53,6 +53,7 @@ export const api = createApi({
     'Collection',
     'RecentlyViewed',
     'AdminOverview',
+    'AdminAnalytics',
     'AdminProduct',
     'AdminBrand',
     'AdminCategory',
@@ -322,6 +323,11 @@ export const api = createApi({
       query: () => '/admin/overview',
       transformResponse: (response) => response?.data || {},
       providesTags: ['AdminOverview'],
+    }),
+    getAdminAnalytics: builder.query({
+      query: () => '/admin/analytics',
+      transformResponse: (response) => response?.data || null,
+      providesTags: ['AdminAnalytics'],
     }),
     getAdminProducts: builder.query({
       query: (params = {}) => ({ url: '/admin/products', params }),
@@ -595,6 +601,7 @@ export const {
   useRemoveProductFromCollectionMutation,
   useGetRecentlyViewedQuery,
   useGetAdminOverviewQuery,
+  useGetAdminAnalyticsQuery,
   useGetAdminProductsQuery,
   useGetAdminProductQuery,
   useCreateAdminProductMutation,

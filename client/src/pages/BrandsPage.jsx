@@ -163,6 +163,22 @@ export default function BrandsPage() {
                     return (
                       <li key={brand.id || brand.slug}>
                         <Link className="brands-directory__item" to={`/brands/${brand.slug}`}>
+                          {brand.coverImage?.url || brand.logo?.url ? (
+                            <span className="brands-directory__thumb" aria-hidden="true">
+                              <img
+                                src={brand.coverImage?.url || brand.logo.url}
+                                alt=""
+                                loading="lazy"
+                                onError={(event) => {
+                                  event.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            </span>
+                          ) : (
+                            <span className="brands-directory__monogram" aria-hidden="true">
+                              {letterFor(brand.name)}
+                            </span>
+                          )}
                           <span className="brands-directory__copy">
                             <span className="brands-directory__name">{brand.name}</span>
                             <span className="brands-directory__meta">
