@@ -1,4 +1,3 @@
-import useSectionReveal from '../hooks/useSectionReveal.js';
 import useDocumentTitle from '../hooks/useDocumentTitle.js';
 import ArchiveHero from '../components/archive/ArchiveHero.jsx';
 import ArchivePromise from '../components/archive/ArchivePromise.jsx';
@@ -12,7 +11,6 @@ import { useGetBrandsQuery, useGetProductsQuery } from '../app/api.js';
 import { archivePromise, domainPaths, editorialStory, homeClose } from '../data/demoData.js';
 
 export default function HomePage() {
-  useSectionReveal();
   useDocumentTitle('Home');
 
   const { data: brands = [], isLoading: brandsLoading } = useGetBrandsQuery();

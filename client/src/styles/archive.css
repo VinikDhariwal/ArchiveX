@@ -3661,6 +3661,448 @@ body:has(.discover-page) {
   margin: 0.5rem 0 0;
 }
 
+.taxonomy-page {
+  padding: clamp(1.25rem, 3vh, 2rem) var(--page-gutter) var(--space-8);
+}
+
+.brands-page {
+  padding: clamp(1.25rem, 3vh, 2rem) var(--page-gutter) var(--space-9);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--paper) 88%, var(--blush)) 0%,
+      var(--paper) 18rem,
+      var(--paper) 100%
+    );
+}
+
+.brands-page__inner {
+  display: grid;
+  gap: 1.5rem;
+  width: min(100%, 1120px);
+}
+
+.brands-page__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem 2rem;
+  align-items: end;
+  padding-bottom: 1.35rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.brands-page__intro {
+  display: grid;
+  gap: 0.55rem;
+  max-width: 36rem;
+}
+
+.brands-page__title {
+  margin: 0;
+  font-size: clamp(2.8rem, 6vw, 4.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.brands-page__lede {
+  margin: 0;
+  font-family: var(--font-editorial);
+  font-size: clamp(1.1rem, 1.8vw, 1.28rem);
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--ink) 72%, transparent);
+}
+
+.brands-page__head-meta {
+  display: grid;
+  gap: 0.85rem;
+  justify-items: end;
+  align-content: end;
+}
+
+.brands-page__count {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 58%, transparent);
+}
+
+.brands-page__controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.brands-page__search input {
+  min-width: min(100%, 18rem);
+  padding: 0.7rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border-radius: var(--radius-soft);
+  background: color-mix(in srgb, var(--paper) 94%, white);
+  font-family: var(--font-editorial);
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.brands-page__search input:focus {
+  outline: 2px solid color-mix(in srgb, var(--brass) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.brands-page__letters {
+  position: sticky;
+  top: 0.55rem;
+  z-index: 4;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.15rem 0.1rem;
+  margin: 0.15rem 0 0.35rem;
+  padding: 0.7rem 0.15rem;
+  border: 0;
+  border-block: 1px solid transparent;
+  border-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--ink) 12%, transparent) 12%,
+      color-mix(in srgb, var(--ink) 12%, transparent) 88%,
+      transparent 100%
+    )
+    1;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--paper) 72%, transparent) 0%,
+      color-mix(in srgb, var(--paper) 88%, white) 45%,
+      color-mix(in srgb, var(--paper) 72%, transparent) 100%
+    );
+  backdrop-filter: blur(10px);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.brands-page__letters a {
+  min-width: 1.45rem;
+  padding: 0.4rem 0.25rem;
+  text-align: center;
+  color: color-mix(in srgb, var(--ink) 48%, transparent);
+  text-decoration: none;
+  border-radius: 999px;
+  transition:
+    color 220ms var(--ease-museum),
+    background 220ms var(--ease-museum),
+    transform 220ms var(--ease-museum);
+}
+
+.brands-page__letters a:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--brass) 16%, transparent);
+  transform: translateY(-1px);
+}
+
+.brands-directory {
+  display: grid;
+  gap: 2.6rem;
+  margin-top: 0.55rem;
+}
+
+.brands-directory__section {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: 1.25rem 1.75rem;
+  align-items: start;
+}
+
+.brands-directory__rail {
+  position: sticky;
+  top: 4.25rem;
+  display: grid;
+  gap: 0.2rem;
+  justify-items: start;
+  padding-top: 0.35rem;
+}
+
+.brands-directory__letter {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 4vw, 3.2rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: color-mix(in srgb, var(--ink) 88%, var(--navy));
+}
+
+.brands-directory__section-count {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 42%, transparent);
+}
+
+.brands-directory__list {
+  list-style: none;
+  margin: 0;
+  padding: 0.15rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem 1.35rem;
+  border-top: 0;
+}
+
+.brands-directory__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1rem;
+  margin: 0;
+  color: inherit;
+  text-decoration: none;
+  border: 0;
+  border-radius: 0.85rem;
+  background: transparent;
+  transition:
+    background 260ms var(--ease-museum),
+    box-shadow 260ms var(--ease-museum),
+    transform 260ms var(--ease-museum);
+}
+
+.brands-directory__item:hover {
+  background: color-mix(in srgb, var(--paper-deep) 58%, var(--blush) 18%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 5%, transparent);
+  transform: translateY(-1px);
+  padding-left: 1rem;
+}
+
+.brands-directory__item:hover .brands-directory__name {
+  color: var(--navy);
+}
+
+.brands-directory__copy {
+  display: grid;
+  gap: 0.32rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.brands-directory__name {
+  font-family: var(--font-display);
+  font-size: clamp(1.28rem, 1.9vw, 1.55rem);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  transition: color 220ms var(--ease-museum);
+}
+
+.brands-directory__meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) auto minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 0.75em;
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 46%, transparent);
+}
+
+.brands-directory__country,
+.brands-directory__domain {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.brands-directory__sep {
+  opacity: 0.5;
+  justify-self: center;
+}
+
+.brands-directory__objects {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--ink) 42%, transparent);
+  opacity: 0.7;
+  transition: opacity 220ms var(--ease-museum);
+}
+
+.brands-directory__item:hover .brands-directory__objects {
+  opacity: 1;
+}
+
+.brands-directory__objects--quiet {
+  opacity: 0.35;
+}
+
+.taxonomy-page__inner {
+  display: grid;
+  gap: 1.35rem;
+  width: min(100%, 1120px);
+}
+
+.taxonomy-page__inner--wide {
+  width: min(100%, 1280px);
+}
+
+.taxonomy-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.taxonomy-meta {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 62%, transparent);
+}
+
+.taxonomy-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.taxonomy-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.taxonomy-pill {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  background: color-mix(in srgb, var(--paper) 88%, var(--blush));
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.taxonomy-pill.is-active,
+.taxonomy-pill:hover {
+  background: color-mix(in srgb, var(--paper) 70%, var(--brass));
+  border-color: transparent;
+}
+
+.taxonomy-search input {
+  min-width: min(100%, 16rem);
+  padding: 0.65rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border-radius: var(--radius-soft);
+  background: color-mix(in srgb, var(--paper) 92%, white);
+  font-family: var(--font-body, var(--font-editorial));
+  color: var(--ink);
+}
+
+.taxonomy-letters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.taxonomy-letters a {
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+  text-decoration: none;
+}
+
+.taxonomy-letters a:hover {
+  color: var(--navy);
+}
+
+.taxonomy-groups {
+  display: grid;
+  gap: 2rem;
+}
+
+.taxonomy-group__title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  letter-spacing: -0.03em;
+}
+
+.taxonomy-page .brand-index {
+  width: 100%;
+  margin: 0;
+  padding-inline: 0;
+}
+
+.taxonomy-objects {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.taxonomy-page__foot {
+  margin: 0;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.category-card {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1.35rem 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  background: color-mix(in srgb, var(--paper) 88%, var(--blush));
+  transition: transform 220ms ease, background 220ms ease;
+}
+
+.category-card:hover {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--paper) 78%, var(--brass));
+}
+
+.category-card h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  letter-spacing: -0.02em;
+}
+
+.category-card p {
+  margin: 0;
+  font-family: var(--font-editorial);
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--ink) 78%, transparent);
+}
+
+.brand-marquee__item {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.brand-marquee__item:hover {
+  color: var(--brass);
+}
+
 .product-journal {
   list-style: none;
   margin: 0;
@@ -3713,5 +4155,44 @@ a.product-journal__title:hover {
 
   .journal-card--feature {
     grid-row: auto;
+  }
+
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brands-page__head {
+    grid-template-columns: 1fr;
+  }
+
+  .brands-page__head-meta {
+    justify-items: start;
+  }
+
+  .brands-directory__section {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .brands-directory__rail {
+    position: static;
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+  }
+
+  .brands-directory__list {
+    grid-template-columns: 1fr;
+  }
+
+  .brands-directory__item {
+    margin-right: 0;
+  }
+
+  .brands-page__letters {
+    justify-content: flex-start;
+    gap: 0.15rem;
   }
 }

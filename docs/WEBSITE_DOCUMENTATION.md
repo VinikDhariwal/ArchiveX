@@ -1,7 +1,7 @@
 # ArchiveX — Living Website Documentation
 
 **Status:** Living document — update this file whenever libraries, routes, components, APIs, or product behavior change.  
-**Last updated:** 2026-09-10 (Phase 10 Journal)
+**Last updated:** 2026-09-10 (Phase 11 brands / categories)
 **Companion rules:** [PROJECT_RULES.md](./PROJECT_RULES.md) (product/tech contract; do not replace it)  
 **Setup guide:** [../README.md](../README.md)
 
@@ -48,6 +48,7 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 8 Product detail | Done — domain-aware detail, related, views, gallery lightbox |
 | Phase 9 Collector features | Done — favorites, collections, compare tray/page, recently viewed |
 | Phase 10 Journal | Done — Article model, public `/articles`, `/journal` pages, product journal links |
+| Phase 11 Brands / categories | Done — live A–Z brands + category taxonomy; expanded seed houses |
 | Admin CMS | Layout shell only (auth-gated; CRUD in Phase 13) |
 
 **Migrate / re-seed Atlas**
@@ -67,10 +68,10 @@ npm run seed --prefix server
 | POST | `/api/v1/products/:id/view` | Record detail view (sessionKey optional) |
 | GET | `/api/v1/products/:id/related` | Related approved objects |
 | GET | `/api/v1/products/:id/journal` | Approved essays linked to the product |
-| GET | `/api/v1/brands` | Active brands; optional `domain` |
-| GET | `/api/v1/brands/:slug` | Active brand |
-| GET | `/api/v1/categories` | Active categories; optional `productType` |
-| GET | `/api/v1/categories/:slug` | Active category |
+| GET | `/api/v1/brands` | Active brands A–Z; optional `domain`, `q`; includes `productCount` |
+| GET | `/api/v1/brands/:slug` | Active brand chamber payload + `productCount` |
+| GET | `/api/v1/categories` | Active categories; optional `productType`; includes `productCount` |
+| GET | `/api/v1/categories/:slug` | Active category chamber payload + `productCount` |
 | GET | `/api/v1/articles` | Approved journal essays; optional `type`, `domain`, `featured` |
 | GET | `/api/v1/articles/:slug` | Approved essay detail + related products |
 | POST | `/api/v1/auth/register` | Create collector account |
@@ -192,8 +193,10 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `services/recommendationService.js` | Related objects scoring; product journal via articleService |
 | `services/articleService.js` | Public article list/detail + product journal links |
 | `services/productService.js` | Product list/detail serialize, view recording |
-| `services/brandService.js` | Public brand list/detail |
-| `services/categoryService.js` | Public category list/detail |
+| `services/brandService.js` | Public brand list/detail + product counts + name search |
+| `services/categoryService.js` | Public category list/detail + product counts |
+| `seeds/brandCatalog.js` | Expanded luxury house + taxonomy seed catalog |
+| `seeds/seedDemo.js` | Migrates website demo catalog + journal essays + full brand/category catalog |
 | `controllers/productController.js` | Thin product handlers |
 | `controllers/brandController.js` | Thin brand handlers |
 | `controllers/categoryController.js` | Thin category handlers |
@@ -202,7 +205,6 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `routes/brandRoutes.js` | `/brands` |
 | `routes/categoryRoutes.js` | `/categories` |
 | `routes/articleRoutes.js` | `/articles` |
-| `seeds/seedDemo.js` | Migrates website demo catalog + 3 journal essays into Atlas (approved) |
 | `validators/` | Empty |
 | `tests/health.test.js` | Health endpoint |
 | `tests/models.test.js` | Spec validation + model CRUD (memory Mongo) |
@@ -212,8 +214,7 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `tests/productDetail.test.js` | Phase 8 view/related/journal + intelligence payload |
 | `tests/journal.test.js` | Phase 10 articles + product journal links |
 | `tests/collector.test.js` | Favorites, collections, product ids filter |
-| `tests/health.test.js` | Health endpoint |
-| `tests/catalogApi.test.js` | Public catalog approval gate |
+| `tests/brandsCategories.test.js` | Phase 11 brands/categories filters, counts, approval gates |
 | `testSupport/http.js` | Ephemeral listen + fetch helper |
 
 ### 4.7 Domain constants (server)
@@ -267,7 +268,11 @@ App.jsx → global CSS → AppRoutes
 | `/`, `/home` | `HomePage` | Full Ivory Museum composition |
 | `/discover` | `DiscoverPage` | Search + domain-aware filters + sort + masonry feed |
 | `/products/:slug` | `ProductDetailPage` | Domain-aware detail: gallery, specs, rarity, market, related |
-| `/search`, `/brands`, `/brands/:slug`, `/categories`, `/categories/:slug` | `RouteShellPage` | Structural placeholders (Phase 11+) |
+| `/search` | `RouteShellPage` | Structural placeholder (Phase 12) |
+| `/brands` | `BrandsPage` | A–Z houses with domain filter + search |
+| `/brands/:slug` | `BrandDetailPage` | Brand chamber + approved objects |
+| `/categories` | `CategoriesPage` | Domain taxonomy index |
+| `/categories/:slug` | `CategoryDetailPage` | Category chamber + approved objects |
 | `/journal` | `JournalPage` | Approved essay index |
 | `/journal/:slug` | `ArticleDetailPage` | Long-form essay + related objects |
 | `/compare` | `ComparisonPage` | Domain-aware side-by-side compare (up to 4; public tray) |
@@ -292,6 +297,8 @@ App.jsx → global CSS → AppRoutes
 | `CollectionsPage.jsx` / `CollectionDetailPage.jsx` | Collector collections |
 | `JournalPage.jsx` | Editorial archive index |
 | `ArticleDetailPage.jsx` | Journal essay detail |
+| `BrandsPage.jsx` / `BrandDetailPage.jsx` | Brand A–Z index + chamber |
+| `CategoriesPage.jsx` / `CategoryDetailPage.jsx` | Category taxonomy index + chamber |
 | `RouteShellPage.jsx` | Wide placeholder for unfinished routes |
 | `NotFoundPage.jsx` / `UnauthorizedPage.jsx` / `ErrorPage.jsx` / `LoadingPage.jsx` | System states |
 
@@ -327,7 +334,8 @@ App.jsx → global CSS → AppRoutes
 | File | Role |
 | --- | --- |
 | `ArchiveHero.jsx` | Autoplay plate carousel, orbit peeks, CTAs; navigates to product on plate click |
-| `BrandMarquee.jsx` | Endless brand ribbon |
+| `BrandMarquee.jsx` | Endless brand ribbon with links to brand chambers |
+| `BrandIndex.jsx` | A–Z brand tile grid linking to `/brands/:slug` |
 | `ArchivePromise.jsx` | Mission + quote |
 | `DomainPaths.jsx` | Three **bordered chamber cards** (Cars / Motorcycles / Watches) |
 | `FeaturedObject.jsx` | Signature spread in **same soft bordered box**; opens Details modal only (no “View” link) |
@@ -337,7 +345,6 @@ App.jsx → global CSS → AppRoutes
 | `ObjectCard.jsx` | Discover card; Details + Compare; links to `/products/:slug` |
 | `ObjectDetailModal.jsx` | Legacy portal details dialog (superseded by product page) |
 | `MuseumFrame.jsx` | Subtle museum media frame |
-| `BrandIndex.jsx` / `JournalPreview.jsx` | Available brand/journal UI blocks |
 
 ### 5.10 Layout & feedback components
 
@@ -479,12 +486,22 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 3. **Discover feed** — masonry of cars/motorcycles/watches; open Details modal  
 4. **Product page** — `/products/:slug` gallery + identity, overview, why it matters, specs, rarity, market signals, related, linked journal essays; records a view  
 5. **Journal** — `/journal` essay index; `/journal/:slug` long-form + related objects  
-6. **Brands / Search / Admin** — shells until later phases  
-7. **API health** — `GET /api/v1/health` (+ Mongo connected when URI set)
+6. **Brands / Categories** — A–Z houses and taxonomy chambers with linked approved objects  
+7. **Search / Admin** — shells until later phases  
+8. **API health** — `GET /api/v1/health` (+ Mongo connected when URI set)
 
 ---
 
 ## 9. Changelog (append newest on top)
+
+### 2026-09-10 (Phase 11) — Brands / categories
+
+- Live `/brands` A–Z index with domain pills, search, letter jump; `/brands/:slug` chamber with approved objects.
+- Live `/categories` taxonomy index + `/categories/:slug` chamber with approved objects.
+- Brand/category APIs include `productCount`; brands support `q` name search.
+- Seed expands to **145** luxury/collector houses (54 car, 35 motorcycle, 56 watch) and **15** categories via `seeds/brandCatalog.js`.
+- Brand marquee and BrandIndex link into brand chambers.
+- `brandsCategories.test.js` covers filters, inactive gating, and counts.
 
 ### 2026-09-10 (Phase 10) — Journal
 
@@ -568,4 +585,4 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 10. Next documentation updates expected
 
-When Phase 11 brands/categories land, replace remaining RouteShell brand/category pages with live indexes.
+When Phase 12 search/recommendations land, replace the `/search` RouteShell with live faceted search.

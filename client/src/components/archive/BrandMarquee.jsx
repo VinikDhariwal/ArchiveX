@@ -22,8 +22,14 @@ export default function BrandMarquee({ brands }) {
         <div className="brand-marquee__rail">
           <div className="brand-marquee__track">
             {loop.map((brand, index) => (
-              <Fragment key={`${brand.id}-${index}`}>
-                <span className="brand-marquee__item">{brand.name}</span>
+              <Fragment key={`${brand.id || brand.slug}-${index}`}>
+                {brand.slug ? (
+                  <Link className="brand-marquee__item" to={`/brands/${brand.slug}`}>
+                    {brand.name}
+                  </Link>
+                ) : (
+                  <span className="brand-marquee__item">{brand.name}</span>
+                )}
                 <span className="brand-marquee__sep" aria-hidden="true">
                   ·
                 </span>
