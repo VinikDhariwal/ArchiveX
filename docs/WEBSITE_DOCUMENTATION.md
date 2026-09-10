@@ -1,7 +1,7 @@
 # ArchiveX — Living Website Documentation
 
 **Status:** Living document — update this file whenever libraries, routes, components, APIs, or product behavior change.  
-**Last updated:** 2026-09-09 (Phase 8 product detail)
+**Last updated:** 2026-09-09 (Phase 9 collector features)
 **Companion rules:** [PROJECT_RULES.md](./PROJECT_RULES.md) (product/tech contract; do not replace it)  
 **Setup guide:** [../README.md](../README.md)
 
@@ -257,8 +257,11 @@ App.jsx → global CSS → AppRoutes
 | `/discover` | `DiscoverPage` | Search + domain-aware filters + sort + masonry feed |
 | `/products/:slug` | `ProductDetailPage` | Domain-aware detail: gallery, specs, rarity, market, related |
 | `/search`, `/brands`, `/brands/:slug`, `/categories`, `/categories/:slug`, `/journal`, `/journal/:slug` | `RouteShellPage` | Structural placeholders |
-| `/compare` | redirect | → `/discover` (compare removed from public UX) |
-| `/account`, `/favorites`, `/collections`… | shells | Authenticated layout |
+| `/compare` | `ComparisonPage` | Domain-aware side-by-side compare (up to 4; public tray) |
+| `/account` | `AccountPage` | Authenticated collector hub |
+| `/favorites` | `FavoritesPage` | Synced favorites + recently viewed |
+| `/collections` | `CollectionsPage` | Collection list + create |
+| `/collections/:id` | `CollectionDetailPage` | Collection detail / manage objects |
 | `/admin/*` | shells | Admin layout |
 | `/unauthorized` | `UnauthorizedPage` | Forbidden placeholder |
 | `*` | `NotFoundPage` | 404 |
@@ -271,6 +274,9 @@ App.jsx → global CSS → AppRoutes
 | `DiscoverPage.jsx` | URL-synced discovery: search, filters, sort, pagination, masonry |
 | `LoginPage.jsx` / `RegisterPage.jsx` / `AccountPage.jsx` | Auth surfaces |
 | `ProductDetailPage.jsx` | Domain-aware product intelligence page |
+| `ComparisonPage.jsx` | Wide compare table from tray ids |
+| `FavoritesPage.jsx` | Saved favorites + recently viewed |
+| `CollectionsPage.jsx` / `CollectionDetailPage.jsx` | Collector collections |
 | `RouteShellPage.jsx` | Wide placeholder for unfinished routes |
 | `NotFoundPage.jsx` / `UnauthorizedPage.jsx` / `ErrorPage.jsx` / `LoadingPage.jsx` | System states |
 
@@ -288,13 +294,18 @@ App.jsx → global CSS → AppRoutes
 | File | Role |
 | --- | --- |
 | `components/product/ProductIdentity.jsx` | Brand, name, reference, meta row |
-| `components/product/ProductActions.jsx` | Favorite / Collection stub / Compare / back |
+| `components/product/ProductActions.jsx` | Favorite / Collection / Compare / back |
 | `components/product/ProductSpecifications.jsx` | Domain-aware spec list |
 | `components/product/RarityProfile.jsx` | Production / interest / significance |
 | `components/product/MarketSignals.jsx` | Informational market reading + disclaimer |
 | `components/product/RelatedObjects.jsx` | Related approved plates |
 | `components/product/ProductJournal.jsx` | Journal stub (Phase 10) |
 | `components/archive/ProductGallery.jsx` | Thumbs, prev/next, keyboard, accessible lightbox |
+| `components/compare/ComparisonTray.jsx` | Fixed bottom tray (max 4) |
+| `components/compare/ComparisonTable.jsx` | Domain-aware compare sections |
+| `components/collector/FavoriteHydrator.jsx` | Syncs server favorites into local slice |
+| `components/collector/CreateCollectionModal.jsx` | Create collection dialog |
+| `components/collector/AddToCollectionModal.jsx` | Add product to collection picker |
 
 ### 5.9 Archive components
 
@@ -307,8 +318,8 @@ App.jsx → global CSS → AppRoutes
 | `FeaturedObject.jsx` | Signature spread in **same soft bordered box**; opens Details modal only (no “View” link) |
 | `EditorialStory.jsx` | Journal teaser |
 | `HomeClose.jsx` | Discover / Journal closing paths |
-| `ObjectCard.jsx` | Discover card; opens `ObjectDetailModal` |
-| `ObjectDetailModal.jsx` | Portal details dialog; close / back to feed |
+| `ObjectCard.jsx` | Discover card; Details + Compare; links to `/products/:slug` |
+| `ObjectDetailModal.jsx` | Legacy portal details dialog (superseded by product page) |
 | `MuseumFrame.jsx` | Subtle museum media frame |
 | `BrandIndex.jsx` / `JournalPreview.jsx` | Available brand/journal UI blocks |
 
@@ -316,7 +327,7 @@ App.jsx → global CSS → AppRoutes
 
 | File | Role |
 | --- | --- |
-| `AppShell.jsx` | Sticky header + main + footer |
+| `AppShell.jsx` | Sticky header + main + footer + compare tray + favorite hydrator |
 | `DesktopHeader.jsx` / `MobileHeader.jsx` | Navigation |
 | `Footer.jsx` | Site footer |
 | `Breadcrumbs.jsx` | Trail |
@@ -331,10 +342,11 @@ App.jsx → global CSS → AppRoutes
 | --- | --- |
 | `features/auth/authSlice.js` | Access token + user credentials |
 | `features/discover/filterSlice.js` | Mobile filter drawer + draft search query |
-| `features/favorites/favoriteSlice.js` | Local favorite ids (persistence in Phase 9) |
-| `features/compare/compareSlice.js` | Local compare tray ids (max 3; persistence Phase 9) |
+| `features/favorites/favoriteSlice.js` | Favorite ids hydrated from `/favorites` when signed in |
+| `features/compare/compareSlice.js` | Local compare tray ids (max 4) |
 | `features/products/productApi.js` | Discover URL ↔ query helpers |
 | `features/products/productSelectors.js` | Product list selectors |
+| `app/api.js` | RTK Query: products, auth, favorites, collections, recently viewed |
 
 ### 5.12 Demo data (`data/demoData.js`)
 
@@ -457,6 +469,14 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 9. Changelog (append newest on top)
 
+### 2026-09-09 (Phase 9) — Collector features + proper compare
+
+- Favorites API (`GET/POST/DELETE /favorites`) with auth; client sync via `FavoriteHydrator` + Favorites page.
+- Collections CRUD + add/remove products; Collections list/detail pages and add-to-collection modal from product actions.
+- Compare restored properly: local tray (max **4**), Discover/detail Compare buttons, floating `ComparisonTray`, public `/compare` page with domain-aware shared + type-specific spec sections.
+- `GET /products?ids=` for tray/compare fetches; `GET /products/recently-viewed` on Favorites.
+- Server `collector.test.js` covers favorites, collections, and ids filter.
+
 ### 2026-09-09 (Phase 8) — Dynamic product detail
 
 - `ProductView` model + `POST /products/:id/view` for detail view tracking.
@@ -523,5 +543,4 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 10. Next documentation updates expected
 
-When Phase 9 collector features land, document favorites/collections persistence and compare sync.
 When Phase 10 journal lands, replace the product journal stub with real essays.

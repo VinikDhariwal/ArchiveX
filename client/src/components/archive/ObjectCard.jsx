@@ -1,10 +1,18 @@
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { getPrimaryImage, getPublisher } from '../../utils/archiveObject.js';
+import {
+  selectIsCompared,
+  toggleCompare,
+  MAX_COMPARE_ITEMS,
+} from '../../features/compare/compareSlice.js';
 
 export default function ObjectCard({ object }) {
+  const dispatch = useDispatch();
   const primary = getPrimaryImage(object);
   const publisher = getPublisher(object);
   const href = object.slug ? `/products/${object.slug}` : '/discover';
+  const isCompared = useSelector(selectIsCompared(object.id));
 
   if (!primary) return null;
 
@@ -36,6 +44,19 @@ export default function ObjectCard({ object }) {
         <Link className="btn btn--soft" to={href}>
           Details
         </Link>
+        <button
+          type="button"
+          className={`btn btn--soft ${isCompared ? 'is-active is-compared' : ''}`}
+          aria-pressed={isCompared}
+          title={
+            isCompared
+              ? 'Remove from compare'
+              : `Add to compare (up to ${MAX_COMPARE_ITEMS})`
+          }
+          onClick={() => dispatch(toggleCompare(object.id))}
+        >
+          {isCompared ? 'In compare' : 'Compare'}
+        </button>
         <span className="object-card__publisher" title="Publisher">
           {publisher}
         </span>

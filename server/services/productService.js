@@ -238,6 +238,39 @@ export async function recordProductView(productId, { sessionKey, userId, source,
   };
 }
 
+export async function listRecentlyViewed({ userId, sessionKey, limit = 8 } = {}) {
+  const capped = Math.min(Math.max(Number(limit) || 8, 1), 24);
+  const match = {};
+  if (userId) match.user = userId;
+  else if (sessionKey) match.sessionKey = String(sessionKey).slice(0, 120);
+  else return [];
+
+  const views = await ProductView.find(match).sort({ createdAt: -1 }).limit(80).lean();
+  const seen = new Set();
+  const productIds = [];
+  for (const view of views) {
+    const id = String(view.product);
+    if (seen.has(id)) continue;
+    seen.add(id);
+    productIds.push(id);
+    if (productIds.length >= capped) break;
+  }
+
+  if (!productIds.length) return [];
+
+  const products = await Product.find({ _id: { $in: productIds }, ...PUBLIC_FILTER })
+    .populate('brand', 'name slug')
+    .populate('category', 'name slug')
+    .populate('tags', 'name slug')
+    .lean();
+
+  const byId = new Map(products.map((item) => [String(item._id), item]));
+  return productIds
+    .map((id) => byId.get(id))
+    .filter(Boolean)
+    .map(serializeProduct);
+}
+
 export function getPublicFilterSchema(query = {}) {
   const productType = query.productType || query.domain || 'all';
   return getDiscoverFilterSchema(productType);

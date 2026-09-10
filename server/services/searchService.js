@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import {
   AVAILABILITY_VALUES,
   RARITY_VALUES,
@@ -216,6 +217,18 @@ export async function buildPublicProductFilter(query = {}) {
 
   if (query.featured === 'true' || query.featured === true) {
     filter.featured = true;
+  }
+
+  const idsRaw = asTrimmed(query.ids);
+  if (idsRaw) {
+    const ids = idsRaw
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => mongoose.isValidObjectId(item));
+    if (!ids.length) {
+      return { filter: { ...filter, _id: null }, empty: true };
+    }
+    filter._id = { $in: ids };
   }
 
   const brandSlug = asTrimmed(query.brand);
