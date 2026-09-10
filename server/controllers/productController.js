@@ -35,6 +35,14 @@ export const getRelatedProducts = asyncHandler(async (req, res) => {
   return successResponse(res, products, { total: products.length });
 });
 
+export const getRecommendedProducts = asyncHandler(async (req, res) => {
+  const products = await recommendationService.getRecommendedProducts({
+    limit: req.query.limit,
+    productType: req.query.productType || req.query.domain,
+  });
+  return successResponse(res, products, { total: products.length });
+});
+
 export const getProductJournal = asyncHandler(async (req, res) => {
   const payload = await recommendationService.getProductJournal(req.params.id);
   return successResponse(res, payload.items, payload.meta);

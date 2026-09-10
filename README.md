@@ -108,6 +108,7 @@ Never commit real `.env` files or secrets. Do not hardcode production hosts, cat
 - Phase 5–9: Public APIs, auth, discovery, product detail, collector features — complete
 - Phase 10: Journal — complete
 - Phase 11: Brands / categories — complete
+- Phase 12: Search / recommendations — complete
 - Later phases: not started
 
 ## Phase 4 data model notes

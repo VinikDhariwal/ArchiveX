@@ -155,6 +155,14 @@ export const api = createApi({
       transformResponse: (response) => response?.data || [],
       providesTags: (_result, _error, arg) => [{ type: 'Product', id: `RELATED-${arg.id}` }],
     }),
+    getRecommendedProducts: builder.query({
+      query: (params = {}) => ({
+        url: '/products/recommended',
+        params,
+      }),
+      transformResponse: (response) => response?.data || [],
+      providesTags: [{ type: 'Product', id: 'RECOMMENDED' }],
+    }),
     getProductJournal: builder.query({
       query: (id) => `/products/${id}/journal`,
       transformResponse: (response) => ({
@@ -315,6 +323,7 @@ export const {
   useGetProductBySlugQuery,
   useRecordProductViewMutation,
   useGetRelatedProductsQuery,
+  useGetRecommendedProductsQuery,
   useGetProductJournalQuery,
   useGetArticlesQuery,
   useGetArticleBySlugQuery,
