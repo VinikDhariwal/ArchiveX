@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export default function ProductJournal({ items = [], meta = {}, isLoading }) {
   return (
     <section className="product-section" aria-labelledby="product-journal-title">
@@ -9,7 +11,7 @@ export default function ProductJournal({ items = [], meta = {}, isLoading }) {
 
       {!isLoading && !items.length ? (
         <p className="product-section__note">
-          {meta.note || 'Journal coverage arrives in Phase 10.'}
+          {meta.note || 'No journal essays are linked to this object yet.'}
         </p>
       ) : null}
 
@@ -18,7 +20,14 @@ export default function ProductJournal({ items = [], meta = {}, isLoading }) {
           {items.map((article) => (
             <li key={article.id || article.slug}>
               <p className="meta">{article.type || 'Essay'}</p>
-              <p className="product-journal__title">{article.title}</p>
+              {article.slug ? (
+                <Link className="product-journal__title" to={`/journal/${article.slug}`}>
+                  {article.title}
+                </Link>
+              ) : (
+                <p className="product-journal__title">{article.title}</p>
+              )}
+              {article.excerpt ? <p className="product-journal__excerpt">{article.excerpt}</p> : null}
             </li>
           ))}
         </ul>

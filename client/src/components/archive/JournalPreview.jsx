@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import MuseumFrame from './MuseumFrame.jsx';
 
 export default function JournalPreview({ articles }) {
@@ -11,27 +12,48 @@ export default function JournalPreview({ articles }) {
         </div>
       </div>
       <div className="journal-preview__grid">
-        {articles.map((article, index) => (
-          <article
-            key={article.id}
-            className={`journal-card ${index === 0 ? 'journal-card--feature' : ''}`}
-          >
+        {articles.map((article, index) => {
+          const href = article.slug ? `/journal/${article.slug}` : null;
+          const media = article.image?.url ? (
             <div className="journal-card__media">
               <MuseumFrame>
                 <img
                   src={article.image.url}
-                  alt={article.image.alt}
-                  width={article.image.width}
-                  height={article.image.height}
+                  alt={article.image.alt || article.title}
+                  width={article.image.width || 1200}
+                  height={article.image.height || 750}
                   loading="lazy"
                 />
               </MuseumFrame>
             </div>
-            <p className="meta">{article.type}</p>
-            <h3>{article.title}</h3>
-            <p>{article.excerpt}</p>
-          </article>
-        ))}
+          ) : null;
+
+          const body = (
+            <>
+              {media}
+              <p className="meta">{article.type || 'Essay'}</p>
+              <h3>{article.title}</h3>
+              <p>{article.excerpt}</p>
+            </>
+          );
+
+          return href ? (
+            <Link
+              key={article.id || article.slug}
+              to={href}
+              className={`journal-card journal-card--link ${index === 0 ? 'journal-card--feature' : ''}`}
+            >
+              {body}
+            </Link>
+          ) : (
+            <article
+              key={article.id || article.slug}
+              className={`journal-card ${index === 0 ? 'journal-card--feature' : ''}`}
+            >
+              {body}
+            </article>
+          );
+        })}
       </div>
     </section>
   );

@@ -163,6 +163,22 @@ export const api = createApi({
       }),
       providesTags: (_result, _error, id) => [{ type: 'Product', id: `JOURNAL-${id}` }],
     }),
+    getArticles: builder.query({
+      query: (params = {}) => ({
+        url: '/articles',
+        params,
+      }),
+      transformResponse: (response) => ({
+        items: response?.data || [],
+        meta: response?.meta || {},
+      }),
+      providesTags: [{ type: 'Article', id: 'LIST' }],
+    }),
+    getArticleBySlug: builder.query({
+      query: (slug) => `/articles/${slug}`,
+      transformResponse: (response) => response?.data ?? null,
+      providesTags: (_result, _error, slug) => [{ type: 'Article', id: slug }],
+    }),
     getBrands: builder.query({
       query: (params = {}) => ({
         url: '/brands',
@@ -300,6 +316,8 @@ export const {
   useRecordProductViewMutation,
   useGetRelatedProductsQuery,
   useGetProductJournalQuery,
+  useGetArticlesQuery,
+  useGetArticleBySlugQuery,
   useGetBrandsQuery,
   useGetBrandBySlugQuery,
   useGetCategoriesQuery,

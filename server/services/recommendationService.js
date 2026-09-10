@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { Product } from '../models/index.js';
 import ApiError from '../utils/ApiError.js';
 import { serializeProduct } from './productService.js';
+import { getProductJournal as getLinkedProductJournal } from './articleService.js';
 
 const PUBLIC_FILTER = {
   status: 'approved',
@@ -75,23 +76,8 @@ export async function getRelatedProducts(productId, { limit = 6 } = {}) {
 }
 
 /**
- * Journal coverage stub until Phase 10 editorial models exist.
+ * Journal coverage for a product — approved essays linked via Article.relatedProducts.
  */
 export async function getProductJournal(productId) {
-  if (!mongoose.isValidObjectId(productId)) {
-    throw new ApiError('Invalid product id', 400, 'INVALID_PRODUCT_ID');
-  }
-
-  const exists = await Product.exists({ _id: productId, ...PUBLIC_FILTER });
-  if (!exists) {
-    throw new ApiError('Product not found', 404, 'PRODUCT_NOT_FOUND');
-  }
-
-  return {
-    items: [],
-    meta: {
-      total: 0,
-      note: 'Journal coverage arrives in Phase 10.',
-    },
-  };
+  return getLinkedProductJournal(productId);
 }

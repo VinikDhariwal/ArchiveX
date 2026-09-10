@@ -127,11 +127,12 @@ describe('Phase 8 product intelligence APIs', () => {
     assert.ok(!response.body.data.some((item) => item.id === f40Id));
   });
 
-  it('GET /products/:id/journal returns Phase 10 stub', async () => {
+  it('GET /products/:id/journal returns empty coverage when no essays linked', async () => {
     const response = await request(`/api/v1/products/${f40Id}/journal`);
     assert.equal(response.status, 200);
     assert.deepEqual(response.body.data, []);
-    assert.match(response.body.meta.note || '', /Phase 10/);
+    assert.equal(response.body.meta.total, 0);
+    assert.match(response.body.meta.note || '', /No journal essays/);
   });
 
   it('rejects invalid product ids', async () => {
