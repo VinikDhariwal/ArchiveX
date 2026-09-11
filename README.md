@@ -10,6 +10,8 @@ Read [docs/PROJECT_RULES.md](docs/PROJECT_RULES.md) before making changes.
 Living reference for libraries, modules, routes, and website behavior (keep updated):  
 [docs/WEBSITE_DOCUMENTATION.md](docs/WEBSITE_DOCUMENTATION.md).
 
+REST API reference (Phase 16): [docs/API.md](docs/API.md) · OpenAPI: [docs/openapi.json](docs/openapi.json) (`GET /api/v1/openapi.json`).
+
 ## Stack
 
 - JavaScript only
@@ -79,6 +81,15 @@ Expected:
   }
 }
 ```
+
+## API documentation
+
+```bash
+curl http://localhost:5001/api/v1/docs
+curl http://localhost:5001/api/v1/openapi.json
+```
+
+Import `docs/openapi.json` into Swagger UI, Postman, or Redoc. Human overview: [docs/API.md](docs/API.md).
 
 ## Environment variables
 

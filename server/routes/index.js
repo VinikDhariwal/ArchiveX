@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import healthRoutes from './healthRoutes.js';
+import docsRoutes from './docsRoutes.js';
 import productRoutes from './productRoutes.js';
 import brandRoutes from './brandRoutes.js';
 import categoryRoutes from './categoryRoutes.js';
@@ -13,6 +14,7 @@ import mediaRoutes from './mediaRoutes.js';
 const router = Router();
 
 router.use(healthRoutes);
+router.use(docsRoutes);
 router.use('/auth', authRoutes);
 router.use('/products', productRoutes);
 router.use('/brands', brandRoutes);
