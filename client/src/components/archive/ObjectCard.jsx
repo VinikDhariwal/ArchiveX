@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getPrimaryImage, getPublisher } from '../../utils/archiveObject.js';
+import { getPrimaryImage } from '../../utils/archiveObject.js';
 import { formatProductType } from '../../utils/formatProductType.js';
 import {
   selectIsCompared,
@@ -11,7 +11,6 @@ import {
 export default function ObjectCard({ object }) {
   const dispatch = useDispatch();
   const primary = getPrimaryImage(object);
-  const publisher = getPublisher(object);
   const href = object.slug ? `/products/${object.slug}` : '/discover';
   const isCompared = useSelector(selectIsCompared(object.id));
 
@@ -33,21 +32,22 @@ export default function ObjectCard({ object }) {
           />
         </div>
         <div className="object-card__body">
-          <span className="object-card__badge">{formatProductType(object.productType)}</span>
-          <p className="meta">
-            {object.brand} · {object.year}
+          <p className="meta object-card__meta">
+            {formatProductType(object.productType, { singular: true })}
+            {object.brand ? ` · ${object.brand}` : ''}
+            {object.year ? ` · ${object.year}` : ''}
           </p>
           <h3>{object.name}</h3>
-          <p>{object.shortDescription}</p>
+          {object.shortDescription ? <p>{object.shortDescription}</p> : null}
         </div>
       </Link>
       <div className="object-card__actions">
-        <Link className="btn" to={href}>
-          Details
+        <Link className="object-card__primary" to={href}>
+          View object →
         </Link>
         <button
           type="button"
-          className={`btn btn--soft ${isCompared ? 'is-active is-compared' : ''}`}
+          className={`quiet-action ${isCompared ? 'is-active is-compared' : ''}`}
           aria-pressed={isCompared}
           title={
             isCompared
@@ -58,9 +58,6 @@ export default function ObjectCard({ object }) {
         >
           {isCompared ? 'In compare' : 'Compare'}
         </button>
-        <span className="object-card__publisher" title="Publisher">
-          {publisher}
-        </span>
       </div>
     </article>
   );

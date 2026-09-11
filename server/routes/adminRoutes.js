@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth, requireRoles } from '../middleware/authMiddleware.js';
 import * as admin from '../controllers/adminController.js';
+import * as home from '../controllers/homeController.js';
 import * as media from '../controllers/mediaController.js';
 import { mediaUpload } from '../services/mediaService.js';
 
@@ -12,6 +13,9 @@ router.use(requireAuth);
 
 router.get('/overview', requireRoles(...staff), admin.getOverview);
 router.get('/analytics', requireRoles(...staff), admin.getAnalytics);
+
+router.get('/home', requireRoles(...staff), home.getAdminHome);
+router.patch('/home', requireRoles(...staff), home.updateAdminHome);
 
 router.get('/media', requireRoles(...staff), media.listMedia);
 router.post('/media/upload', requireRoles(...staff), mediaUpload.single('file'), media.uploadMedia);

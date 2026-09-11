@@ -7,120 +7,118 @@ import FeaturedObject from '../components/archive/FeaturedObject.jsx';
 import EditorialStory from '../components/archive/EditorialStory.jsx';
 import HomeClose from '../components/archive/HomeClose.jsx';
 import LoadingState from '../components/feedback/LoadingState.jsx';
+import { useGetBrandsQuery, useGetHomeQuery } from '../app/api.js';
 import {
-  useGetArticlesQuery,
-  useGetBrandsQuery,
-  useGetProductsQuery,
-} from '../app/api.js';
-import { archivePromise, domainPaths, editorialStory, homeClose } from '../data/demoData.js';
-import { getPrimaryImage } from '../utils/archiveObject.js';
+  archivePromise as demoPromise,
+  domainPaths as demoDomains,
+  editorialStory as demoEditorial,
+  hero as demoHero,
+  homeClose as demoClose,
+} from '../data/demoData.js';
+
+function buildClientFallback() {
+  return {
+    hero: {
+      enabled: true,
+      brand: demoHero.brand,
+      headlineLine1: demoHero.headlineLine1,
+      headlineLine2: demoHero.headlineLine2,
+      lede: demoHero.lede,
+      primaryCta: demoHero.primaryCta,
+      plates: demoHero.plates,
+    },
+    brands: {
+      enabled: true,
+      label: 'The brands',
+      ctaLabel: 'View all brands',
+      ctaHref: '/brands',
+    },
+    promise: { enabled: true, ...demoPromise },
+    domains: {
+      enabled: true,
+      meta: 'The chambers',
+      title: 'Explore domain by domain.',
+      lede: 'Cars and motorcycles lead the archive. Watches remain a fully supported second chamber.',
+      feedCtaLabel: 'View the full feed',
+      feedCtaHref: '/discover',
+      chambers: demoDomains,
+    },
+    signatures: {
+      enabled: true,
+      meta: 'Catalogue plates',
+      title: 'Objects with a story to tell.',
+      lede: 'Automotive first, then two wheels — plates from the public archive.',
+    },
+    featured: { enabled: true, slots: [] },
+    editorial: { enabled: true, ...demoEditorial },
+    close: { enabled: true, ...demoClose },
+  };
+}
 
 export default function HomePage() {
   useDocumentTitle('Home');
 
+  const { data: home, isLoading: homeLoading, isError } = useGetHomeQuery();
   const { data: brands = [], isLoading: brandsLoading } = useGetBrandsQuery();
-  const { data: featuredCars, isLoading: carsLoading } = useGetProductsQuery({
-    productType: 'car',
-    featured: 'true',
-    limit: 1,
-  });
-  const { data: featuredMotorcycles, isLoading: motoLoading } = useGetProductsQuery({
-    productType: 'motorcycle',
-    featured: 'true',
-    limit: 1,
-  });
-  const { data: featuredWatches } = useGetProductsQuery({
-    productType: 'watch',
-    featured: 'true',
-    limit: 1,
-  });
-  const { data: articles } = useGetArticlesQuery({ limit: 1 });
 
-  const featuredCar = featuredCars?.items?.[0] || null;
-  const featuredMotorcycle = featuredMotorcycles?.items?.[0] || null;
-  const featuredWatch = featuredWatches?.items?.[0] || null;
-  const loadingFeatured = carsLoading || motoLoading;
+  const config = home || (isError ? buildClientFallback() : null);
 
-  const liveDomains = domainPaths.map((domain) => {
-    const source =
-      domain.id === 'car'
-        ? featuredCar
-        : domain.id === 'motorcycle'
-          ? featuredMotorcycle
-          : featuredWatch;
-    const image = getPrimaryImage(source);
-    if (!image?.url) return domain;
-    return {
-      ...domain,
-      image: {
-        ...domain.image,
-        url: image.url,
-        alt: image.alt || domain.image.alt,
-        width: image.width || domain.image.width,
-        height: image.height || domain.image.height,
-      },
-    };
-  });
+  if (homeLoading && !config) {
+    return <LoadingState />;
+  }
 
-  const journalItem = articles?.items?.[0];
-  const liveEditorial = journalItem
-    ? {
-        type: journalItem.articleType || editorialStory.type,
-        title: journalItem.title,
-        excerpt: journalItem.excerpt || editorialStory.excerpt,
-        href: `/journal/${journalItem.slug}`,
-        cta: 'Continue reading',
-        image: journalItem.image?.url
-          ? {
-              url: journalItem.image.url,
-              alt: journalItem.image.alt || journalItem.title,
-              width: journalItem.image.width || 1400,
-              height: journalItem.image.height || 1750,
-            }
-          : editorialStory.image,
-      }
-    : editorialStory;
+  if (!config) {
+    return <LoadingState />;
+  }
 
   return (
     <>
-      <ArchiveHero />
-      {brandsLoading ? null : <BrandMarquee brands={brands} />}
-      <ArchivePromise promise={archivePromise} />
-      <DomainPaths domains={liveDomains} />
+      {config.hero?.enabled !== false ? <ArchiveHero hero={config.hero} /> : null}
 
-      <section className="signatures" aria-labelledby="signatures-title" data-reveal>
-        <div className="signatures__head">
-          <p className="meta">The signatures</p>
-          <span className="hairline" aria-hidden="true" />
-          <h2 id="signatures-title" className="display">
-            Objects with a story to tell.
-          </h2>
-          <p className="signatures__lede">
-            A few of the tales collectors return for — automotive first, then two wheels.
-          </p>
-        </div>
-      </section>
-
-      {loadingFeatured ? <LoadingState /> : null}
-
-      {featuredCar ? (
-        <FeaturedObject
-          object={featuredCar}
-          eyebrow="House favourite · Automotive"
-          sectionId="featured-car"
-        />
+      {config.brands?.enabled !== false && !brandsLoading ? (
+        <BrandMarquee brands={brands} config={config.brands} />
       ) : null}
 
-      {featuredMotorcycle ? (
-        <FeaturedObject
-          object={featuredMotorcycle}
-          eyebrow="Signature · Motorcycle"
-          sectionId="featured-motorcycle"
-        />
+      {config.promise?.enabled !== false ? (
+        <ArchivePromise promise={config.promise} />
       ) : null}
 
-      <EditorialStory story={liveEditorial} />
-      <HomeClose close={homeClose} />
+      {config.domains?.enabled !== false ? (
+        <DomainPaths domains={config.domains.chambers || []} head={config.domains} />
+      ) : null}
+
+      {config.signatures?.enabled !== false ? (
+        <section className="signatures" aria-labelledby="signatures-title" data-reveal>
+          <div className="signatures__head">
+            <p className="meta">{config.signatures.meta}</p>
+            <span className="hairline" aria-hidden="true" />
+            <h2 id="signatures-title" className="display">
+              {config.signatures.title}
+            </h2>
+            <p className="signatures__lede">{config.signatures.lede}</p>
+          </div>
+        </section>
+      ) : null}
+
+      {config.featured?.enabled !== false
+        ? (config.featured.slots || []).map((slot, index) =>
+            slot.product ? (
+              <FeaturedObject
+                key={slot.product.id || slot.product.slug || index}
+                object={slot.product}
+                eyebrow={slot.eyebrow}
+                sectionId={`featured-${slot.product.slug || index}`}
+                flipped={Boolean(slot.flipped)}
+              />
+            ) : null
+          )
+        : null}
+
+      {config.editorial?.enabled !== false && config.editorial?.image?.url ? (
+        <EditorialStory story={config.editorial} />
+      ) : null}
+
+      {config.close?.enabled !== false ? <HomeClose close={config.close} /> : null}
     </>
   );
 }

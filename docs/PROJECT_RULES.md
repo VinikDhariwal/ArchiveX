@@ -348,7 +348,7 @@ Backend authorization is authoritative. Never trust frontend role claims.
 
 `/admin` is not a generic SaaS dashboard. It is the control room for what the public website shows.
 
-- **Hero / homepage panel** — featured plates, images, copy, and related hero data
+- **Home page CMS** (`/admin/home`) — every home section: hero copy/plates, brands ribbon, promise, domain chambers, signatures intro, featured plates, editorial teaser, close paths; per-section visibility
 - Brand add / edit / remove
 - Product management (operator-created and contributor-submitted)
 - **Approval queue** — approve / reject / request changes for user submissions before public display
@@ -507,7 +507,7 @@ Advanced search, richer recommendations, price history, social collector feature
 - Website-first Ivory Museum desktop experience
 - Production website: no hardcoding of data, secrets, hosts, or catalog content unless a phase explicitly authorizes demo/seed values
 - No cart/checkout/purchasing flows
-- `/admin` is the website CMS (hero, brands, catalog, media) plus contribution moderation
+- `/admin` is the website CMS (home page, brands, catalog, media) plus contribution moderation
 - Contributor submissions stay pending until admin approval; public surfaces show approved content only
 - Backend authorization never deferred to the frontend
 - Thin controllers; business logic in services
@@ -535,6 +535,6 @@ Confirm this file permanently records:
 - [x] Ivory Museum
 - [x] Website-first desktop experience
 - [x] Production no-hardcoding rule
-- [x] `/admin` as website CMS (hero, brands, catalog, media)
+- [x] `/admin` as website CMS (home page, brands, catalog, media)
 - [x] Authenticated user contributions under brands
 - [x] Admin approval required before public display

@@ -49,6 +49,7 @@ Import [`openapi.json`](./openapi.json) into Swagger UI, Postman, Insomnia, or R
 
 - `GET /health` — liveness + DB
 - `GET /docs` · `GET /openapi.json` — this documentation
+- `GET /home` — resolved home page config (hero plates, brands chrome, promise, domains, signatures, featured slots, editorial, close; each with `enabled`)
 - `GET /products` · `/products/filters/schema` · `/products/recommended` · `/products/recently-viewed`
 - `GET /products/:slug` · `POST /products/:id/view` · `GET /products/:id/related` · `GET /products/:id/journal`
 - `GET /brands` · `/brands/:slug`
@@ -70,9 +71,20 @@ Import [`openapi.json`](./openapi.json) into Swagger UI, Postman, Insomnia, or R
 ### Admin (Bearer + staff role)
 
 - `GET /admin/overview` · `/admin/analytics` · `/admin/audit`
+- `GET|PATCH /admin/home` — singleton home page CMS  
+  - Sections: `hero`, `brands`, `promise`, `domains`, `signatures`, `featured`, `editorial`, `close`  
+  - Hero: copy + up to 5 `plateProductIds`; domains/featured pin products; editorial may pin `articleId`  
+  - Each section supports `enabled` for show/hide on the public home  
+  - First GET creates defaults from museum seed copy if missing
 - Products / brands / categories / articles CRUD + product status
 - Media upload (multipart), remote URL register, soft-delete
 - Users list/create/patch (`admin+`)
+
+### Discover shuffle notes
+
+- Public product list `sort=shuffle` requires a numeric `seed` for stable order.
+- Missing/invalid seed on the API defaults to **`1`** (never wall-clock time).
+- Client Discover writes `?sort=shuffle&seed=N` and mirrors seed in `sessionStorage` so reopen/refresh keeps the same chamber order until **Reshuffle**.
 
 ## Maintaining the spec
 

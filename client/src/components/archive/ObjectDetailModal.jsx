@@ -1,11 +1,10 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { getPrimaryImage, getPublisher } from '../../utils/archiveObject.js';
+import { getPrimaryImage } from '../../utils/archiveObject.js';
 import { formatProductType } from '../../utils/formatProductType.js';
 
 export default function ObjectDetailModal({ object, onClose }) {
   const primary = getPrimaryImage(object);
-  const publisher = getPublisher(object);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -57,18 +56,12 @@ export default function ObjectDetailModal({ object, onClose }) {
             <p className="object-modal__lede">{object.shortDescription}</p>
 
             <div className="featured-object__meta-row object-modal__meta">
-              <span className="rarity">{object.rarity}</span>
+              {object.rarity ? <span className="rarity">{object.rarity}</span> : null}
               <span>{object.images?.length || 1} plates</span>
-              <span>Published by {publisher}</span>
             </div>
 
-            <p className="object-modal__publisher">
-              <span className="meta">Publisher</span>
-              <strong>{publisher}</strong>
-            </p>
-
             <div className="object-modal__actions">
-              <button type="button" className="btn btn--soft" onClick={onClose}>
+              <button type="button" className="quiet-action" onClick={onClose}>
                 Back to feed
               </button>
             </div>

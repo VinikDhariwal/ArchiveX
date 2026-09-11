@@ -26,7 +26,9 @@ export default function ProductSort({ value, onChange, total, isLoading }) {
   return (
     <div className="product-sort">
       <p className="product-sort__count">
-        {isLoading ? 'Loading…' : `${total} result${total === 1 ? '' : 's'}`}
+        {isLoading
+          ? 'Loading…'
+          : `${total} object${total === 1 ? '' : 's'} in the archive`}
       </p>
       <label className="product-sort__control">
         <span>Sort</span>

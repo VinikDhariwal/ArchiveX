@@ -14,6 +14,7 @@ import {
   countActiveFilters,
   discoverParamsToSearchParams,
   parseDiscoverSearchParams,
+  storeShuffleSeed,
 } from '../features/products/productApi.js';
 import { selectProductItems, selectProductMeta } from '../features/products/productSelectors.js';
 import {
@@ -46,6 +47,16 @@ export default function DiscoverPage() {
     dispatch(setDraftQuery(params.q || ''));
   }, [params.q, dispatch]);
 
+  // Keep shuffle seed in the URL + session so refresh / reopening Discover
+  // does not jump to a different card order (looks like the page "broke").
+  useEffect(() => {
+    if (params.sort !== 'shuffle') return;
+    const seed = String(params.seed || '1');
+    storeShuffleSeed(seed);
+    if (searchParams.get('seed') === seed && searchParams.get('sort') === 'shuffle') return;
+    setSearchParams(discoverParamsToSearchParams(params), { replace: true });
+  }, [params, searchParams, setSearchParams]);
+
   const updateParams = (patch) => {
     const next = { ...params, ...patch };
     if (patch.domain && patch.domain !== params.domain) {
@@ -68,6 +79,7 @@ export default function DiscoverPage() {
     if (patch.sort === 'shuffle' && !patch.seed) {
       next.seed = String(Number(params.seed || 1));
     }
+    if (next.sort === 'shuffle' && next.seed) storeShuffleSeed(next.seed);
     setSearchParams(discoverParamsToSearchParams(next), { replace: false });
   };
 
@@ -84,14 +96,17 @@ export default function DiscoverPage() {
 
   const handleClear = () => {
     dispatch(setDraftQuery(''));
+    storeShuffleSeed('1');
     setSearchParams({ sort: 'shuffle', seed: '1' });
     dispatch(setMobileFiltersOpen(false));
   };
 
   const handleReshuffle = () => {
+    const nextSeed = String(Number(params.seed || 1) + 1);
+    storeShuffleSeed(nextSeed);
     updateParams({
       sort: 'shuffle',
-      seed: String(Number(params.seed || 1) + 1),
+      seed: nextSeed,
       page: '1',
     });
   };

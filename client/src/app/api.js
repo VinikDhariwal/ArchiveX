@@ -74,11 +74,28 @@ export const api = createApi({
     'AdminAudit',
     'AdminMedia',
     'Contribution',
+    'Home',
+    'AdminHome',
   ],
   endpoints: (builder) => ({
     getHealth: builder.query({
       query: () => '/health',
       providesTags: ['Health'],
+    }),
+    getHome: builder.query({
+      query: () => '/home',
+      transformResponse: (response) => response?.data,
+      providesTags: ['Home'],
+    }),
+    getAdminHome: builder.query({
+      query: () => '/admin/home',
+      transformResponse: (response) => response?.data,
+      providesTags: ['AdminHome'],
+    }),
+    updateAdminHome: builder.mutation({
+      query: (body) => ({ url: '/admin/home', method: 'PATCH', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: ['AdminHome', 'Home', 'AdminAudit'],
     }),
     register: builder.mutation({
       query: (body) => ({ url: '/auth/register', method: 'POST', body }),
@@ -695,6 +712,9 @@ export const api = createApi({
 
 export const {
   useGetHealthQuery,
+  useGetHomeQuery,
+  useGetAdminHomeQuery,
+  useUpdateAdminHomeMutation,
   useRegisterMutation,
   useLoginMutation,
   useLogoutMutation,

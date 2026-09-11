@@ -90,7 +90,7 @@ export default function BrandsPage() {
             <p className="brands-page__count">
               {isLoading ? '…' : `${filtered.length} house${filtered.length === 1 ? '' : 's'}`}
             </p>
-            <Link className="btn btn--soft" to="/categories">
+            <Link className="link-cta link-cta--muted" to="/categories">
               Categories
             </Link>
           </div>
@@ -136,7 +136,7 @@ export default function BrandsPage() {
         {!isLoading && !isError && !filtered.length ? (
           <div className="collector-empty">
             <p>No brands match this filter.</p>
-            <button type="button" className="btn btn--soft" onClick={() => setDomain('')}>
+            <button type="button" className="quiet-action" onClick={() => setDomain('')}>
               Show all brands
             </button>
           </div>

@@ -154,7 +154,9 @@ export function parseSort(query = {}) {
   }
 
   if (requested === 'shuffle' || query.shuffle === 'true') {
-    return { mode: 'shuffle', seed: Number(query.seed) || Date.now() };
+    // Stable default — never Date.now(), or every refresh reshuffles the chamber.
+    const parsed = Number(query.seed);
+    return { mode: 'shuffle', seed: Number.isFinite(parsed) && parsed > 0 ? parsed : 1 };
   }
 
   if (requested === 'relevance' || (!requested && asTrimmed(query.q))) {

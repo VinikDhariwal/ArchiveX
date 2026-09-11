@@ -30,9 +30,8 @@ export const hero = {
   kicker: 'A living archive',
   headlineLine1: 'Objects',
   headlineLine2: 'worth remembering.',
-  lede:
-    'Celebrating extraordinary cars and motorcycles — with luxury watches as a quieter second chamber — and the stories collectors return to.',
-  primaryCta: { label: 'Begin the archive', href: '#promise' },
+  lede: 'A digital museum for extraordinary cars and motorcycles.',
+  primaryCta: { label: 'Explore the archive', href: '/discover' },
   secondaryCta: { label: 'Explore discover', href: '/discover' },
   tertiaryCta: { label: 'Read the journal', href: '/journal' },
   featuredSlug: 'mercedes-benz-300-sl',
@@ -43,6 +42,7 @@ export const hero = {
       name: 'Mercedes-Benz 300 SL',
       brand: 'Mercedes-Benz',
       year: 1955,
+      productType: 'car',
       rarity: 'ICONIC',
       image: heroImg(
         'photo-1772550327967-4d9123809a65',
@@ -55,6 +55,7 @@ export const hero = {
       name: 'Suzuki Café Racer',
       brand: 'Suzuki',
       year: 1975,
+      productType: 'motorcycle',
       rarity: 'COLLECTIBLE',
       image: heroImg(
         'photo-1508349661974-9927dbd8399c',
@@ -63,22 +64,11 @@ export const hero = {
       ),
     },
     {
-      slug: 'patek-philippe-henry-graves-supercomplication',
-      name: 'Patek Philippe Henry Graves Supercomplication',
-      brand: 'Patek Philippe',
-      year: 1933,
-      rarity: 'UNIQUE',
-      image: heroImg(
-        'photo-1509048191080-d2984bad6ae5',
-        'Antique pocket watch — demonstration stand-in for the Henry Graves Supercomplication',
-        'center'
-      ),
-    },
-    {
       slug: 'bugatti-chiron',
       name: 'Bugatti Chiron',
       brand: 'Bugatti',
       year: 2016,
+      productType: 'car',
       rarity: 'ICONIC',
       image: heroImg(
         'photo-1544636331-e26879cd4d9b',
@@ -91,6 +81,7 @@ export const hero = {
       name: 'Harley-Davidson Heritage',
       brand: 'Harley-Davidson',
       year: 1948,
+      productType: 'motorcycle',
       rarity: 'COLLECTIBLE',
       image: heroImg(
         'photo-1459372537964-e38c57a5e86f',

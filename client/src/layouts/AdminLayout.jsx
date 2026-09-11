@@ -7,6 +7,7 @@ import { useLogoutMutation } from '../app/api.js';
 
 const adminNav = [
   { label: 'Overview', to: '/admin', end: true },
+  { label: 'Home', to: '/admin/home' },
   { label: 'Approvals', to: '/admin/approvals' },
   { label: 'Products', to: '/admin/products' },
   { label: 'Brands', to: '/admin/brands' },
