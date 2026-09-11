@@ -11,7 +11,18 @@ export default function CollectionsPage() {
   const { data: collections = [], isLoading, isError, refetch } = useGetCollectionsQuery();
   const [deleteCollection] = useDeleteCollectionMutation();
   const [createOpen, setCreateOpen] = useState(false);
+  const [actionError, setActionError] = useState(null);
   useDocumentTitle('Collections');
+
+  const onDelete = async (collection) => {
+    if (!window.confirm(`Delete “${collection.name}”?`)) return;
+    setActionError(null);
+    try {
+      await deleteCollection(collection.id).unwrap();
+    } catch {
+      setActionError(`Could not delete “${collection.name}”. Please try again.`);
+    }
+  };
 
   return (
     <main className="collector-page">
@@ -36,6 +47,7 @@ export default function CollectionsPage() {
 
         {isLoading ? <LoadingState /> : null}
         {isError ? <ErrorState message="Could not load collections." onRetry={refetch} /> : null}
+        {actionError ? <p className="auth-form__error" role="alert">{actionError}</p> : null}
 
         {!isLoading && !isError && !collections.length ? (
           <div className="collector-empty">
@@ -67,11 +79,7 @@ export default function CollectionsPage() {
                 <button
                   type="button"
                   className="quiet-action"
-                  onClick={() => {
-                    if (window.confirm(`Delete “${collection.name}”?`)) {
-                      deleteCollection(collection.id);
-                    }
-                  }}
+                  onClick={() => onDelete(collection)}
                 >
                   Delete
                 </button>

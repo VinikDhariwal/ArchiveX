@@ -67,7 +67,7 @@ const ALLOWED_PROJECTION_FIELDS = Object.freeze([
   'tags',
 ]);
 
-function escapeRegex(value) {
+export function escapeRegex(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 

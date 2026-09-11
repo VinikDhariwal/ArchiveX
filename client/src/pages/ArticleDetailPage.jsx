@@ -109,8 +109,8 @@ export default function ArticleDetailPage() {
               {String(section.body || '')
                 .split(/\n\n+/)
                 .filter(Boolean)
-                .map((paragraph) => (
-                  <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+                .map((paragraph, paragraphIndex) => (
+                  <p key={paragraphIndex}>{paragraph}</p>
                 ))}
             </section>
           ))}

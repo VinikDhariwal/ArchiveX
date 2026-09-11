@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { Article, Product } from '../models/index.js';
 import ApiError from '../utils/ApiError.js';
 import { serializeProduct } from './productService.js';
+import { ARTICLE_TYPES, SUPPORTED_PRODUCT_TYPES } from '../config/constants.js';
 
 const PUBLIC_FILTER = {
   status: 'approved',
@@ -58,8 +59,20 @@ export function serializeArticleDetail(doc, relatedProducts = []) {
 
 export async function listPublicArticles(query = {}) {
   const filter = { ...PUBLIC_FILTER };
-  if (query.type) filter.articleType = query.type;
-  if (query.domain) filter.domains = query.domain;
+  const type = String(query.type || '').trim();
+  if (type) {
+    if (!ARTICLE_TYPES.includes(type)) {
+      throw new ApiError('Invalid article type', 400, 'INVALID_ARTICLE_TYPE');
+    }
+    filter.articleType = type;
+  }
+  const domain = String(query.domain || '').trim();
+  if (domain) {
+    if (!SUPPORTED_PRODUCT_TYPES.includes(domain)) {
+      throw new ApiError('Invalid domain', 400, 'INVALID_DOMAIN');
+    }
+    filter.domains = domain;
+  }
   if (query.featured === 'true' || query.featured === true) filter.featured = true;
 
   const limit = Math.min(Math.max(Number(query.limit) || 24, 1), 48);

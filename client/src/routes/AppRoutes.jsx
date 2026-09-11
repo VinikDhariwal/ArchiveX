@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import PublicLayout from '../layouts/PublicLayout.jsx';
 import AuthenticatedLayout from '../layouts/AuthenticatedLayout.jsx';
 import AdminLayout from '../layouts/AdminLayout.jsx';
@@ -15,6 +15,9 @@ const LoginPage = lazy(() => import('../pages/LoginPage.jsx'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage.jsx'));
 const AccountPage = lazy(() => import('../pages/AccountPage.jsx'));
 const AccountSettingsPage = lazy(() => import('../pages/AccountSettingsPage.jsx'));
+const ContributePage = lazy(() => import('../pages/ContributePage.jsx'));
+const MySubmissionsPage = lazy(() => import('../pages/MySubmissionsPage.jsx'));
+const EditSubmissionPage = lazy(() => import('../pages/EditSubmissionPage.jsx'));
 const FavoritesPage = lazy(() => import('../pages/FavoritesPage.jsx'));
 const CollectionsPage = lazy(() => import('../pages/CollectionsPage.jsx'));
 const CollectionDetailPage = lazy(() => import('../pages/CollectionDetailPage.jsx'));
@@ -38,10 +41,16 @@ const AdminUsersPage = lazy(() => import('../pages/admin/AdminUsersPage.jsx'));
 const AdminAuditPage = lazy(() => import('../pages/admin/AdminAuditPage.jsx'));
 const AdminAnalyticsPage = lazy(() => import('../pages/admin/AdminAnalyticsPage.jsx'));
 
+/** Error boundary that resets itself when the route changes. */
+function LocationAwareBoundary({ children }) {
+  const location = useLocation();
+  return <RouteErrorBoundary resetKey={location.pathname}>{children}</RouteErrorBoundary>;
+}
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-      <RouteErrorBoundary>
+      <LocationAwareBoundary>
           <Routes>
             <Route element={<PublicLayout />}>
               <Route index element={<HomePage />} />
@@ -65,6 +74,9 @@ export default function AppRoutes() {
             <Route element={<AuthenticatedLayout />}>
               <Route path="account" element={<AccountPage />} />
               <Route path="account/settings" element={<AccountSettingsPage />} />
+              <Route path="account/submissions" element={<MySubmissionsPage />} />
+              <Route path="account/submissions/:id/edit" element={<EditSubmissionPage />} />
+              <Route path="contribute" element={<ContributePage />} />
               <Route path="favorites" element={<FavoritesPage />} />
               <Route path="collections" element={<CollectionsPage />} />
               <Route path="collections/:id" element={<CollectionDetailPage />} />
@@ -88,7 +100,7 @@ export default function AppRoutes() {
               <Route path="*" element={<Navigate to="/admin" replace />} />
             </Route>
           </Routes>
-      </RouteErrorBoundary>
+      </LocationAwareBoundary>
     </BrowserRouter>
   );
 }

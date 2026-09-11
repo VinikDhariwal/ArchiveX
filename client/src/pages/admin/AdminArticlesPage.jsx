@@ -23,9 +23,10 @@ const empty = {
 
 export default function AdminArticlesPage() {
   const { data: articles = [], isLoading, isError } = useGetAdminArticlesQuery();
-  const [createArticle] = useCreateAdminArticleMutation();
-  const [updateArticle] = useUpdateAdminArticleMutation();
+  const [createArticle, { isLoading: creating }] = useCreateAdminArticleMutation();
+  const [updateArticle, { isLoading: updating }] = useUpdateAdminArticleMutation();
   const [deleteArticle] = useDeleteAdminArticleMutation();
+  const saving = creating || updating;
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState(null);
@@ -164,8 +165,8 @@ export default function AdminArticlesPage() {
         </label>
         {error ? <p className="auth-form__error">{error}</p> : null}
         <div className="admin-row-actions">
-          <button type="submit" className="btn">
-            {editingId ? 'Save article' : 'Create article'}
+          <button type="submit" className="btn" disabled={saving}>
+            {saving ? 'Saving…' : editingId ? 'Save article' : 'Create article'}
           </button>
           {editingId ? (
             <button type="button" className="quiet-action" onClick={reset}>
@@ -206,8 +207,14 @@ export default function AdminArticlesPage() {
                   <button
                     type="button"
                     className="quiet-action"
-                    onClick={() => {
-                      if (window.confirm(`Archive ${article.title}?`)) deleteArticle(article.id);
+                    onClick={async () => {
+                      if (!window.confirm(`Archive ${article.title}?`)) return;
+                      setError(null);
+                      try {
+                        await deleteArticle(article.id).unwrap();
+                      } catch (err) {
+                        setError(err?.data?.error?.message || `Could not archive ${article.title}.`);
+                      }
                     }}
                   >
                     Delete

@@ -36,6 +36,26 @@ export default function AdminProductsPage() {
   const { data, isLoading, isError } = useGetAdminProductsQuery(params);
   const [setStatusMutation] = useSetAdminProductStatusMutation();
   const [deleteProduct] = useDeleteAdminProductMutation();
+  const [actionError, setActionError] = useState(null);
+
+  const onSetStatus = async (item, nextStatus) => {
+    setActionError(null);
+    try {
+      await setStatusMutation({ id: item.id, status: nextStatus }).unwrap();
+    } catch (err) {
+      setActionError(err?.data?.error?.message || `Could not update ${item.name}.`);
+    }
+  };
+
+  const onDelete = async (item) => {
+    if (!window.confirm(`Archive ${item.name}?`)) return;
+    setActionError(null);
+    try {
+      await deleteProduct(item.id).unwrap();
+    } catch (err) {
+      setActionError(err?.data?.error?.message || `Could not delete ${item.name}.`);
+    }
+  };
 
   return (
     <AdminPageShell
@@ -80,6 +100,7 @@ export default function AdminProductsPage() {
 
       {isLoading ? <p className="admin-muted">Loading products…</p> : null}
       {isError ? <p className="auth-form__error">Could not load products.</p> : null}
+      {actionError ? <p className="auth-form__error" role="alert">{actionError}</p> : null}
 
       <div className="admin-table-wrap">
         <table className="admin-table">
@@ -88,6 +109,7 @@ export default function AdminProductsPage() {
               <th>Name</th>
               <th>Domain</th>
               <th>Brand</th>
+              <th>Submitter</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -102,6 +124,16 @@ export default function AdminProductsPage() {
                 <td>{item.productType}</td>
                 <td>{item.brand}</td>
                 <td>
+                  {item.submittedByUser ? (
+                    <>
+                      <div>{item.submittedByUser.name || item.submittedByUser.username}</div>
+                      <div className="admin-muted">{item.submittedByUser.email}</div>
+                    </>
+                  ) : (
+                    <span className="admin-muted">Staff</span>
+                  )}
+                </td>
+                <td>
                   <span className={`admin-pill admin-pill--${item.status}`}>{item.status}</span>
                 </td>
                 <td className="admin-row-actions">
@@ -110,14 +142,14 @@ export default function AdminProductsPage() {
                       <button
                         type="button"
                         className="quiet-action"
-                        onClick={() => setStatusMutation({ id: item.id, status: 'approved' })}
+                        onClick={() => onSetStatus(item, 'approved')}
                       >
                         Approve
                       </button>
                       <button
                         type="button"
                         className="quiet-action"
-                        onClick={() => setStatusMutation({ id: item.id, status: 'rejected' })}
+                        onClick={() => onSetStatus(item, 'rejected')}
                       >
                         Reject
                       </button>
@@ -129,9 +161,7 @@ export default function AdminProductsPage() {
                   <button
                     type="button"
                     className="quiet-action"
-                    onClick={() => {
-                      if (window.confirm(`Archive ${item.name}?`)) deleteProduct(item.id);
-                    }}
+                    onClick={() => onDelete(item)}
                   >
                     Delete
                   </button>

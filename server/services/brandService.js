@@ -1,5 +1,7 @@
 import { Brand, Product } from '../models/index.js';
 import ApiError from '../utils/ApiError.js';
+import { SUPPORTED_PRODUCT_TYPES } from '../config/constants.js';
+import { escapeRegex } from './searchService.js';
 
 const PUBLIC_FILTER = { status: 'active', deletedAt: null };
 const PRODUCT_PUBLIC = { status: 'approved', deletedAt: null };
@@ -32,11 +34,16 @@ async function productCountsForBrandIds(brandIds) {
 
 export async function listPublicBrands(query = {}) {
   const filter = { ...PUBLIC_FILTER };
-  if (query.domain) {
-    filter.primaryDomains = query.domain;
+  const domain = String(query.domain || '').trim();
+  if (domain) {
+    if (!SUPPORTED_PRODUCT_TYPES.includes(domain)) {
+      throw new ApiError('Invalid domain', 400, 'INVALID_DOMAIN');
+    }
+    filter.primaryDomains = domain;
   }
-  if (query.q) {
-    filter.name = { $regex: String(query.q).trim(), $options: 'i' };
+  const q = String(query.q || '').trim();
+  if (q) {
+    filter.name = { $regex: escapeRegex(q), $options: 'i' };
   }
 
   const brands = await Brand.find(filter).sort({ name: 1 }).lean();

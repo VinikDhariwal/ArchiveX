@@ -65,6 +65,7 @@ Import [`openapi.json`](./openapi.json) into Swagger UI, Postman, Insomnia, or R
 
 - `GET|POST|DELETE /favorites…`
 - `GET|POST|PATCH|DELETE /collections…` (+ product membership)
+- `GET|POST /contributions/products` · `GET|PATCH|DELETE /contributions/products/:id` — submit / list / edit / withdraw own pending or rejected products (always created as `pending`; no public leak until staff approve)
 
 ### Admin (Bearer + staff role)
 

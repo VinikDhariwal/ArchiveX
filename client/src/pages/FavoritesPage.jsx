@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Breadcrumbs from '../components/layout/Breadcrumbs.jsx';
 import ObjectCard from '../components/archive/ObjectCard.jsx';
@@ -18,9 +19,19 @@ export default function FavoritesPage() {
     limit: 8,
   });
   const [removeFavorite] = useRemoveFavoriteMutation();
+  const [actionError, setActionError] = useState(null);
   useDocumentTitle('Favorites');
 
   const products = favorites.map((row) => row.product).filter(Boolean);
+
+  const onRemove = async (product) => {
+    setActionError(null);
+    try {
+      await removeFavorite(product.id).unwrap();
+    } catch {
+      setActionError(`Could not remove “${product.name}”. Please try again.`);
+    }
+  };
 
   return (
     <main className="collector-page">
@@ -40,6 +51,7 @@ export default function FavoritesPage() {
 
         {isLoading ? <LoadingState /> : null}
         {isError ? <ErrorState message="Could not load favorites." onRetry={refetch} /> : null}
+        {actionError ? <p className="auth-form__error" role="alert">{actionError}</p> : null}
 
         {!isLoading && !isError && !products.length ? (
           <div className="collector-empty">
@@ -58,7 +70,7 @@ export default function FavoritesPage() {
                 <button
                   type="button"
                   className="quiet-action collector-card__action"
-                  onClick={() => removeFavorite(product.id)}
+                  onClick={() => onRemove(product)}
                 >
                   Remove favorite
                 </button>

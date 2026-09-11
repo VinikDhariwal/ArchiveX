@@ -59,7 +59,9 @@ export default function AdminImageList({ images = [], onChange, emptyLabel = 'No
 
       <ul className="admin-image-list__items">
         {images.map((image, index) => (
-          <li key={`${image.url}-${index}`} className="admin-image-list__item">
+          // Index key is intentional: keying by the editable URL remounts the
+          // row (and drops input focus) on every keystroke.
+          <li key={index} className="admin-image-list__item">
             <div className="admin-image-list__preview">
               {image.url ? <img src={image.url} alt={image.alt || ''} /> : <span className="admin-muted">No preview</span>}
             </div>

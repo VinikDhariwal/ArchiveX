@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { navLinks } from '../../data/demoData.js';
@@ -7,6 +8,15 @@ import AccountMenu from './AccountMenu.jsx';
 
 export default function MobileHeader({ menuOpen, onOpenMenu, onCloseMenu }) {
   const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onKey = (event) => {
+      if (event.key === 'Escape') onCloseMenu();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [menuOpen, onCloseMenu]);
 
   return (
     <>
@@ -34,6 +44,9 @@ export default function MobileHeader({ menuOpen, onOpenMenu, onCloseMenu }) {
         role="dialog"
         aria-modal="true"
         aria-hidden={!menuOpen}
+        // The drawer is hidden by a transform, so its links stay tabbable;
+        // inert removes them from keyboard/AT reach while closed.
+        inert={!menuOpen}
         aria-label="Mobile navigation"
       >
         <div className="mobile-drawer__top">

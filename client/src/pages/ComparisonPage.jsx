@@ -14,7 +14,7 @@ import {
 export default function ComparisonPage() {
   const dispatch = useDispatch();
   const ids = useSelector(selectCompareIds);
-  const { data, isLoading, isFetching } = useGetProductsQuery(
+  const { data, isLoading, isFetching, isError, refetch } = useGetProductsQuery(
     { ids: ids.join(','), limit: MAX_COMPARE_ITEMS },
     { skip: !ids.length }
   );
@@ -62,6 +62,24 @@ export default function ComparisonPage() {
         ) : null}
 
         {ids.length >= 2 && (isLoading || isFetching) && !products.length ? <LoadingState /> : null}
+
+        {ids.length >= 2 && isError ? (
+          <div className="collector-empty">
+            <p>Could not load the comparison. Check your connection and try again.</p>
+            <button type="button" className="btn btn--soft" onClick={() => refetch()}>
+              Retry
+            </button>
+          </div>
+        ) : null}
+
+        {ids.length >= 2 && !isError && !isLoading && !isFetching && products.length < 2 ? (
+          <div className="collector-empty">
+            <p>Some objects in your tray are no longer available in the public archive.</p>
+            <Link className="btn btn--soft" to="/discover">
+              Browse discover
+            </Link>
+          </div>
+        ) : null}
 
         {products.length >= 2 ? (
           <>

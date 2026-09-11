@@ -78,6 +78,7 @@ function signAccessToken(user) {
       sub: String(user._id),
       role: user.role,
       type: 'access',
+      ver: user.tokenVersion || 0,
     },
     env.jwtAccessSecret,
     { expiresIn: env.jwtAccessExpiresIn }

@@ -11,8 +11,8 @@ export default function UnauthorizedPage() {
           <p className="meta">401 / 403</p>
           <h1 className="display page-head__title">This chamber is restricted</h1>
           <p className="page-lede">
-            Authentication and role guards arrive in Phase 6. This page is the structural placeholder for
-            denied access.
+            Your account does not have access to this area. If you believe you should, contact an
+            archive administrator.
           </p>
         </header>
         <p className="state-page__actions">
@@ -20,7 +20,7 @@ export default function UnauthorizedPage() {
             Return home
           </Link>
           <Link className="link-cta link-cta--muted" to="/account">
-            Account shell
+            Your profile
           </Link>
         </p>
       </div>

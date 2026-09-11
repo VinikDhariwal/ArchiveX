@@ -27,6 +27,9 @@ export default function ComparisonTray() {
       role="region"
       aria-label="Comparison tray"
       aria-hidden={!visible}
+      // The tray is hidden with a transform, so its buttons stay in the tab
+      // order; inert removes them for keyboard/AT users while hidden.
+      inert={!visible}
     >
       <div className="compare-tray__items">
         {ids.map((id) => {

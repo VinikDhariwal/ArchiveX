@@ -40,9 +40,19 @@ function serializeMedia(doc) {
   };
 }
 
+// Raster formats only. SVG is deliberately excluded: it can embed scripts and
+// would be served inline from /media/files/:id (stored-XSS vector).
+const ALLOWED_UPLOAD_MIMES = Object.freeze([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/avif',
+]);
+
 function fileFilter(_req, file, cb) {
-  if (!file.mimetype?.startsWith('image/')) {
-    cb(new ApiError('Only image uploads are allowed', 400, 'INVALID_MEDIA_TYPE'));
+  if (!ALLOWED_UPLOAD_MIMES.includes(file.mimetype)) {
+    cb(new ApiError('Only JPEG, PNG, WebP, GIF, or AVIF uploads are allowed', 400, 'INVALID_MEDIA_TYPE'));
     return;
   }
   cb(null, true);
@@ -131,11 +141,14 @@ export async function createMediaFromUpload(actorId, file, meta = {}) {
 export async function createMediaFromUrl(actorId, payload = {}) {
   const url = String(payload.url || '').trim();
   if (!url) throw new ApiError('URL is required', 400, 'URL_REQUIRED');
+  let parsed;
   try {
-    // eslint-disable-next-line no-new
-    new URL(url);
+    parsed = new URL(url);
   } catch {
     throw new ApiError('A valid absolute URL is required', 400, 'INVALID_URL');
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new ApiError('Only http(s) media URLs are allowed', 400, 'INVALID_URL');
   }
 
   const type = IMAGE_TYPES.includes(payload.type) ? payload.type : 'gallery';
@@ -166,6 +179,9 @@ export async function createMediaFromUrl(actorId, payload = {}) {
 }
 
 export async function deleteMediaAsset(actorId, id) {
+  if (!mongoose.isValidObjectId(id)) {
+    throw new ApiError('Invalid media id', 400, 'INVALID_ID');
+  }
   const asset = await MediaAsset.findOne({ _id: id, deletedAt: null });
   if (!asset) throw new ApiError('Media not found', 404, 'MEDIA_NOT_FOUND');
 

@@ -18,6 +18,7 @@ describe('Phase 16 API documentation', () => {
     assert.ok(doc.paths['/auth/login']?.post);
     assert.ok(doc.paths['/products']?.get);
     assert.ok(doc.paths['/favorites']?.get);
+    assert.ok(doc.paths['/contributions/products']?.post);
     assert.ok(doc.paths['/admin/analytics']?.get);
     assert.ok(doc.paths['/openapi.json']?.get);
     assert.ok(doc.components?.securitySchemes?.bearerAuth);

@@ -1,7 +1,7 @@
 # ArchiveX — Living Website Documentation
 
 **Status:** Living document — update this file whenever libraries, routes, components, APIs, or product behavior change.  
-**Last updated:** 2026-09-11 (Phase 17 Testing)
+**Last updated:** 2026-09-11 (Collector contributions)
 **Companion rules:** [PROJECT_RULES.md](./PROJECT_RULES.md) (product/tech contract; do not replace it)  
 **Setup guide:** [../README.md](../README.md)
 
@@ -55,7 +55,8 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 14 Media | Done — Atlas GridFS uploads + media library |
 | Phase 15 Analytics | Done — staff `/admin/analytics` views, favorites, catalog health |
 | Phase 16 API documentation | Done — OpenAPI 3.0 (`docs/openapi.json`), `docs/API.md`, `GET /api/v1/openapi.json` |
-| Phase 17 Testing | Done — auth account + collector edge suites, client Vitest smoke (`npm test`) |
+| Phase 17 Testing | Done — auth account + collector edge suites, client Vitest smoke (`npm test`); QA hardening suites added |
+| Collector contributions | Done — `/contribute` + `/account/submissions`, ownership-scoped `/contributions/products` APIs, admin submitter display |
 
 **Migrate / re-seed Atlas**
 
@@ -92,6 +93,8 @@ npm run seed --prefix server
 | PATCH | `/api/v1/auth/me/email` | Change email (requires current password) |
 | PATCH | `/api/v1/auth/me/password` | Change password (reissues tokens) |
 | DELETE | `/api/v1/auth/me` | Soft-delete collector account (confirm username + password); staff blocked |
+| GET/POST | `/api/v1/contributions/products` | Collector submit pending product / list own submissions |
+| GET/PATCH/DELETE | `/api/v1/contributions/products/:id` | Own submission detail / edit / soft-withdraw (`pending`/`rejected` only) |
 | GET | `/api/v1/admin/overview` | Staff counts (pending, catalog, users) |
 | GET | `/api/v1/admin/analytics` | Views, favorites, collections, catalog health signals |
 | GET/POST/PATCH/DELETE | `/api/v1/admin/products…` | Catalog CMS + `PATCH …/status` approvals |
@@ -223,6 +226,7 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `services/recommendationService.js` | Related objects + Search recommendations; product journal via articleService |
 | `services/articleService.js` | Public article list/detail + product journal links |
 | `services/adminService.js` | Admin CMS CRUD, approvals, user updates (`createAdminUser` allocates username) |
+| `services/contributionService.js` | Collector product submit / list / edit / withdraw (ownership-scoped; always pending) |
 | `services/authService.js` | `register`, `login`, `serializeUser`, `allocateUsername`, refresh/logout/me |
 | `services/auditService.js` | `recordAudit` / `listAuditLogs` |
 | `services/mediaService.js` | Local upload + remote URL media library |
@@ -236,11 +240,13 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `controllers/categoryController.js` | Thin category handlers |
 | `controllers/articleController.js` | Thin article handlers |
 | `controllers/adminController.js` | Thin admin CMS handlers |
+| `controllers/contributionController.js` | Collector contribution handlers |
 | `controllers/mediaController.js` | Thin media upload/list handlers |
 | `routes/productRoutes.js` | `/products` |
 | `routes/brandRoutes.js` | `/brands` |
 | `routes/categoryRoutes.js` | `/categories` |
 | `routes/articleRoutes.js` | `/articles` |
+| `routes/contributionRoutes.js` | `/contributions` (auth) |
 | `routes/adminRoutes.js` | `/admin` (staff-gated) |
 | `validators/` | Empty |
 | `tests/health.test.js` | Health endpoint |
@@ -259,6 +265,11 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `tests/openapi.test.js` | Phase 16 OpenAPI document + public docs routes |
 | `tests/authAccount.test.js` | Phase 17 profile/email/password/refresh/logout/delete |
 | `tests/phase17.test.js` | Phase 17 recently viewed + collection ownership/PATCH edges |
+| `tests/contribution.test.js` | Collector product submit / ownership / public gate / withdraw |
+| `tests/hardening.test.js` | Approval gates, hostile query/body, pagination/sort safety |
+| `tests/tokenRevocation.test.js` | Logout/disable revoke access tokens immediately |
+| `tests/adminUsers.test.js` | Superadmin privilege ceiling + self-edit block |
+| `tests/mediaHardening.test.js` | SVG/MIME/remote-URL rejection |
 | `testSupport/http.js` | Ephemeral listen + fetch helper (JSON/body + Set-Cookie map) |
 
 ### 4.7 Domain constants (server)
@@ -322,8 +333,11 @@ App.jsx → global CSS → AppRoutes
 | `/compare` | `ComparisonPage` | Domain-aware side-by-side compare (up to 4; public tray) |
 | `/login` | `LoginPage` | Collector log in; guest-gate notices; ACCOUNT_NOT_FOUND → `/register` |
 | `/register` | `RegisterPage` | First/last name, unique username, email, password |
-| `/account` | `AccountPage` | Profile identity + desk; soft links to Favorites, Collections, Compare |
+| `/account` | `AccountPage` | Profile identity + desk; soft links to Contribute, submissions, Favorites, Collections, Compare |
 | `/account/settings` | `AccountSettingsPage` | Edit profile, change email, change password, delete account |
+| `/contribute` | `ContributePage` | Authenticated product proposal under an active brand (URL images; always pending) |
+| `/account/submissions` | `MySubmissionsPage` | Own submissions with status badges; edit/withdraw while pending/rejected |
+| `/account/submissions/:id/edit` | `EditSubmissionPage` | Edit own pending/rejected submission |
 | `/favorites` | `FavoritesPage` | Synced favorites + recently viewed |
 | `/collections` | `CollectionsPage` | Collection list + create |
 | `/collections/:id` | `CollectionDetailPage` | Collection detail / manage objects |
@@ -349,7 +363,9 @@ App.jsx → global CSS → AppRoutes
 | `HomePage.jsx` | Hero → marquee → promise → chambers → signatures → editorial → close |
 | `DiscoverPage.jsx` | URL-synced discovery: search, filters, sort, pagination, masonry |
 | `LoginPage.jsx` / `RegisterPage.jsx` / `AccountPage.jsx` / `AccountSettingsPage.jsx` | Collector auth, profile desk, account settings |
-| `components/layout/AccountMenu.jsx` | Guest **Log in** button; signed-in icon menu (Profile, Favorites, Collections, Compare, Admin, Log out) |
+| `ContributePage.jsx` / `MySubmissionsPage.jsx` / `EditSubmissionPage.jsx` | Collector product proposals + submission desk |
+| `components/contribute/*` | Contribution form + URL-only image list |
+| `components/layout/AccountMenu.jsx` | Guest **Log in** button; signed-in icon menu (Profile, Settings, Contribute, My submissions, Admin, Log out) |
 | `utils/formatProductType.js` | Humanize `car`/`motorcycle`/`watch` → Cars/Motorcycles/Watches |
 | `pages/admin/AdminLoginPage.jsx` | Staff-only sign in (`/admin/login`); no public staff registration |
 | `ProductDetailPage.jsx` | Domain-aware product intelligence page |
@@ -563,6 +579,23 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 ---
 
 ## 9. Changelog (append newest on top)
+
+### 2026-09-11 — Collector product submission
+
+- Authenticated collectors submit products under active brands via `/contribute` (URL images only; always `pending` / never featured).
+- Ownership APIs: `GET|POST /contributions/products`, `GET|PATCH|DELETE /contributions/products/:id` (edit/withdraw while pending or rejected).
+- `/account/submissions` list + edit route; Account menu and Profile CTAs.
+- Admin approvals/product list/detail show `submittedBy` name/email when present.
+- Regression suite `server/tests/contribution.test.js`; OpenAPI + API.md updated.
+
+### 2026-09-11 — QA hardening pass
+
+- Access tokens revalidated against DB (`tokenVersion`, status, soft-delete) so logout/password-change/disable revoke immediately.
+- Admin privilege ceiling: only `superadmin` may create/manage superadmin accounts; no self role/status change.
+- Media: SVG uploads blocked; remote URLs limited to http(s).
+- Public approval gates + hostile query/body probes covered in `hardening.test.js`.
+- Client: shared refresh lock, modal focus trap (`useModalBehavior`), Product tag invalidation on admin status/delete.
+- Username rule (current): `^[A-Za-z0-9._\-!@#$]{3,30}$`. Compare tray max: **4**.
 
 ### 2026-09-11 (Phase 17) — Testing
 

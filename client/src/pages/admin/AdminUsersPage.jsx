@@ -25,7 +25,17 @@ export default function AdminUsersPage() {
   const [updateUser] = useUpdateAdminUserMutation();
   const [form, setForm] = useState(empty);
   const [formError, setFormError] = useState(null);
+  const [updateError, setUpdateError] = useState(null);
   const forbidden = error?.status === 403;
+
+  const onUpdateUser = async (user, patch) => {
+    setUpdateError(null);
+    try {
+      await updateUser({ id: user.id, ...patch }).unwrap();
+    } catch (err) {
+      setUpdateError(err?.data?.error?.message || `Could not update ${user.name}.`);
+    }
+  };
 
   const onCreate = async (event) => {
     event.preventDefault();
@@ -117,6 +127,7 @@ export default function AdminUsersPage() {
         <p className="auth-form__error">Your role cannot manage users.</p>
       ) : null}
       {isError && !forbidden ? <p className="auth-form__error">Could not load users.</p> : null}
+      {updateError ? <p className="auth-form__error" role="alert">{updateError}</p> : null}
 
       <div className="admin-table-wrap">
         <table className="admin-table">
@@ -140,7 +151,7 @@ export default function AdminUsersPage() {
                     ariaLabel={`Role for ${user.name}`}
                     value={user.role}
                     options={ROLES}
-                    onChange={(role) => updateUser({ id: user.id, role })}
+                    onChange={(role) => onUpdateUser(user, { role })}
                   />
                 </td>
                 <td>
@@ -148,7 +159,7 @@ export default function AdminUsersPage() {
                     ariaLabel={`Status for ${user.name}`}
                     value={user.status}
                     options={STATUSES}
-                    onChange={(status) => updateUser({ id: user.id, status })}
+                    onChange={(status) => onUpdateUser(user, { status })}
                   />
                 </td>
               </tr>

@@ -18,6 +18,7 @@ import { serializeCategory } from './categoryService.js';
 import { serializeArticleCard } from './articleService.js';
 import { recordAudit } from './auditService.js';
 import { allocateUsername, buildDisplayName, findUserByUsername, normalizeUsername } from './authService.js';
+import { escapeRegex } from './searchService.js';
 
 function slugify(value, fallback = 'item') {
   return (
@@ -118,13 +119,27 @@ function serializeAdminProduct(doc) {
   const base = serializeProduct(doc);
   const plain = typeof doc.toObject === 'function' ? doc.toObject() : doc;
   const brandDoc = plain.brand && typeof plain.brand === 'object' ? plain.brand : null;
+  const submitter =
+    plain.submittedBy && typeof plain.submittedBy === 'object' ? plain.submittedBy : null;
   return {
     ...base,
     brandId: brandDoc?._id ? String(brandDoc._id) : plain.brand ? String(plain.brand) : null,
     productionPeriod: plain.productionPeriod || '',
     status: plain.status,
     deletedAt: plain.deletedAt || null,
-    submittedBy: plain.submittedBy ? String(plain.submittedBy) : null,
+    submittedBy: submitter?._id
+      ? String(submitter._id)
+      : plain.submittedBy
+        ? String(plain.submittedBy)
+        : null,
+    submittedByUser: submitter
+      ? {
+          id: String(submitter._id),
+          name: submitter.name || '',
+          email: submitter.email || '',
+          username: submitter.username || '',
+        }
+      : null,
     createdBy: plain.createdBy ? String(plain.createdBy) : null,
     updatedBy: plain.updatedBy ? String(plain.updatedBy) : null,
     createdAt: plain.createdAt,
@@ -212,10 +227,11 @@ export async function listAdminProducts(query = {}) {
     filter.productType = query.productType;
   }
   if (query.q) {
+    const q = escapeRegex(String(query.q).trim());
     filter.$or = [
-      { name: { $regex: String(query.q).trim(), $options: 'i' } },
-      { slug: { $regex: String(query.q).trim(), $options: 'i' } },
-      { reference: { $regex: String(query.q).trim(), $options: 'i' } },
+      { name: { $regex: q, $options: 'i' } },
+      { slug: { $regex: q, $options: 'i' } },
+      { reference: { $regex: q, $options: 'i' } },
     ];
   }
 
@@ -230,6 +246,7 @@ export async function listAdminProducts(query = {}) {
       .limit(limit)
       .populate('brand', 'name slug')
       .populate('category', 'name slug productType')
+      .populate('submittedBy', 'name email username')
       .lean(),
     Product.countDocuments(filter),
   ]);
@@ -245,6 +262,7 @@ export async function getAdminProduct(id) {
     .populate('brand', 'name slug')
     .populate('category', 'name slug productType')
     .populate('tags', 'name slug')
+    .populate('submittedBy', 'name email username')
     .lean();
   if (!product) throw new ApiError('Product not found', 404, 'PRODUCT_NOT_FOUND');
   return serializeAdminProduct(product);
@@ -389,7 +407,9 @@ export async function deleteAdminProduct(actorId, id) {
 export async function listAdminBrands(query = {}) {
   const filter = { deletedAt: null };
   if (query.status && CATALOG_STATUSES.includes(query.status)) filter.status = query.status;
-  if (query.domain) filter.primaryDomains = query.domain;
+  if (query.domain && SUPPORTED_PRODUCT_TYPES.includes(String(query.domain))) {
+    filter.primaryDomains = String(query.domain);
+  }
   const rows = await Brand.find(filter).sort({ name: 1 }).lean();
   return rows.map((row) => ({
     ...serializeBrand(row, 0),
@@ -657,7 +677,17 @@ export async function listAdminUsers() {
   return rows.map(serializeAdminUser);
 }
 
-export async function createAdminUser(actorId, payload = {}) {
+/**
+ * Privilege ceiling: only a superadmin may grant the superadmin role or
+ * modify an existing superadmin account. Admins manage every role below.
+ */
+function assertRoleCeiling(actorRole, targetRole) {
+  if (targetRole === 'superadmin' && actorRole !== 'superadmin') {
+    throw new ApiError('Only a superadmin can manage superadmin accounts', 403, 'FORBIDDEN');
+  }
+}
+
+export async function createAdminUser(actorId, payload = {}, actorRole = 'admin') {
   const name = String(payload.name || '').trim();
   const firstName = String(payload.firstName || '').trim();
   const lastName = String(payload.lastName || '').trim();
@@ -665,6 +695,8 @@ export async function createAdminUser(actorId, payload = {}) {
   const password = String(payload.password || '');
   const role = USER_ROLES.includes(payload.role) ? payload.role : 'user';
   const status = USER_STATUSES.includes(payload.status) ? payload.status : 'active';
+
+  assertRoleCeiling(actorRole, role);
 
   const displayName = buildDisplayName(firstName, lastName) || name;
   if (displayName.length < 2) throw new ApiError('Name must be at least 2 characters', 400, 'VALIDATION_ERROR');
@@ -721,13 +753,23 @@ export async function createAdminUser(actorId, payload = {}) {
   return serializeAdminUser(user);
 }
 
-export async function updateAdminUser(actorId, id, payload = {}) {
+export async function updateAdminUser(actorId, id, payload = {}, actorRole = 'admin') {
   const user = await User.findOne({ _id: asObjectId(id), deletedAt: null });
   if (!user) throw new ApiError('User not found', 404, 'USER_NOT_FOUND');
+
+  // Existing superadmins can only be managed by another superadmin.
+  assertRoleCeiling(actorRole, user.role);
+
+  const isSelf = String(user._id) === String(actorId);
+  if (isSelf && (payload.role || payload.status)) {
+    throw new ApiError('You cannot change your own role or status', 403, 'FORBIDDEN');
+  }
+
   if (payload.role) {
     if (!USER_ROLES.includes(payload.role)) {
       throw new ApiError('Invalid role', 400, 'INVALID_ROLE');
     }
+    assertRoleCeiling(actorRole, payload.role);
     user.role = payload.role;
   }
   if (payload.status) {
