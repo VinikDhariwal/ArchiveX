@@ -58,6 +58,8 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 17 Testing | Done — auth account + collector edge suites, client Vitest smoke (`npm test`); QA hardening suites added |
 | Phase 18 Security hardening | Done — rate limits, CORS allowlist, request sanitize, bcrypt digests (`select:false`), login anti-enumeration, prod JWT secret length |
 | Phase 19 Performance | Done — list/shuffle query shape, soft-delete indexes, public `Cache-Control`, RTK keepUnused, font/image budget |
+| Phase 20 Deployment | Partial — Render API live (`https://archivex-dmxn.onrender.com`); Vercel website for this repo not yet confirmed ([DEPLOYMENT.md](./DEPLOYMENT.md)) |
+| Phase 21 Acceptance | Done — MVP checklist + verification in [ACCEPTANCE.md](./ACCEPTANCE.md); production website residual open |
 | Collector contributions | Done — `/contribute` + `/account/submissions`, ownership-scoped `/contributions/products` APIs, admin submitter display |
 | Home page CMS | Done — singleton `HomePageConfig`; public `GET /home`; staff `GET|PATCH /admin/home`; `/admin/home` editor |
 
@@ -641,6 +643,19 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 - Client: shared refresh lock, modal focus trap (`useModalBehavior`), Product tag invalidation on admin status/delete.
 - Username rule (current): `^[A-Za-z0-9._\-!@#$]{3,30}$`. Compare tray max: **4**.
 
+### 2026-09-11 (Phase 21) — Acceptance
+
+- MVP acceptance checklist and verification: [ACCEPTANCE.md](./ACCEPTANCE.md).
+- Automated: `npm test` 131 server + 7 client; client production build OK.
+- Local SPA shells + public approval gate verified; prior E2E substitute report retained.
+- Production API accepted at `https://archivex-dmxn.onrender.com`; production website host still open.
+
+### 2026-09-11 (Phase 20) — Deployment
+
+- Runbook: [DEPLOYMENT.md](./DEPLOYMENT.md); `render.yaml` + `client/vercel.json` SPA rewrites.
+- Deploy from branch `deployment` (Render API + Vercel web).
+- API live: `https://archivex-dmxn.onrender.com` (health + public catalog). Website Vercel project for this repo not confirmed yet.
+
 ### 2026-09-11 (Phase 17) — Testing
 
 - Server: `authAccount.test.js` (profile/email/password/refresh/logout/delete); `phase17.test.js` (recently viewed + collection ownership/PATCH edges).
@@ -854,5 +869,4 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 10. Next documentation updates expected
 
-Phase 20 Deployment — follow [DEPLOYMENT.md](./DEPLOYMENT.md) on branch `deployment` (Render API + Vercel web).  
-Phase 21 Acceptance — MVP checklist.
+Close Phase 20 residual: confirm Vercel production for `client/` on branch `deployment`, set Render `CLIENT_ORIGIN`, then re-smoke [ACCEPTANCE.md](./ACCEPTANCE.md) §3.

@@ -2016,10 +2016,127 @@ button {
   max-width: 54rem;
 }
 
+.admin-form--brand {
+  max-width: 72rem;
+}
+
 .admin-form__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
   gap: 1.05rem 1.15rem;
+}
+
+.admin-form__brand-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 17rem);
+  gap: 1.35rem 1.5rem;
+  align-items: start;
+}
+
+.admin-form__brand-fields {
+  display: grid;
+  gap: 1.15rem;
+  min-width: 0;
+}
+
+.admin-logo-dropzone {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.admin-logo-dropzone__zone {
+  display: grid;
+  gap: 0.85rem;
+  justify-items: center;
+  align-content: center;
+  min-height: 14.5rem;
+  padding: 1.1rem 1rem 1.15rem;
+  border: 1.5px dashed color-mix(in srgb, var(--brass) 42%, var(--ink) 12%);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--white) 72%, var(--paper)) 0%,
+      color-mix(in srgb, var(--paper-mid) 55%, var(--blush)) 100%
+    );
+  transition:
+    border-color var(--duration-fast) var(--ease-museum),
+    background var(--duration-fast) var(--ease-museum),
+    box-shadow var(--duration-fast) var(--ease-museum);
+}
+
+.admin-logo-dropzone__zone.is-dragging {
+  border-color: color-mix(in srgb, var(--brass) 70%, var(--ink) 8%);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brass) 16%, transparent);
+  background: color-mix(in srgb, var(--brass) 8%, var(--white));
+}
+
+.admin-logo-dropzone__zone.has-preview {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--brass) 28%, var(--ink) 8%);
+}
+
+.admin-logo-dropzone__preview {
+  width: 7.5rem;
+  height: 7.5rem;
+  border-radius: 14px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--ink) 6%, var(--paper));
+  border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.admin-logo-dropzone__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: var(--white);
+}
+
+.admin-logo-dropzone__hint {
+  margin: 0;
+  padding: 0 0.5rem;
+  text-align: center;
+  font-family: var(--font-meta);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+  line-height: 1.45;
+}
+
+.admin-logo-dropzone__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 0.85rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-logo-dropzone__upload {
+  cursor: pointer;
+}
+
+.admin-logo-dropzone__upload.is-disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.admin-logo-dropzone__note {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 860px) {
+  .admin-form__brand-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-logo-dropzone__zone {
+    min-height: 11.5rem;
+  }
 }
 
 .admin-home-nav {

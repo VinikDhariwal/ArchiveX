@@ -48,6 +48,9 @@ Always deploy from the **`deployment`** branch so `main` / `vinik` stay free of 
 5. Deploy. Copy the service URL. Smoke:  
    `curl https://YOUR-API.onrender.com/api/v1/health`
 
+**Current production API (2026-09-11):** `https://archivex-dmxn.onrender.com`  
+Smoke: `curl https://archivex-dmxn.onrender.com/api/v1/health`
+
 **Free tier note:** Render may spin the API down when idle; the first request after sleep is slow.
 
 Optional: `render.yaml` at the repo root is a blueprint you can apply; still set secrets in the dashboard.
