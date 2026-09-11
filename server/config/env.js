@@ -33,11 +33,24 @@ function assertSecret(name, value) {
 
 const clientOrigins = parseOrigins(
   process.env.CLIENT_ORIGIN,
-  isProduction ? '' : 'http://localhost:5173'
+  isProduction ? 'https://archivex.vercel.app' : 'http://localhost:5173'
 );
 
-if (isProduction && !clientOrigins.length) {
-  throw new Error('[env] CLIENT_ORIGIN is required in production');
+if (isProduction && !String(process.env.CLIENT_ORIGIN || '').trim()) {
+  console.warn(
+    '[env] CLIENT_ORIGIN unset — using temporary https://archivex.vercel.app. Set your real Vercel URL after frontend deploy.'
+  );
+}
+
+const publicOrigin =
+  process.env.PUBLIC_ORIGIN ||
+  process.env.RENDER_EXTERNAL_URL ||
+  `http://localhost:${Number(process.env.PORT) || 5001}`;
+
+if (isProduction && !String(process.env.PUBLIC_ORIGIN || '').trim()) {
+  console.warn(
+    `[env] PUBLIC_ORIGIN unset — using ${publicOrigin}. Set it explicitly when you have a stable API URL.`
+  );
 }
 
 const env = {
@@ -59,7 +72,7 @@ const env = {
   ),
   jwtAccessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
-  publicOrigin: process.env.PUBLIC_ORIGIN || `http://localhost:${Number(process.env.PORT) || 5001}`,
+  publicOrigin,
   mediaMaxBytes: Number(process.env.MEDIA_MAX_BYTES) || 5 * 1024 * 1024,
   bcryptSaltRounds: Math.min(15, Math.max(10, Number(process.env.BCRYPT_SALT_ROUNDS) || 12)),
   rateLimitApiMax: Number(process.env.RATE_LIMIT_API_MAX) || 300,

@@ -852,5 +852,5 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 10. Next documentation updates expected
 
-Phase 20 Deployment — production env, hosting runbook.  
+Phase 20 Deployment — follow [DEPLOYMENT.md](./DEPLOYMENT.md) on branch `deployment` (Render API + Vercel web).  
 Phase 21 Acceptance — MVP checklist.
