@@ -14,9 +14,7 @@ export default function Footer() {
           </p>
         </div>
         <div>
-          <p className="meta" style={{ color: 'var(--brass)' }}>
-            Explore
-          </p>
+          <p className="meta site-footer__label">Explore</p>
           <p>
             <Link to="/discover">Archive</Link>
           </p>
@@ -29,17 +27,19 @@ export default function Footer() {
           <p>
             <Link to="/journal">Journal</Link>
           </p>
+          <p>
+            <Link to="/privacy">Privacy</Link>
+          </p>
         </div>
         <div>
-          <p className="meta" style={{ color: 'var(--brass)' }}>
-            Note
-          </p>
+          <p className="meta site-footer__label">Note</p>
           <p>{DEMO_DISCLAIMER}</p>
         </div>
       </div>
       <div className="site-footer__meta">
         <span>{clientConfig.appName}</span>
         <span>The Ivory Museum</span>
+        <span>Crafted by Vinik Dhariwal</span>
       </div>
     </footer>
   );

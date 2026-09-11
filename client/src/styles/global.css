@@ -26,11 +26,13 @@ body {
   margin: 0;
   min-width: 320px;
   color: var(--ink);
-  background:
+  /* Solid paper first — prevents white gutters if gradient/fixed attachment fails */
+  background-color: var(--paper);
+  background-image:
     radial-gradient(120% 80% at 10% -10%, color-mix(in srgb, var(--blush) 70%, transparent) 0%, transparent 45%),
     radial-gradient(90% 70% at 100% 0%, color-mix(in srgb, var(--brass-bright) 16%, transparent) 0%, transparent 40%),
     linear-gradient(180deg, var(--paper) 0%, var(--paper-mid) 55%, var(--paper) 100%);
-  background-attachment: fixed;
+  background-attachment: scroll;
   font-family: var(--font-ui);
   font-size: var(--text-base);
   line-height: var(--leading-body);
@@ -1476,10 +1478,7 @@ button {
   width: min(100%, 72rem);
 }
 
-/* Admin never shows the public site footer */
-.admin-shell .site-footer {
-  display: none;
-}
+/* Admin keeps the public footer so credit + privacy appear on every route */
 
 .auth-form {
   display: grid;

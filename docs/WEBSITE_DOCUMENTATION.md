@@ -332,7 +332,7 @@ App.jsx → global CSS → AppRoutes
 | Path | Page | Notes |
 | --- | --- | --- |
 | `/`, `/home` | `HomePage` | Config-driven Ivory Museum composition (`useGetHomeQuery`) |
-| `/discover` | `DiscoverPage` | Search + domain-aware filters + sort + masonry feed; shuffle seed persisted in URL + sessionStorage |
+| `/discover` | `DiscoverPage` | Search + domain-aware filters + sort + masonry infinite scroll; shuffle seed persisted in URL + sessionStorage |
 | `/products/:slug` | `ProductDetailPage` | Domain-aware detail: gallery, specs, rarity, market, related |
 | `/search` | `SearchPage` | Query-first archive search + recommendations |
 | `/brands` | `BrandsPage` | A–Z houses with domain filter + search |
@@ -341,6 +341,7 @@ App.jsx → global CSS → AppRoutes
 | `/categories/:slug` | `CategoryDetailPage` | Category chamber + approved objects |
 | `/journal` | `JournalPage` | Approved essay index |
 | `/journal/:slug` | `ArticleDetailPage` | Long-form essay + related objects |
+| `/privacy` | `PrivacyPolicyPage` | Public privacy notice; operator credit |
 | `/compare` | `ComparisonPage` | Domain-aware side-by-side compare (up to 4; public tray) |
 | `/login` | `LoginPage` | Collector log in; guest-gate notices; failed login stays generic (`INVALID_CREDENTIALS`) |
 | `/register` | `RegisterPage` | First/last name, unique username, email, password |
@@ -373,7 +374,7 @@ App.jsx → global CSS → AppRoutes
 | File | Role |
 | --- | --- |
 | `HomePage.jsx` | Loads `GET /home`; renders sections when enabled; demoData only if API fails |
-| `DiscoverPage.jsx` | URL-synced discovery; archive shuffle seed written to URL + `sessionStorage` so refresh keeps order |
+| `DiscoverPage.jsx` | URL-synced discovery; infinite scroll feed; archive shuffle seed written to URL + `sessionStorage` so refresh keeps order |
 | `LoginPage.jsx` / `RegisterPage.jsx` / `AccountPage.jsx` / `AccountSettingsPage.jsx` | Collector auth, profile desk, account settings |
 | `ContributePage.jsx` / `MySubmissionsPage.jsx` / `EditSubmissionPage.jsx` | Collector product proposals + submission desk |
 | `components/contribute/*` | Contribution form + URL-only image list |
@@ -386,6 +387,7 @@ App.jsx → global CSS → AppRoutes
 | `FavoritesPage.jsx` | Saved favorites + recently viewed |
 | `CollectionsPage.jsx` / `CollectionDetailPage.jsx` | Collector collections |
 | `JournalPage.jsx` | Editorial archive index |
+| `PrivacyPolicyPage.jsx` | Public privacy policy |
 | `ArticleDetailPage.jsx` | Journal essay detail |
 | `BrandsPage.jsx` / `BrandDetailPage.jsx` | Brand A–Z index + chamber |
 | `CategoriesPage.jsx` / `CategoryDetailPage.jsx` | Category taxonomy index + chamber |
@@ -444,7 +446,7 @@ App.jsx → global CSS → AppRoutes
 | --- | --- |
 | `AppShell.jsx` | Sticky header + main + footer + compare tray + favorite hydrator |
 | `DesktopHeader.jsx` / `MobileHeader.jsx` | Navigation |
-| `Footer.jsx` | Site footer |
+| `Footer.jsx` | Site footer on every AppShell + admin route — Explore, Privacy; meta strip `ArchiveX · The Ivory Museum · Built by Vinik Dhariwal` |
 | `Breadcrumbs.jsx` | Trail |
 | `Skeleton.jsx` / `PageSkeleton.jsx` | Loading placeholders |
 | `LoadingState.jsx` / `ErrorState.jsx` | Inline states |
