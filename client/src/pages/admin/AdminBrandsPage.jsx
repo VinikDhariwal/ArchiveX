@@ -5,6 +5,7 @@ import {
   useGetAdminBrandsQuery,
   useUpdateAdminBrandMutation,
 } from '../../app/api.js';
+import AdminLogoDropzone from '../../components/admin/AdminLogoDropzone.jsx';
 import MuseumSelect from '../../components/ui/MuseumSelect.jsx';
 import AdminPageShell from './AdminPageShell.jsx';
 
@@ -80,62 +81,75 @@ export default function AdminBrandsPage() {
       title="Brand management"
       lede="Create and edit houses in the archive directory."
     >
-      <form className="admin-form admin-form--compact" onSubmit={onSubmit}>
-        <div className="admin-form__grid">
-          <label>
-            <span className="meta">Name</span>
-            <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          </label>
-          <label>
-            <span className="meta">Slug</span>
-            <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
-          </label>
-          <label>
-            <span className="meta">Country</span>
-            <input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
-          </label>
-          <label>
-            <span className="meta">Founded</span>
-            <input
-              type="number"
-              value={form.foundedYear}
-              onChange={(e) => setForm({ ...form, foundedYear: e.target.value })}
-            />
-          </label>
-          <label>
-            <span className="meta">Domains</span>
-            <input
-              value={form.primaryDomains}
-              onChange={(e) => setForm({ ...form, primaryDomains: e.target.value })}
-              placeholder="car, motorcycle"
-            />
-          </label>
-          <label>
-            <span className="meta">Logo URL</span>
-            <input
-              value={form.logoUrl}
-              onChange={(e) => setForm({ ...form, logoUrl: e.target.value })}
-              placeholder="Upload via Media, then paste URL"
-            />
-          </label>
-          <label>
-            <span className="meta">Status</span>
-            <MuseumSelect
-              ariaLabel="Status"
-              value={form.status}
-              options={['active', 'inactive']}
-              onChange={(status) => setForm({ ...form, status })}
-            />
-          </label>
-        </div>
-        <label>
-          <span className="meta">Description</span>
-          <textarea
-            rows={2}
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
+      <form className="admin-form admin-form--brand" onSubmit={onSubmit}>
+        <div className="admin-form__brand-layout">
+          <div className="admin-form__brand-fields">
+            <div className="admin-form__grid">
+              <label>
+                <span className="meta">Name</span>
+                <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              </label>
+              <label>
+                <span className="meta">Slug</span>
+                <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
+              </label>
+              <label>
+                <span className="meta">Country</span>
+                <input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
+              </label>
+              <label>
+                <span className="meta">Founded</span>
+                <input
+                  type="number"
+                  value={form.foundedYear}
+                  onChange={(e) => setForm({ ...form, foundedYear: e.target.value })}
+                />
+              </label>
+              <label>
+                <span className="meta">Domains</span>
+                <input
+                  value={form.primaryDomains}
+                  onChange={(e) => setForm({ ...form, primaryDomains: e.target.value })}
+                  placeholder="car, motorcycle"
+                />
+              </label>
+              <label>
+                <span className="meta">Logo URL</span>
+                <input
+                  value={form.logoUrl}
+                  onChange={(e) => setForm({ ...form, logoUrl: e.target.value })}
+                  placeholder="Or paste a URL"
+                />
+              </label>
+              <label>
+                <span className="meta">Status</span>
+                <MuseumSelect
+                  ariaLabel="Status"
+                  value={form.status}
+                  options={['active', 'inactive']}
+                  onChange={(status) => setForm({ ...form, status })}
+                />
+              </label>
+            </div>
+            <label>
+              <span className="meta">Description</span>
+              <textarea
+                rows={2}
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              />
+            </label>
+          </div>
+
+          <AdminLogoDropzone
+            url={form.logoUrl}
+            alt={form.name ? `${form.name} logo` : 'Brand logo'}
+            disabled={saving}
+            onUrlChange={(logoUrl) => setForm((prev) => ({ ...prev, logoUrl }))}
+            onError={setError}
           />
-        </label>
+        </div>
+
         {error ? <p className="auth-form__error">{error}</p> : null}
         <div className="admin-row-actions">
           <button type="submit" className="btn" disabled={saving}>

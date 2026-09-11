@@ -12,7 +12,8 @@ Living reference for libraries, modules, routes, and website behavior (keep upda
 
 REST API reference (Phase 16): [docs/API.md](docs/API.md) · OpenAPI: [docs/openapi.json](docs/openapi.json) (`GET /api/v1/openapi.json`).
 
-**Production deploy (Render API + Vercel web):** [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — use the `deployment` branch.
+**Production deploy (Render API + Vercel web):** [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — use the `deployment` branch.  
+**MVP acceptance:** [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md). API: `https://archivex-dmxn.onrender.com`.
 
 **Staff home editor:** `/admin/home` (requires staff login) — edit every public home section. Public config: `GET /api/v1/home`.
 
@@ -134,8 +135,8 @@ Never commit real `.env` files or secrets. Do not hardcode production hosts, cat
 - Phase 17: Testing — complete (broader server/client suites via `npm test`)
 - Phase 18: Security hardening — complete (rate limits, CORS allowlist, input sanitize, bcrypt password digests + select:false, login anti-enumeration)
 - Phase 19: Performance — complete (soft-delete indexes, thinner list/shuffle queries, public Cache-Control, RTK cache, font budget)
-- Phase 20: Deployment — in progress on branch `deployment` (Render + Vercel runbook)
-- Later phases: acceptance — not started
+- Phase 20: Deployment — API live on Render (`archivex-dmxn`); website Vercel wiring still open (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md))
+- Phase 21: Acceptance — complete ([docs/ACCEPTANCE.md](docs/ACCEPTANCE.md); production website residual noted)
 
 ## Phase 4 data model notes
 
