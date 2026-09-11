@@ -1,7 +1,7 @@
 # ArchiveX — Living Website Documentation
 
 **Status:** Living document — update this file whenever libraries, routes, components, APIs, or product behavior change.  
-**Last updated:** 2026-09-11 (Clarity + signup pass)
+**Last updated:** 2026-09-11 (Phase 16 API documentation)
 **Companion rules:** [PROJECT_RULES.md](./PROJECT_RULES.md) (product/tech contract; do not replace it)  
 **Setup guide:** [../README.md](../README.md)
 
@@ -14,6 +14,7 @@
 | Add a route, model, controller, service, middleware | §4 Server |
 | Change env vars | §7 Environment |
 | Finish a phase or change public UX | §2 Current state + §9 Changelog |
+| Change HTTP API contract | `docs/openapi.json` + `docs/API.md` |
 | Change design tokens / major CSS patterns | §6 Styles |
 
 ---
@@ -53,6 +54,7 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 13 Admin CMS | Done — `/admin` CRUD, approvals, users, audit |
 | Phase 14 Media | Done — Atlas GridFS uploads + media library |
 | Phase 15 Analytics | Done — staff `/admin/analytics` views, favorites, catalog health |
+| Phase 16 API documentation | Done — OpenAPI 3.0 (`docs/openapi.json`), `docs/API.md`, `GET /api/v1/openapi.json` |
 
 **Migrate / re-seed Atlas**
 
@@ -65,6 +67,8 @@ npm run seed --prefix server
 | Method | Path | Notes |
 | --- | --- | --- |
 | GET | `/api/v1/health` | Liveness + DB status |
+| GET | `/api/v1/docs` | Docs index (links to OpenAPI) |
+| GET | `/api/v1/openapi.json` | OpenAPI 3.0 machine document |
 | GET | `/api/v1/products` | Approved only; search/filters/sort/pagination (see Phase 7) |
 | GET | `/api/v1/products/filters/schema` | Domain-aware filter metadata for Discover UI |
 | GET | `/api/v1/products/:slug` | Approved only; includes specs, rarity, market signals |
@@ -178,6 +182,7 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | --- | --- | --- |
 | `routes/index.js` | mounts routers | `/api/v1` |
 | `routes/healthRoutes.js` | `GET /health` | Liveness |
+| `routes/docsRoutes.js` | `GET /docs`, `GET /openapi.json` | Phase 16 API documentation |
 | `controllers/healthController.js` | `getHealth` | JSON OK + DB configured/connected flags |
 
 ### 4.4 Middleware
@@ -250,6 +255,7 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `tests/admin.test.js` | Phase 13 admin auth gate, approvals, CRUD, audit |
 | `tests/media.test.js` | Phase 14 upload + remote URL / GridFS media library |
 | `tests/analytics.test.js` | Phase 15 staff analytics aggregates |
+| `tests/openapi.test.js` | Phase 16 OpenAPI document + public docs routes |
 | `testSupport/http.js` | Ephemeral listen + fetch helper |
 
 ### 4.7 Domain constants (server)
@@ -555,6 +561,13 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 9. Changelog (append newest on top)
 
+### 2026-09-11 (Phase 16) — API documentation
+
+- Added OpenAPI 3.0.3 machine document: `docs/openapi.json` (public + collector + admin surfaces).
+- Human reference: `docs/API.md` (conventions, auth, endpoint map, maintenance).
+- Served live: `GET /api/v1/openapi.json` (raw OpenAPI JSON) and `GET /api/v1/docs` (index).
+- Test: `server/tests/openapi.test.js`.
+
 ### 2026-09-11 — Account settings + uniform profile actions
 
 - Profile desk actions all use soft buttons (no mixed ink/soft CTAs); Edit profile and Delete account live under Settings.
@@ -734,4 +747,4 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 10. Next documentation updates expected
 
-Phase 16 API documentation — OpenAPI/reference for public + admin endpoints.
+Phase 17 Testing — broaden coverage and CI readiness.
