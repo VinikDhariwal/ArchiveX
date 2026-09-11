@@ -1,7 +1,7 @@
 # ArchiveX — Living Website Documentation
 
 **Status:** Living document — update this file whenever libraries, routes, components, APIs, or product behavior change.  
-**Last updated:** 2026-09-11 (Collector contributions)
+**Last updated:** 2026-09-11 (Home page CMS)
 **Companion rules:** [PROJECT_RULES.md](./PROJECT_RULES.md) (product/tech contract; do not replace it)  
 **Setup guide:** [../README.md](../README.md)
 
@@ -37,7 +37,7 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Area | State |
 | --- | --- |
 | Phase 0–1 foundation | Done (Express health, Vite/React, Redux, env, MVC folders) |
-| Phase 2–3 Ivory Museum UI + routing shells | Done (demo catalog still drives public UI) |
+| Phase 2–3 Ivory Museum UI + routing shells | Done (home copy now CMS-backed; demoData is offline fallback only) |
 | MongoDB Atlas connection | Done |
 | Phase 4 Mongoose models | Done — User, Brand, Category, Tag, Product + controlled specs |
 | Phase 4 seed → Atlas | Done — 16 approved products (6 cars, 6 motorcycles, 4 watches) |
@@ -51,12 +51,13 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 10 Journal | Done — Article model, public `/articles`, `/journal` pages, product journal links |
 | Phase 11 Brands / categories | Done — live A–Z brands + category taxonomy; expanded seed houses |
 | Phase 12 Search / recommendations | Done — `/search` page, recommended products API, relevance results |
-| Phase 13 Admin CMS | Done — `/admin` CRUD, approvals, users, audit |
+| Phase 13 Admin CMS | Done — `/admin` CRUD, approvals, users, audit, **Home page editor** |
 | Phase 14 Media | Done — Atlas GridFS uploads + media library |
 | Phase 15 Analytics | Done — staff `/admin/analytics` views, favorites, catalog health |
 | Phase 16 API documentation | Done — OpenAPI 3.0 (`docs/openapi.json`), `docs/API.md`, `GET /api/v1/openapi.json` |
 | Phase 17 Testing | Done — auth account + collector edge suites, client Vitest smoke (`npm test`); QA hardening suites added |
 | Collector contributions | Done — `/contribute` + `/account/submissions`, ownership-scoped `/contributions/products` APIs, admin submitter display |
+| Home page CMS | Done — singleton `HomePageConfig`; public `GET /home`; staff `GET|PATCH /admin/home`; `/admin/home` editor |
 
 **Migrate / re-seed Atlas**
 
@@ -84,6 +85,7 @@ npm run seed --prefix server
 | GET | `/api/v1/categories/:slug` | Active category chamber payload + `productCount` |
 | GET | `/api/v1/articles` | Approved journal essays; optional `type`, `domain`, `featured` |
 | GET | `/api/v1/articles/:slug` | Approved essay detail + related products |
+| GET | `/api/v1/home` | Public home configuration (resolved plates, domains, featured slots, editorial) |
 | POST | `/api/v1/auth/register` | Public collector signup — `firstName`, `lastName`, `username` (unique), `email`, `password`; always role `user`; `name` derived as display |
 | POST | `/api/v1/auth/login` | Access + refresh; `ACCOUNT_NOT_FOUND` (404) if email missing; `staffOnly` rejects collectors |
 | POST | `/api/v1/auth/refresh` | Rotate tokens via refresh cookie |
@@ -101,6 +103,7 @@ npm run seed --prefix server
 | GET/POST/PATCH/DELETE | `/api/v1/admin/brands…` | Brand CMS |
 | GET/POST/PATCH/DELETE | `/api/v1/admin/categories…` | Category CMS |
 | GET/POST/PATCH/DELETE | `/api/v1/admin/articles…` | Journal CMS |
+| GET/PATCH | `/api/v1/admin/home` | Home page CMS singleton (copy, CTAs, product/article pins, section visibility) |
 | GET/POST/PATCH | `/api/v1/admin/users…` | Create users + role/status (admin+) |
 | GET | `/api/v1/admin/audit` | Thin audit log |
 | GET | `/api/v1/admin/media` | Media library list |
@@ -108,7 +111,7 @@ npm run seed --prefix server
 | POST | `/api/v1/admin/media/url` | Register remote image URL |
 | DELETE | `/api/v1/admin/media/:id` | Soft-delete media (admin+) |
 
-**All durable data is on MongoDB Atlas** (`archivex`): users/admin, products, brands, categories, articles, favorites, collections, audit, media metadata, and uploaded image bytes (GridFS bucket `archivex_media`). There is no local MongoDB and no local upload disk. Public image URLs: `/api/v1/media/files/:id`. Remote Unsplash/CDN URLs stay as external links stored in Atlas.
+**All durable data is on MongoDB Atlas** (`archivex`): users/admin, products, brands, categories, articles, **home page config**, favorites, collections, audit, media metadata, and uploaded image bytes (GridFS bucket `archivex_media`). There is no local MongoDB and no local upload disk. Public image URLs: `/api/v1/media/files/:id`. Remote Unsplash/CDN URLs stay as external links stored in Atlas.
 
 **Seed admin credentials** (password for `og@archivex.com`) live only in gitignored `server/.env` / `LOCAL_CREDENTIALS.md` — the account itself is in Atlas. Public registration is closed.
 
@@ -218,6 +221,7 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `models/Favorite.js` | User ↔ product favorites |
 | `models/Collection.js` | Collector collections |
 | `models/Article.js` | Journal essays (status-gated, related products) |
+| `models/HomePageConfig.js` | Singleton home page CMS document |
 | `models/AuditLog.js` | Thin admin audit trail |
 | `models/MediaAsset.js` | Uploaded / registered media library assets |
 | `models/shared/productSubdocuments.js` | `buildSpecifications`, `assertValidSpecifications` |
@@ -226,6 +230,8 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `services/recommendationService.js` | Related objects + Search recommendations; product journal via articleService |
 | `services/articleService.js` | Public article list/detail + product journal links |
 | `services/adminService.js` | Admin CMS CRUD, approvals, user updates (`createAdminUser` allocates username) |
+| `services/homeService.js` | Home page config get/create/update + public resolve |
+| `services/homeDefaults.js` | Default museum copy for HomePageConfig seed |
 | `services/contributionService.js` | Collector product submit / list / edit / withdraw (ownership-scoped; always pending) |
 | `services/authService.js` | `register`, `login`, `serializeUser`, `allocateUsername`, refresh/logout/me |
 | `services/auditService.js` | `recordAudit` / `listAuditLogs` |
@@ -240,14 +246,16 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `controllers/categoryController.js` | Thin category handlers |
 | `controllers/articleController.js` | Thin article handlers |
 | `controllers/adminController.js` | Thin admin CMS handlers |
+| `controllers/homeController.js` | Public + admin home config handlers |
 | `controllers/contributionController.js` | Collector contribution handlers |
 | `controllers/mediaController.js` | Thin media upload/list handlers |
 | `routes/productRoutes.js` | `/products` |
 | `routes/brandRoutes.js` | `/brands` |
 | `routes/categoryRoutes.js` | `/categories` |
 | `routes/articleRoutes.js` | `/articles` |
+| `routes/homeRoutes.js` | `/home` (public resolved config) |
 | `routes/contributionRoutes.js` | `/contributions` (auth) |
-| `routes/adminRoutes.js` | `/admin` (staff-gated) |
+| `routes/adminRoutes.js` | `/admin` (staff-gated; includes `/admin/home`) |
 | `validators/` | Empty |
 | `tests/health.test.js` | Health endpoint |
 | `tests/models.test.js` | Spec validation + model CRUD (memory Mongo) |
@@ -260,6 +268,7 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `tests/brandsCategories.test.js` | Phase 11 brands/categories filters, counts, approval gates |
 | `tests/searchRecommend.test.js` | Phase 12 search + recommended products |
 | `tests/admin.test.js` | Phase 13 admin auth gate, approvals, CRUD, audit |
+| `tests/home.test.js` | Home CMS get/patch + public resolve |
 | `tests/media.test.js` | Phase 14 upload + remote URL / GridFS media library |
 | `tests/analytics.test.js` | Phase 15 staff analytics aggregates |
 | `tests/openapi.test.js` | Phase 16 OpenAPI document + public docs routes |
@@ -297,7 +306,7 @@ App.jsx → global CSS → AppRoutes
 | --- | --- | --- |
 | `app/store.js` | `store` | RTK store |
 | `app/rootReducer.js` | default | Combines `api` + `favorites` |
-| `app/api.js` | `api`, `useGetHealthQuery` | RTK Query; **health only** today; tagTypes ready for Product/Brand/… |
+| `app/api.js` | `api`, hooks | RTK Query base + all public/collector/admin endpoints including home CMS |
 | `features/favorites/favoriteSlice.js` | `toggleFavorite`, selectors | Local favorite IDs (UI wiring light) |
 | `config/clientConfig.js` | `clientConfig` | `VITE_*` → name, tagline, `apiBaseUrl` |
 
@@ -320,8 +329,8 @@ App.jsx → global CSS → AppRoutes
 
 | Path | Page | Notes |
 | --- | --- | --- |
-| `/`, `/home` | `HomePage` | Full Ivory Museum composition |
-| `/discover` | `DiscoverPage` | Search + domain-aware filters + sort + masonry feed |
+| `/`, `/home` | `HomePage` | Config-driven Ivory Museum composition (`useGetHomeQuery`) |
+| `/discover` | `DiscoverPage` | Search + domain-aware filters + sort + masonry feed; shuffle seed persisted in URL + sessionStorage |
 | `/products/:slug` | `ProductDetailPage` | Domain-aware detail: gallery, specs, rarity, market, related |
 | `/search` | `SearchPage` | Query-first archive search + recommendations |
 | `/brands` | `BrandsPage` | A–Z houses with domain filter + search |
@@ -343,6 +352,7 @@ App.jsx → global CSS → AppRoutes
 | `/collections/:id` | `CollectionDetailPage` | Collection detail / manage objects |
 | `/admin/login` | `AdminLoginPage` | Staff-only sign in (no public staff signup) |
 | `/admin` | `AdminOverviewPage` | CMS overview counts + shortcuts |
+| `/admin/home` | `AdminHomePage` | Edit all home sections (hero → close): copy, CTAs, pins, visibility |
 | `/admin/approvals` | `AdminApprovalsPage` | Pending product queue |
 | `/admin/products` | `AdminProductsPage` | Catalog list + status actions |
 | `/admin/products/new` · `/admin/products/:id/edit` | `AdminProductFormPage` | Create / edit product |
@@ -360,14 +370,15 @@ App.jsx → global CSS → AppRoutes
 
 | File | Role |
 | --- | --- |
-| `HomePage.jsx` | Hero → marquee → promise → chambers → signatures → editorial → close |
-| `DiscoverPage.jsx` | URL-synced discovery: search, filters, sort, pagination, masonry |
+| `HomePage.jsx` | Loads `GET /home`; renders sections when enabled; demoData only if API fails |
+| `DiscoverPage.jsx` | URL-synced discovery; archive shuffle seed written to URL + `sessionStorage` so refresh keeps order |
 | `LoginPage.jsx` / `RegisterPage.jsx` / `AccountPage.jsx` / `AccountSettingsPage.jsx` | Collector auth, profile desk, account settings |
 | `ContributePage.jsx` / `MySubmissionsPage.jsx` / `EditSubmissionPage.jsx` | Collector product proposals + submission desk |
 | `components/contribute/*` | Contribution form + URL-only image list |
 | `components/layout/AccountMenu.jsx` | Guest **Log in** button; signed-in icon menu (Profile, Settings, Contribute, My submissions, Admin, Log out) |
 | `utils/formatProductType.js` | Humanize `car`/`motorcycle`/`watch` → Cars/Motorcycles/Watches |
 | `pages/admin/AdminLoginPage.jsx` | Staff-only sign in (`/admin/login`); no public staff registration |
+| `pages/admin/AdminHomePage.jsx` | Sectioned home CMS form (product/article pickers, enable toggles) |
 | `ProductDetailPage.jsx` | Domain-aware product intelligence page |
 | `ComparisonPage.jsx` | Wide compare table from tray ids |
 | `FavoritesPage.jsx` | Saved favorites + recently viewed |
@@ -377,7 +388,7 @@ App.jsx → global CSS → AppRoutes
 | `BrandsPage.jsx` / `BrandDetailPage.jsx` | Brand A–Z index + chamber |
 | `CategoriesPage.jsx` / `CategoryDetailPage.jsx` | Category taxonomy index + chamber |
 | `SearchPage.jsx` | Query-first search + suggested recommendations |
-| `pages/admin/*` | Admin CMS: overview, products, approvals, brands, categories, articles, media, users, audit |
+| `pages/admin/*` | Admin CMS: overview, **home**, products, approvals, brands, categories, articles, media, users, audit |
 | `RouteShellPage.jsx` | Wide placeholder for unfinished routes |
 | `NotFoundPage.jsx` / `UnauthorizedPage.jsx` / `ErrorPage.jsx` / `LoadingPage.jsx` | System states |
 
@@ -402,7 +413,7 @@ App.jsx → global CSS → AppRoutes
 | `components/product/RelatedObjects.jsx` | Related approved plates |
 | `components/product/ProductJournal.jsx` | Linked essays on product detail |
 | `components/archive/ProductGallery.jsx` | Thumbs, prev/next, keyboard, accessible lightbox |
-| `components/compare/ComparisonTray.jsx` | Fixed bottom tray (max 4) |
+| `components/compare/ComparisonTray.jsx` | Compact compare dock (hidden when empty; notice at 1; full tray at 2+) |
 | `components/compare/ComparisonTable.jsx` | Domain-aware compare sections |
 | `components/collector/FavoriteHydrator.jsx` | Syncs server favorites into local slice |
 | `components/collector/CreateCollectionModal.jsx` | Create collection dialog |
@@ -412,16 +423,16 @@ App.jsx → global CSS → AppRoutes
 
 | File | Role |
 | --- | --- |
-| `ArchiveHero.jsx` | Autoplay plate carousel, orbit peeks, CTAs; navigates to product on plate click |
-| `BrandMarquee.jsx` | Endless brand ribbon with links to brand chambers |
+| `ArchiveHero.jsx` | Full-bleed plate carousel from home config (or demo plates); brand/headline/lede/CTA from config |
+| `BrandMarquee.jsx` | Continuous brand ribbon; label/CTA from home config (`The brands` default); speed scales with list length |
 | `BrandIndex.jsx` | A–Z brand tile grid linking to `/brands/:slug` |
-| `ArchivePromise.jsx` | Mission + quote |
-| `DomainPaths.jsx` | Three **bordered chamber cards** (Cars / Motorcycles / Watches) |
-| `FeaturedObject.jsx` | Signature spread in **same soft bordered box**; opens Details modal only (no “View” link) |
-| `EditorialStory.jsx` | Journal teaser |
-| `HomeClose.jsx` | Discover / Journal closing paths |
+| `ArchivePromise.jsx` | Mission + quote (config-driven) |
+| `DomainPaths.jsx` | Three **bordered chamber cards**; head copy + chambers from home config |
+| `FeaturedObject.jsx` | Signature spread in soft bordered plate; eyebrow + product from home featured slots |
+| `EditorialStory.jsx` | Journal teaser from home config / pinned article |
+| `HomeClose.jsx` | Closing paths from home config |
 | `JournalPreview.jsx` | Essay card grid (links to `/journal/:slug`) |
-| `ObjectCard.jsx` | Discover card; Details + Compare; links to `/products/:slug` |
+| `ObjectCard.jsx` | Discover card with bordered plate; View object + quiet Compare |
 | `ObjectDetailModal.jsx` | Legacy portal details dialog (superseded by product page) |
 | `MuseumFrame.jsx` | Subtle museum media frame |
 
@@ -446,24 +457,36 @@ App.jsx → global CSS → AppRoutes
 | `features/discover/filterSlice.js` | Mobile filter drawer + draft search query |
 | `features/favorites/favoriteSlice.js` | Favorite ids hydrated from `/favorites` when signed in |
 | `features/compare/compareSlice.js` | Local compare tray ids (max 4) |
-| `features/products/productApi.js` | Discover URL ↔ query helpers |
+| `features/products/productApi.js` | Discover URL ↔ query helpers; shuffle seed read/store (`sessionStorage`) |
 | `features/products/productSelectors.js` | Product list selectors |
-| `app/api.js` | RTK Query: products, auth, favorites, collections, recently viewed, admin CMS |
+| `app/api.js` | RTK Query: products, auth, favorites, collections, **`getHome` / `getAdminHome` / `updateAdminHome`**, admin CMS |
 
 ### 5.12 Demo data (`data/demoData.js`)
 
-**Purpose:** Hero plates and editorial copy still local until CMS. Catalog reads from Atlas APIs.
+**Purpose:** Offline / API-failure fallback for home copy and hero plates. Live home is driven by Atlas `HomePageConfig` via `GET /home`. Catalog objects always come from product APIs.
 
 | Export | Purpose |
 | --- | --- |
-| `hero` | Hero copy + `plates[]` carousel objects |
-| `archivePromise` | Promise section copy |
-| `domainPaths` | Chamber cards (car / motorcycle / watch) |
+| `hero` | Fallback hero copy + `plates[]` if home API fails or returns no plates |
+| `archivePromise` | Fallback promise section |
+| `domainPaths` | Fallback chamber cards |
 | `objects` | Legacy demo catalog (mostly superseded by API) |
-| `featuredCarId` / `featuredMotorcycleId` | Home signature picks (demo ids) |
-| `editorialStory` / `homeClose` | Home narrative blocks |
+| `featuredCarId` / `featuredMotorcycleId` | Legacy demo signature ids |
+| `editorialStory` / `homeClose` | Fallback home narrative blocks |
 | `brands` / `journalArticles` / `navLinks` | Supporting lists |
 | `DEMO_DISCLAIMER` | Non-claim disclaimer |
+
+### 5.13 Home page CMS (staff)
+
+| Surface | Behavior |
+| --- | --- |
+| `/admin/home` | Sectioned editor: Hero, Brands, Promise, Domains, Signatures, Featured, Editorial, Close |
+| Per section | **Visible on home** toggle + text/CTA fields |
+| Hero plates | Up to 5 product pins; empty → auto featured cars/motorcycles (+ fallback plates) |
+| Domains | Per-chamber label/title/summary/href + optional image product or URL |
+| Featured slots | Product pin or fallback type; eyebrow; flipped layout |
+| Editorial | Optional pinned approved article; CTA + fallback copy/image |
+| Public resolve | `GET /home` hydrates products/articles; disabled sections flagged `enabled: false` (client hides them) |
 ---
 
 ## 6. Styles
@@ -471,8 +494,8 @@ App.jsx → global CSS → AppRoutes
 | File | Covers |
 | --- | --- |
 | `styles/tokens.css` | Design tokens (colors, type, space, motion) — **source of truth for hex values** |
-| `styles/global.css` | Reset, chrome, typography, CTA ladder (ink `.btn`, soft `.btn--soft`, ghost), auth plate/inputs, account identity |
-| `styles/archive.css` | Header, hero, chambers, Discover, object cards (lifted borders), product detail |
+| `styles/global.css` | Reset, chrome, typography, CTA ladder, auth, account, admin shell + **admin home CMS** form |
+| `styles/archive.css` | Header, full-bleed hero, brand marquee, chambers, Discover, bordered object/featured cards, product detail |
 
 ### Clarity rules (2026-09-11)
 
@@ -530,12 +553,15 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ### 6.4 Design notes in force
 
-- Soft bordered “chamber” card language reused for signature featured objects
+- Soft bordered “chamber” card language on domain paths, object cards, and signature featured objects
+- Home hero: full-bleed museum plate (config-driven); brand mark is a first-viewport signal
+- Brand marquee: continuous scroll; duration scales with brand count; hover pauses; label “The brands”
 - Discover: fixed-height workspace; filters rail + feed scroll independently; page header pinned above chamber
+- Discover archive shuffle: seed in URL (`?sort=shuffle&seed=N`) + `sessionStorage`; API defaults missing seed to `1` (never `Date.now()`)
 - Discover masonry: avoid `transform` on cards (breaks CSS columns)
+- Compare tray: null when empty; compact at 1 item; full tray at 2+
 - No hover photo-swap that breaks title↔image binding
-- Details modal replaces Compare/Save on public feed cards (collector actions Phase 9)
-- `useSectionReveal` observes late-mounted `[data-reveal]` nodes (API-driven homepage signatures)
+- `useSectionReveal` observes late-mounted `[data-reveal]` nodes
 ---
 
 ## 7. Environment variables
@@ -566,19 +592,33 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 8. Website user journeys (as built)
 
-1. **Land on Home** — hero plates, brand marquee, promise, domain chambers, two signature objects (Details), editorial close  
+1. **Land on Home** — config-driven hero plates, brand marquee, promise, domain chambers, signature objects, editorial, close  
 2. **Enter a chamber** — domain path links into Discover filtered by domain  
-3. **Discover feed** — masonry of cars/motorcycles/watches; open Details modal  
+3. **Discover feed** — masonry of cars/motorcycles/watches; stable shuffle until Reshuffle; open product pages  
 4. **Product page** — `/products/:slug` gallery + identity, overview, why it matters, specs, rarity, market signals, related, linked journal essays; records a view  
 5. **Journal** — `/journal` essay index; `/journal/:slug` long-form + related objects  
 6. **Brands / Categories** — A–Z houses and taxonomy chambers with linked approved objects  
 7. **Search** — `/search` query-first results with suggested recommendations  
-8. **Admin** — `/admin` CMS: approvals, products, brands, categories, articles, users, audit  
+8. **Admin** — `/admin` CMS including **Home**, approvals, products, brands, categories, articles, media, users, audit  
 9. **API health** — `GET /api/v1/health` (+ Mongo connected when URI set)
 
 ---
 
 ## 9. Changelog (append newest on top)
+
+### 2026-09-11 — Home page CMS
+
+- Singleton `HomePageConfig` with public `GET /home` and staff `GET|PATCH /admin/home`.
+- Admin **Home** editor (`/admin/home`) for every home section: copy, CTAs, product/article pins, section visibility.
+- Public `HomePage` consumes resolved config (demoData only as offline fallback).
+- OpenAPI paths `/home` + `/admin/home`; suite `server/tests/home.test.js`.
+
+### 2026-09-11 — Home / Discover calm UI pass
+
+- Home hero: full-bleed museum plate; cars/motorcycles preferred in plate pool.
+- Brand marquee: continuous scroll (duration ~3.2s × brand count, min 90s); label **The brands**; soft pill “View all brands”.
+- Featured/object cards keep soft bordered plate language; compare tray quieter when empty/low count.
+- Discover archive shuffle: seed persisted in URL + `sessionStorage`; server missing-seed fallback is `1` (not `Date.now()`).
 
 ### 2026-09-11 — Collector product submission
 

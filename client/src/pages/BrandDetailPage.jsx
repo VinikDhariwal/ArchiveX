@@ -51,7 +51,7 @@ export default function BrandDetailPage() {
           </header>
           {isError ? <ErrorState message="Could not load this brand." onRetry={refetch} /> : null}
           <p className="route-shell__actions">
-            <Link className="btn btn--soft" to="/brands">
+            <Link className="link-cta" to="/brands">
               Back to brands
             </Link>
           </p>
@@ -87,11 +87,11 @@ export default function BrandDetailPage() {
 
         <div className="taxonomy-page__actions">
           {domains.map((domain) => (
-            <Link key={domain} className="btn btn--soft" to={`/discover?domain=${domain}`}>
+            <Link key={domain} className="btn" to={`/discover?domain=${domain}`}>
               Discover {domain}
             </Link>
           ))}
-          <Link className="btn btn--soft" to="/brands">
+          <Link className="link-cta link-cta--muted" to="/brands">
             All brands
           </Link>
         </div>
@@ -104,8 +104,12 @@ export default function BrandDetailPage() {
           {productsError ? <ErrorState message="Could not load objects for this brand." /> : null}
           {!productsLoading && !productsError && !products.length ? (
             <div className="collector-empty">
-              <p>No objects are catalogued under this brand yet.</p>
-              <Link className="btn btn--soft" to="/discover">
+              <p>
+                The house is indexed.
+                <br />
+                Its objects have yet to enter the archive.
+              </p>
+              <Link className="link-cta" to="/discover">
                 Browse discover
               </Link>
             </div>

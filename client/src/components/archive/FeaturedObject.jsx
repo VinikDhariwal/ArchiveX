@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom';
-import { getPrimaryImage, getPublisher } from '../../utils/archiveObject.js';
+import { getPrimaryImage } from '../../utils/archiveObject.js';
 import { formatProductType } from '../../utils/formatProductType.js';
 
 export default function FeaturedObject({ object, eyebrow, sectionId, flipped = false }) {
   const primary = getPrimaryImage(object);
-  const publisher = getPublisher(object);
   const href = object.slug ? `/products/${object.slug}` : '/discover';
 
   if (!primary) return null;
@@ -41,12 +40,11 @@ export default function FeaturedObject({ object, eyebrow, sectionId, flipped = f
           <span>{object.brand}</span>
           <span>{formatProductType(object.productType)}</span>
           <span>{object.year}</span>
-          <span className="rarity">{object.rarity}</span>
-          <span>Published by {publisher}</span>
+          {object.rarity ? <span className="rarity">{object.rarity}</span> : null}
         </div>
         <div className="featured-object__actions">
-          <Link className="btn" to={href}>
-            Details
+          <Link className="link-cta" to={href}>
+            View object →
           </Link>
         </div>
       </div>

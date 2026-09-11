@@ -45,6 +45,29 @@ const URL_KEYS = [
   'seed',
 ];
 
+const SHUFFLE_SEED_KEY = 'archivex_discover_shuffle_seed';
+
+export function readStoredShuffleSeed() {
+  try {
+    const raw = sessionStorage.getItem(SHUFFLE_SEED_KEY);
+    const n = Number(raw);
+    if (Number.isFinite(n) && n > 0) return String(Math.floor(n));
+  } catch {
+    /* private mode / SSR */
+  }
+  return '1';
+}
+
+export function storeShuffleSeed(seed) {
+  const n = Number(seed);
+  if (!Number.isFinite(n) || n < 1) return;
+  try {
+    sessionStorage.setItem(SHUFFLE_SEED_KEY, String(Math.floor(n)));
+  } catch {
+    /* ignore */
+  }
+}
+
 export function parseDiscoverSearchParams(searchParams) {
   const next = {};
   for (const key of URL_KEYS) {
@@ -55,7 +78,7 @@ export function parseDiscoverSearchParams(searchParams) {
   if (!next.domain) next.domain = 'all';
   if (!next.sort) next.sort = next.q ? 'relevance' : 'shuffle';
   if (!next.page) next.page = '1';
-  if (next.sort === 'shuffle' && !next.seed) next.seed = '1';
+  if (next.sort === 'shuffle' && !next.seed) next.seed = readStoredShuffleSeed();
 
   return next;
 }
@@ -75,7 +98,7 @@ export function discoverParamsToSearchParams(params) {
 
   if (params.sort === 'shuffle') {
     entries.sort = 'shuffle';
-    entries.seed = String(params.seed || '1');
+    entries.seed = String(params.seed || readStoredShuffleSeed());
   }
 
   return entries;

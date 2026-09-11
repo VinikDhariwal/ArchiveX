@@ -45,7 +45,7 @@ export default function CategoriesPage() {
               secondary chamber.
             </p>
           </div>
-          <Link className="btn btn--soft" to="/brands">
+          <Link className="link-cta link-cta--muted" to="/brands">
             View brands
           </Link>
         </header>

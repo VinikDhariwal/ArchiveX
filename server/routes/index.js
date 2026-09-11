@@ -11,12 +11,14 @@ import collectionRoutes from './collectionRoutes.js';
 import contributionRoutes from './contributionRoutes.js';
 import adminRoutes from './adminRoutes.js';
 import mediaRoutes from './mediaRoutes.js';
+import homeRoutes from './homeRoutes.js';
 
 const router = Router();
 
 router.use(healthRoutes);
 router.use(docsRoutes);
 router.use('/auth', authRoutes);
+router.use('/home', homeRoutes);
 router.use('/products', productRoutes);
 router.use('/brands', brandRoutes);
 router.use('/categories', categoryRoutes);

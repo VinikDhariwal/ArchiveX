@@ -51,7 +51,7 @@ export default function CategoryDetailPage() {
           </header>
           {isError ? <ErrorState message="Could not load this category." onRetry={refetch} /> : null}
           <p className="route-shell__actions">
-            <Link className="btn btn--soft" to="/categories">
+            <Link className="link-cta" to="/categories">
               Back to categories
             </Link>
           </p>
@@ -85,10 +85,10 @@ export default function CategoryDetailPage() {
         </header>
 
         <div className="taxonomy-page__actions">
-          <Link className="btn btn--soft" to={`/discover?domain=${category.productType}`}>
+          <Link className="btn" to={`/discover?domain=${category.productType}`}>
             Discover {category.productType}
           </Link>
-          <Link className="btn btn--soft" to="/categories">
+          <Link className="link-cta link-cta--muted" to="/categories">
             All categories
           </Link>
         </div>
@@ -102,7 +102,7 @@ export default function CategoryDetailPage() {
           {!productsLoading && !productsError && !products.length ? (
             <div className="collector-empty">
               <p>No objects are catalogued in this category yet.</p>
-              <Link className="btn btn--soft" to="/discover">
+              <Link className="link-cta" to="/discover">
                 Browse discover
               </Link>
             </div>

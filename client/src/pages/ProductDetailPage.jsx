@@ -81,7 +81,7 @@ export default function ProductDetailPage() {
           </header>
           {isError ? <ErrorState message="Could not load this object." onRetry={refetch} /> : null}
           <p className="route-shell__actions">
-            <Link className="btn btn--soft" to="/discover">
+            <Link className="link-cta" to="/discover">
               Back to discover
             </Link>
           </p>

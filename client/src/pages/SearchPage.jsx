@@ -184,12 +184,12 @@ export default function SearchPage() {
           <section className="search-page__section" aria-labelledby="search-results-title">
             <div className="search-page__section-head">
               <h2 id="search-results-title" className="product-section__title">
-                Results
+                Objects
               </h2>
               <p className="search-page__section-note">
                 {resultsLoading || resultsFetching
                   ? 'Searching…'
-                  : `${total} match${total === 1 ? '' : 'es'} for “${q}”`}
+                  : `${total} object${total === 1 ? '' : 's'} for “${q}”`}
                 {domain ? ` · ${domain}` : ''}
               </p>
             </div>
@@ -206,7 +206,7 @@ export default function SearchPage() {
                   <div className="search-page__pagination">
                     <button
                       type="button"
-                      className="btn btn--soft"
+                      className="quiet-action"
                       disabled={page <= 1}
                       onClick={() => commitSearch(q, { page: page - 1 })}
                     >
@@ -217,7 +217,7 @@ export default function SearchPage() {
                     </p>
                     <button
                       type="button"
-                      className="btn btn--soft"
+                      className="quiet-action"
                       disabled={page >= totalPages}
                       onClick={() => commitSearch(q, { page: page + 1 })}
                     >

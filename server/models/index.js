@@ -9,6 +9,7 @@ export { Collection, COLLECTION_VISIBILITY } from './Collection.js';
 export { Article } from './Article.js';
 export { AuditLog } from './AuditLog.js';
 export { MediaAsset } from './MediaAsset.js';
+export { HomePageConfig } from './HomePageConfig.js';
 export {
   buildSpecifications,
   assertValidSpecifications,

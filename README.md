@@ -12,6 +12,8 @@ Living reference for libraries, modules, routes, and website behavior (keep upda
 
 REST API reference (Phase 16): [docs/API.md](docs/API.md) · OpenAPI: [docs/openapi.json](docs/openapi.json) (`GET /api/v1/openapi.json`).
 
+**Staff home editor:** `/admin/home` (requires staff login) — edit every public home section. Public config: `GET /api/v1/home`.
+
 ## Stack
 
 - JavaScript only

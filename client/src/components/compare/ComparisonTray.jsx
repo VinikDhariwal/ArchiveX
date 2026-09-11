@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useGetProductsQuery } from '../../app/api.js';
@@ -9,6 +10,7 @@ import {
 } from '../../features/compare/compareSlice.js';
 import { getPrimaryImage } from '../../utils/archiveObject.js';
 
+/** Progressive compare dock: hidden when empty, compact at 1, tray at 2+. */
 export default function ComparisonTray() {
   const dispatch = useDispatch();
   const ids = useSelector(selectCompareIds);
@@ -19,18 +21,42 @@ export default function ComparisonTray() {
 
   const byId = new Map((data?.items || []).map((item) => [item.id, item]));
   const items = ids.map((id) => byId.get(id)).filter(Boolean);
-  const visible = ids.length > 0;
+  const count = ids.length;
+
+  useEffect(() => {
+    document.body.classList.toggle('has-compare-dock', count > 0);
+    return () => document.body.classList.remove('has-compare-dock');
+  }, [count]);
+
+  if (count === 0) return null;
+
+  if (count === 1) {
+    const only = items[0];
+    const label = only?.name || 'Object';
+    return (
+      <div className="compare-notice" role="status" aria-live="polite">
+        <p className="compare-notice__text">
+          Added to comparison · <strong>1 / {MAX_COMPARE_ITEMS}</strong>
+          <span className="compare-notice__name">{label}</span>
+        </p>
+        <div className="compare-notice__actions">
+          <Link className="quiet-action" to="/compare">
+            View compare
+          </Link>
+          <button
+            type="button"
+            className="quiet-action"
+            onClick={() => dispatch(clearCompare())}
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className={`compare-tray ${visible ? 'is-visible' : ''}`}
-      role="region"
-      aria-label="Comparison tray"
-      aria-hidden={!visible}
-      // The tray is hidden with a transform, so its buttons stay in the tab
-      // order; inert removes them for keyboard/AT users while hidden.
-      inert={!visible}
-    >
+    <div className="compare-tray is-visible" role="region" aria-label="Comparison tray">
       <div className="compare-tray__items">
         {ids.map((id) => {
           const product = byId.get(id);
@@ -57,27 +83,15 @@ export default function ComparisonTray() {
             </div>
           );
         })}
-        {Array.from({ length: Math.max(0, MAX_COMPARE_ITEMS - ids.length) }).map((_, index) => (
-          <div className="compare-tray__slot" key={`empty-${index}`} aria-hidden="true">
-            <span>Empty</span>
-          </div>
-        ))}
       </div>
       <div className="compare-tray__actions">
         <span className="compare-tray__count">
-          {ids.length}/{MAX_COMPARE_ITEMS}
+          {count}/{MAX_COMPARE_ITEMS}
         </span>
         <button type="button" className="quiet-action" onClick={() => dispatch(clearCompare())}>
           Clear
         </button>
-        <Link
-          className="btn btn--soft compare-tray__cta"
-          to="/compare"
-          aria-disabled={items.length < 2}
-          onClick={(event) => {
-            if (items.length < 2) event.preventDefault();
-          }}
-        >
+        <Link className="btn compare-tray__cta" to="/compare">
           Compare
         </Link>
       </div>

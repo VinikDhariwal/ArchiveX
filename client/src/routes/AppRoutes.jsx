@@ -40,6 +40,7 @@ const AdminMediaPage = lazy(() => import('../pages/admin/AdminMediaPage.jsx'));
 const AdminUsersPage = lazy(() => import('../pages/admin/AdminUsersPage.jsx'));
 const AdminAuditPage = lazy(() => import('../pages/admin/AdminAuditPage.jsx'));
 const AdminAnalyticsPage = lazy(() => import('../pages/admin/AdminAnalyticsPage.jsx'));
+const AdminHomePage = lazy(() => import('../pages/admin/AdminHomePage.jsx'));
 
 /** Error boundary that resets itself when the route changes. */
 function LocationAwareBoundary({ children }) {
@@ -86,6 +87,7 @@ export default function AppRoutes() {
 
             <Route path="admin" element={<AdminLayout />}>
               <Route index element={<AdminOverviewPage />} />
+              <Route path="home" element={<AdminHomePage />} />
               <Route path="products" element={<AdminProductsPage />} />
               <Route path="products/new" element={<AdminProductFormPage />} />
               <Route path="products/:id/edit" element={<AdminProductFormPage />} />

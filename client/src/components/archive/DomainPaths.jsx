@@ -1,21 +1,27 @@
 import { Link } from 'react-router-dom';
 
-export default function DomainPaths({ domains }) {
+export default function DomainPaths({ domains, head }) {
+  const meta = head?.meta || 'The chambers';
+  const title = head?.title || 'Explore domain by domain.';
+  const lede =
+    head?.lede ||
+    'Cars and motorcycles lead the archive. Watches remain a fully supported second chamber.';
+  const feedCtaLabel = head?.feedCtaLabel || 'View the full feed';
+  const feedCtaHref = head?.feedCtaHref || '/discover';
+
   return (
     <section className="domain-paths" id="domains" aria-labelledby="domains-title" data-reveal>
       <div className="domain-paths__head">
         <div>
-          <p className="meta">The chambers</p>
+          <p className="meta">{meta}</p>
           <span className="hairline" aria-hidden="true" />
           <h2 id="domains-title" className="display">
-            Explore domain by domain.
+            {title}
           </h2>
-          <p className="domain-paths__lede">
-            Cars and motorcycles lead the archive. Watches remain a fully supported second chamber.
-          </p>
+          <p className="domain-paths__lede">{lede}</p>
         </div>
-        <Link className="btn btn--soft" to="/discover">
-          View the full feed
+        <Link className="btn btn--soft" to={feedCtaHref}>
+          {feedCtaLabel}
         </Link>
       </div>
 
