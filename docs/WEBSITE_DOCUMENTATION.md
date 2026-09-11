@@ -1,7 +1,7 @@
 # ArchiveX — Living Website Documentation
 
 **Status:** Living document — update this file whenever libraries, routes, components, APIs, or product behavior change.  
-**Last updated:** 2026-09-11 (Phase 16 API documentation)
+**Last updated:** 2026-09-11 (Phase 17 Testing)
 **Companion rules:** [PROJECT_RULES.md](./PROJECT_RULES.md) (product/tech contract; do not replace it)  
 **Setup guide:** [../README.md](../README.md)
 
@@ -55,6 +55,7 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 14 Media | Done — Atlas GridFS uploads + media library |
 | Phase 15 Analytics | Done — staff `/admin/analytics` views, favorites, catalog health |
 | Phase 16 API documentation | Done — OpenAPI 3.0 (`docs/openapi.json`), `docs/API.md`, `GET /api/v1/openapi.json` |
+| Phase 17 Testing | Done — auth account + collector edge suites, client Vitest smoke, GitHub Actions CI |
 
 **Migrate / re-seed Atlas**
 
@@ -146,7 +147,7 @@ npm run seed --prefix server
 | `react-redux` | Store `<Provider>` |
 | `vite` | Dev server + production bundler (port 5173) |
 | `@vitejs/plugin-react` | JSX + Fast Refresh |
-| `vitest` | Unit tests (passWithNoTests for now) |
+| `vitest` | Unit tests (`formatProductType`, `authSlice` smoke) |
 | `eslint` + React ESLint plugins | Client lint |
 
 **Fonts (CDN in `index.html`):** Cormorant Garamond, DM Serif Display, Fraunces, IBM Plex Mono/Sans, Manrope — Ivory Museum typography.
@@ -256,7 +257,9 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `tests/media.test.js` | Phase 14 upload + remote URL / GridFS media library |
 | `tests/analytics.test.js` | Phase 15 staff analytics aggregates |
 | `tests/openapi.test.js` | Phase 16 OpenAPI document + public docs routes |
-| `testSupport/http.js` | Ephemeral listen + fetch helper |
+| `tests/authAccount.test.js` | Phase 17 profile/email/password/refresh/logout/delete |
+| `tests/phase17.test.js` | Phase 17 recently viewed + collection ownership/PATCH edges |
+| `testSupport/http.js` | Ephemeral listen + fetch helper (JSON/body + Set-Cookie map) |
 
 ### 4.7 Domain constants (server)
 
@@ -561,6 +564,13 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 9. Changelog (append newest on top)
 
+### 2026-09-11 (Phase 17) — Testing
+
+- Server: `authAccount.test.js` (profile/email/password/refresh/logout/delete); `phase17.test.js` (recently viewed + collection ownership/PATCH edges).
+- `testSupport/http.js` returns cookies + non-JSON bodies for refresh/logout flows.
+- Client: Vitest smoke for `formatProductType` and `authSlice`; dropped `--passWithNoTests`.
+- CI: `.github/workflows/ci.yml` — install, server/client tests, client lint, client build on `main`/`vinik` push and PRs.
+
 ### 2026-09-11 (Phase 16) — API documentation
 
 - Added OpenAPI 3.0.3 machine document: `docs/openapi.json` (public + collector + admin surfaces).
@@ -747,4 +757,4 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 10. Next documentation updates expected
 
-Phase 17 Testing — broaden coverage and CI readiness.
+Phase 18 Security hardening — rate limiting, validation tightening, production auth/CORS hardening.
