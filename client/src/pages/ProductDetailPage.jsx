@@ -146,11 +146,11 @@ export default function ProductDetailPage() {
               <strong>{publisher}</strong>
             </p>
             <ProductActions product={object} />
-            <MarketSignals product={object} />
           </div>
         </div>
 
         <ProductSpecifications product={object} />
+        <MarketSignals product={object} />
         <RarityProfile product={object} />
         <RelatedObjects products={related} isLoading={relatedLoading} />
         <ProductJournal

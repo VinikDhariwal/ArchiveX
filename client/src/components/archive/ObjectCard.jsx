@@ -42,9 +42,6 @@ export default function ObjectCard({ object }) {
         </div>
       </Link>
       <div className="object-card__actions">
-        <Link className="object-card__primary" to={href}>
-          View object →
-        </Link>
         <button
           type="button"
           className={`quiet-action ${isCompared ? 'is-active is-compared' : ''}`}
