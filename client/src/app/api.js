@@ -53,6 +53,8 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
+  keepUnusedDataFor: 60,
+  refetchOnFocus: false,
   tagTypes: [
     'Product',
     'Brand',
@@ -85,6 +87,7 @@ export const api = createApi({
     getHome: builder.query({
       query: () => '/home',
       transformResponse: (response) => response?.data,
+      keepUnusedDataFor: 180,
       providesTags: ['Home'],
     }),
     getAdminHome: builder.query({
@@ -227,6 +230,7 @@ export const api = createApi({
         params,
       }),
       transformResponse: (response) => response?.data ?? null,
+      keepUnusedDataFor: 300,
       providesTags: [{ type: 'Product', id: 'FILTERS' }],
     }),
     getProductBySlug: builder.query({
@@ -276,11 +280,13 @@ export const api = createApi({
         items: response?.data || [],
         meta: response?.meta || {},
       }),
+      keepUnusedDataFor: 180,
       providesTags: [{ type: 'Article', id: 'LIST' }],
     }),
     getArticleBySlug: builder.query({
       query: (slug) => `/articles/${slug}`,
       transformResponse: (response) => response?.data ?? null,
+      keepUnusedDataFor: 180,
       providesTags: (_result, _error, slug) => [{ type: 'Article', id: slug }],
     }),
     getBrands: builder.query({
@@ -289,11 +295,13 @@ export const api = createApi({
         params,
       }),
       transformResponse: (response) => response?.data || [],
+      keepUnusedDataFor: 300,
       providesTags: [{ type: 'Brand', id: 'LIST' }],
     }),
     getBrandBySlug: builder.query({
       query: (slug) => `/brands/${slug}`,
       transformResponse: (response) => response?.data ?? null,
+      keepUnusedDataFor: 180,
       providesTags: (_result, _error, slug) => [{ type: 'Brand', id: slug }],
     }),
     getCategories: builder.query({
@@ -302,6 +310,7 @@ export const api = createApi({
         params,
       }),
       transformResponse: (response) => response?.data || [],
+      keepUnusedDataFor: 300,
       providesTags: [{ type: 'Category', id: 'LIST' }],
     }),
     getCategoryBySlug: builder.query({

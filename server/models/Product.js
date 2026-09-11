@@ -89,10 +89,10 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-productSchema.index({ productType: 1, status: 1, featured: -1 });
-productSchema.index({ brand: 1, status: 1 });
-productSchema.index({ rarity: 1, status: 1 });
-productSchema.index({ releaseYear: -1, status: 1 });
+productSchema.index({ status: 1, deletedAt: 1, productType: 1, featured: -1 });
+productSchema.index({ status: 1, deletedAt: 1, brand: 1 });
+productSchema.index({ status: 1, deletedAt: 1, rarity: 1 });
+productSchema.index({ status: 1, deletedAt: 1, releaseYear: -1 });
 productSchema.index({ submittedBy: 1, status: 1 });
 productSchema.index({
   name: 'text',

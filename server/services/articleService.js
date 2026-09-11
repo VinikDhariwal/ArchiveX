@@ -78,6 +78,7 @@ export async function listPublicArticles(query = {}) {
   const limit = Math.min(Math.max(Number(query.limit) || 24, 1), 48);
 
   const articles = await Article.find(filter)
+    .select('slug articleType title excerpt heroImage domains featured publishedAt byline publisher')
     .sort({ featured: -1, publishedAt: -1, createdAt: -1 })
     .limit(limit)
     .lean();
@@ -135,7 +136,9 @@ export async function getProductJournal(productId) {
     ...PUBLIC_FILTER,
     relatedProducts: productId,
   })
+    .select('slug articleType title excerpt heroImage domains featured publishedAt byline publisher')
     .sort({ publishedAt: -1, createdAt: -1 })
+    .limit(12)
     .lean();
 
   const items = articles.map(serializeArticleCard);

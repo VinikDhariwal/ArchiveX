@@ -33,6 +33,7 @@ const brandSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+brandSchema.index({ status: 1, deletedAt: 1, name: 1 });
 brandSchema.index({ name: 1 });
 
 export const Brand = mongoose.models.Brand || mongoose.model('Brand', brandSchema);

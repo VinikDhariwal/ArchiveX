@@ -57,6 +57,7 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 16 API documentation | Done — OpenAPI 3.0 (`docs/openapi.json`), `docs/API.md`, `GET /api/v1/openapi.json` |
 | Phase 17 Testing | Done — auth account + collector edge suites, client Vitest smoke (`npm test`); QA hardening suites added |
 | Phase 18 Security hardening | Done — rate limits, CORS allowlist, request sanitize, bcrypt digests (`select:false`), login anti-enumeration, prod JWT secret length |
+| Phase 19 Performance | Done — list/shuffle query shape, soft-delete indexes, public `Cache-Control`, RTK keepUnused, font/image budget |
 | Collector contributions | Done — `/contribute` + `/account/submissions`, ownership-scoped `/contributions/products` APIs, admin submitter display |
 | Home page CMS | Done — singleton `HomePageConfig`; public `GET /home`; staff `GET|PATCH /admin/home`; `/admin/home` editor |
 
@@ -652,6 +653,16 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 - Served live: `GET /api/v1/openapi.json` (raw OpenAPI JSON) and `GET /api/v1/docs` (index).
 - Test: `server/tests/openapi.test.js`.
 
+### 2026-09-11 — Phase 19 performance
+
+- Product/Brand/Article/Category/Tag indexes include `deletedAt` for public list filters.
+- Discover shuffle hydrates by page ids; list queries use card projections (no tags/dossier fields).
+- Search prefers Product `$text` hits when the index is available, with regex fallback.
+- Home service uses `.lean()` and batched featured-by-type loads.
+- Public GET routes set short `Cache-Control`; RTK keeps home/brands/categories/articles longer; `refetchOnFocus` off.
+- Fonts trimmed to Cormorant / Manrope / IBM Plex Mono; hero/card images use async decode + priority.
+- Tests: `server/tests/phase19.test.js`.
+
 ### 2026-09-11 — Phase 18 security hardening
 
 - Rate limits: API ceiling + stricter auth limiter on login/register/refresh (`RATE_LIMITED` 429).
@@ -841,5 +852,5 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 10. Next documentation updates expected
 
-Phase 19 Performance — caching, query/index review, asset budgets.  
-Phases 20–21 Deployment + Acceptance.
+Phase 20 Deployment — production env, hosting runbook.  
+Phase 21 Acceptance — MVP checklist.

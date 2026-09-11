@@ -28,6 +28,7 @@ export default function ObjectCard({ object }) {
             src={primary.url}
             alt=""
             loading="lazy"
+            decoding="async"
             style={{ objectPosition: primary.objectPosition || 'center' }}
           />
         </div>

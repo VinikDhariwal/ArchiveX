@@ -131,7 +131,8 @@ Never commit real `.env` files or secrets. Do not hardcode production hosts, cat
 - Phase 16: API documentation — complete
 - Phase 17: Testing — complete (broader server/client suites via `npm test`)
 - Phase 18: Security hardening — complete (rate limits, CORS allowlist, input sanitize, bcrypt password digests + select:false, login anti-enumeration)
-- Later phases: performance, deployment, acceptance — not started
+- Phase 19: Performance — complete (soft-delete indexes, thinner list/shuffle queries, public Cache-Control, RTK cache, font budget)
+- Later phases: deployment, acceptance — not started
 
 ## Phase 4 data model notes
 

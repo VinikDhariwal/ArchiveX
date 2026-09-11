@@ -23,9 +23,9 @@
   --line-brass: rgba(176, 141, 79, 0.55);
   --glow: rgba(201, 168, 106, 0.18);
 
-  --font-display: "Cormorant Garamond", "DM Serif Display", Georgia, serif;
-  --font-editorial: "Cormorant Garamond", "Fraunces", Georgia, serif;
-  --font-ui: "Manrope", "IBM Plex Sans", system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-editorial: "Cormorant Garamond", Georgia, serif;
+  --font-ui: "Manrope", system-ui, sans-serif;
   --font-meta: "IBM Plex Mono", ui-monospace, monospace;
 
   /* Readability scale */

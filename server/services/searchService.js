@@ -321,14 +321,32 @@ export async function buildPublicProductFilter(query = {}) {
       Tag.find({ name: regex, status: 'active', deletedAt: null }).select('_id').lean(),
     ]);
 
+    const brandIds = brands.map((item) => item._id);
+    const categoryIds = categories.map((item) => item._id);
+    const tagIds = tags.map((item) => item._id);
+
+    let textIds = [];
+    try {
+      const textHits = await Product.find({
+        status: PUBLIC_STATUS,
+        deletedAt: null,
+        $text: { $search: searchTerm },
+      })
+        .select('_id')
+        .lean();
+      textIds = textHits.map((item) => item._id);
+    } catch {
+      // Text index may not be ready yet (fresh memory DB) — regex clauses below cover it.
+    }
+
     filter.$or = [
+      ...(textIds.length ? [{ _id: { $in: textIds } }] : []),
+      ...(brandIds.length ? [{ brand: { $in: brandIds } }] : []),
+      ...(categoryIds.length ? [{ category: { $in: categoryIds } }] : []),
+      ...(tagIds.length ? [{ tags: { $in: tagIds } }] : []),
       { name: regex },
       { reference: regex },
       { shortDescription: regex },
-      { description: regex },
-      { brand: { $in: brands.map((item) => item._id) } },
-      { category: { $in: categories.map((item) => item._id) } },
-      { tags: { $in: tags.map((item) => item._id) } },
       { 'specifications.fields.engine': regex },
       { 'specifications.fields.movement': regex },
       { 'specifications.fields.bodyStyle': regex },
