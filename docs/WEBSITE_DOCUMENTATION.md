@@ -55,7 +55,7 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 14 Media | Done — Atlas GridFS uploads + media library |
 | Phase 15 Analytics | Done — staff `/admin/analytics` views, favorites, catalog health |
 | Phase 16 API documentation | Done — OpenAPI 3.0 (`docs/openapi.json`), `docs/API.md`, `GET /api/v1/openapi.json` |
-| Phase 17 Testing | Done — auth account + collector edge suites, client Vitest smoke, GitHub Actions CI |
+| Phase 17 Testing | Done — auth account + collector edge suites, client Vitest smoke (`npm test`) |
 
 **Migrate / re-seed Atlas**
 
@@ -569,7 +569,7 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 - Server: `authAccount.test.js` (profile/email/password/refresh/logout/delete); `phase17.test.js` (recently viewed + collection ownership/PATCH edges).
 - `testSupport/http.js` returns cookies + non-JSON bodies for refresh/logout flows.
 - Client: Vitest smoke for `formatProductType` and `authSlice`; dropped `--passWithNoTests`.
-- CI: `.github/workflows/ci.yml` — install, server/client tests, client lint, client build on `main`/`vinik` push and PRs.
+- GitHub Actions workflow removed — run tests locally with `npm test` (root runs server + client).
 
 ### 2026-09-11 (Phase 16) — API documentation
 
