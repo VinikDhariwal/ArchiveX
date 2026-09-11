@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { getPrimaryImage, getPublisher } from '../../utils/archiveObject.js';
+import { formatProductType } from '../../utils/formatProductType.js';
 
 export default function ObjectDetailModal({ object, onClose }) {
   const primary = getPrimaryImage(object);
@@ -46,7 +47,7 @@ export default function ObjectDetailModal({ object, onClose }) {
           </div>
 
           <div className="object-modal__body">
-            <span className="object-card__badge">{object.productType}</span>
+            <span className="object-card__badge">{formatProductType(object.productType)}</span>
             <p className="meta">
               {object.brand} · {object.year}
             </p>

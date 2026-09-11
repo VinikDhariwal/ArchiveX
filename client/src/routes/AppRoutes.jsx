@@ -12,7 +12,9 @@ const DiscoverPage = lazy(() => import('../pages/DiscoverPage.jsx'));
 const ProductDetailPage = lazy(() => import('../pages/ProductDetailPage.jsx'));
 const ComparisonPage = lazy(() => import('../pages/ComparisonPage.jsx'));
 const LoginPage = lazy(() => import('../pages/LoginPage.jsx'));
+const RegisterPage = lazy(() => import('../pages/RegisterPage.jsx'));
 const AccountPage = lazy(() => import('../pages/AccountPage.jsx'));
+const AccountSettingsPage = lazy(() => import('../pages/AccountSettingsPage.jsx'));
 const FavoritesPage = lazy(() => import('../pages/FavoritesPage.jsx'));
 const CollectionsPage = lazy(() => import('../pages/CollectionsPage.jsx'));
 const CollectionDetailPage = lazy(() => import('../pages/CollectionDetailPage.jsx'));
@@ -23,6 +25,7 @@ const BrandDetailPage = lazy(() => import('../pages/BrandDetailPage.jsx'));
 const CategoriesPage = lazy(() => import('../pages/CategoriesPage.jsx'));
 const CategoryDetailPage = lazy(() => import('../pages/CategoryDetailPage.jsx'));
 const SearchPage = lazy(() => import('../pages/SearchPage.jsx'));
+const AdminLoginPage = lazy(() => import('../pages/admin/AdminLoginPage.jsx'));
 const AdminOverviewPage = lazy(() => import('../pages/admin/AdminOverviewPage.jsx'));
 const AdminProductsPage = lazy(() => import('../pages/admin/AdminProductsPage.jsx'));
 const AdminProductFormPage = lazy(() => import('../pages/admin/AdminProductFormPage.jsx'));
@@ -55,16 +58,19 @@ export default function AppRoutes() {
               <Route path="journal/:slug" element={<ArticleDetailPage />} />
               <Route path="unauthorized" element={<UnauthorizedPage />} />
               <Route path="login" element={<LoginPage />} />
-              <Route path="register" element={<Navigate to="/login" replace />} />
+              <Route path="register" element={<RegisterPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
 
             <Route element={<AuthenticatedLayout />}>
               <Route path="account" element={<AccountPage />} />
+              <Route path="account/settings" element={<AccountSettingsPage />} />
               <Route path="favorites" element={<FavoritesPage />} />
               <Route path="collections" element={<CollectionsPage />} />
               <Route path="collections/:id" element={<CollectionDetailPage />} />
             </Route>
+
+            <Route path="admin/login" element={<AdminLoginPage />} />
 
             <Route path="admin" element={<AdminLayout />}>
               <Route index element={<AdminOverviewPage />} />

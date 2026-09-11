@@ -1,7 +1,7 @@
 # ArchiveX — Living Website Documentation
 
 **Status:** Living document — update this file whenever libraries, routes, components, APIs, or product behavior change.  
-**Last updated:** 2026-09-10 (Phase 12 Search / recommendations)
+**Last updated:** 2026-09-11 (Clarity + signup pass)
 **Companion rules:** [PROJECT_RULES.md](./PROJECT_RULES.md) (product/tech contract; do not replace it)  
 **Setup guide:** [../README.md](../README.md)
 
@@ -42,7 +42,7 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 4 seed → Atlas | Done — 16 approved products (6 cars, 6 motorcycles, 4 watches) |
 | Phase 5 public REST APIs | Done — products/brands/categories (approved/active only) |
 | Client wired to API | Done — Home signatures, Discover, Product detail, Brand marquee |
-| Phase 6 Authentication | Done — register/login/refresh/logout/me, JWT, route guards |
+| Phase 6 Authentication | Done — collector register (first/last/username), login, admin login split, JWT guards |
 | Phase 7 Discovery | Done — search, domain-aware filters, sort, pagination, URL sync |
 | Phase 7 UI polish | Done — ivory-gold pills, brand search, Discover chamber layout, reveal fix |
 | Phase 8 Product detail | Done — domain-aware detail, related, views, gallery lightbox |
@@ -78,11 +78,15 @@ npm run seed --prefix server
 | GET | `/api/v1/categories/:slug` | Active category chamber payload + `productCount` |
 | GET | `/api/v1/articles` | Approved journal essays; optional `type`, `domain`, `featured` |
 | GET | `/api/v1/articles/:slug` | Approved essay detail + related products |
-| POST | `/api/v1/auth/register` | **Closed** (403) — accounts created via Admin |
-| POST | `/api/v1/auth/login` | Access token + httpOnly refresh cookie |
+| POST | `/api/v1/auth/register` | Public collector signup — `firstName`, `lastName`, `username` (unique), `email`, `password`; always role `user`; `name` derived as display |
+| POST | `/api/v1/auth/login` | Access + refresh; `ACCOUNT_NOT_FOUND` (404) if email missing; `staffOnly` rejects collectors |
 | POST | `/api/v1/auth/refresh` | Rotate tokens via refresh cookie |
 | POST | `/api/v1/auth/logout` | Revoke refresh (tokenVersion++) + clear cookie |
-| GET | `/api/v1/auth/me` | Current user (Bearer access token) |
+| GET | `/api/v1/auth/me` | Current user |
+| PATCH | `/api/v1/auth/me` | Update profile (`firstName`, `lastName`, `username`) |
+| PATCH | `/api/v1/auth/me/email` | Change email (requires current password) |
+| PATCH | `/api/v1/auth/me/password` | Change password (reissues tokens) |
+| DELETE | `/api/v1/auth/me` | Soft-delete collector account (confirm username + password); staff blocked |
 | GET | `/api/v1/admin/overview` | Staff counts (pending, catalog, users) |
 | GET | `/api/v1/admin/analytics` | Views, favorites, collections, catalog health signals |
 | GET/POST/PATCH/DELETE | `/api/v1/admin/products…` | Catalog CMS + `PATCH …/status` approvals |
@@ -196,7 +200,7 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 
 | Path | Status |
 | --- | --- |
-| `models/User.js` | Users + roles/status |
+| `models/User.js` | Users — `firstName`, `lastName`, unique `username`, derived `name`, email, roles/status |
 | `models/Brand.js` | Brands with primaryDomains |
 | `models/Category.js` | Categories scoped by productType |
 | `models/Tag.js` | Tags |
@@ -212,7 +216,8 @@ Boot (`server.js`): `connectDatabase()` then `app.listen(PORT)`.
 | `services/searchService.js` | Public discovery filters, sort modes, shuffle, field selection |
 | `services/recommendationService.js` | Related objects + Search recommendations; product journal via articleService |
 | `services/articleService.js` | Public article list/detail + product journal links |
-| `services/adminService.js` | Admin CMS CRUD, approvals, user updates |
+| `services/adminService.js` | Admin CMS CRUD, approvals, user updates (`createAdminUser` allocates username) |
+| `services/authService.js` | `register`, `login`, `serializeUser`, `allocateUsername`, refresh/logout/me |
 | `services/auditService.js` | `recordAudit` / `listAuditLogs` |
 | `services/mediaService.js` | Local upload + remote URL media library |
 | `services/productService.js` | Product list/detail serialize, view recording |
@@ -289,7 +294,7 @@ App.jsx → global CSS → AppRoutes
 | --- | --- |
 | `layouts/PublicLayout.jsx` | Public chrome + Suspense |
 | `layouts/AuthenticatedLayout.jsx` | Same chrome + “auth later” banner |
-| `layouts/AdminLayout.jsx` | Admin nav shell (no real auth yet) |
+| `layouts/AdminLayout.jsx` | Staff nav shell + Sign out → `/admin/login` |
 
 ### 5.5 Routes (`routes/AppRoutes.jsx`)
 
@@ -306,10 +311,14 @@ App.jsx → global CSS → AppRoutes
 | `/journal` | `JournalPage` | Approved essay index |
 | `/journal/:slug` | `ArticleDetailPage` | Long-form essay + related objects |
 | `/compare` | `ComparisonPage` | Domain-aware side-by-side compare (up to 4; public tray) |
-| `/account` | `AccountPage` | Authenticated collector hub |
+| `/login` | `LoginPage` | Collector log in; guest-gate notices; ACCOUNT_NOT_FOUND → `/register` |
+| `/register` | `RegisterPage` | First/last name, unique username, email, password |
+| `/account` | `AccountPage` | Profile identity + desk; soft links to Favorites, Collections, Compare |
+| `/account/settings` | `AccountSettingsPage` | Edit profile, change email, change password, delete account |
 | `/favorites` | `FavoritesPage` | Synced favorites + recently viewed |
 | `/collections` | `CollectionsPage` | Collection list + create |
 | `/collections/:id` | `CollectionDetailPage` | Collection detail / manage objects |
+| `/admin/login` | `AdminLoginPage` | Staff-only sign in (no public staff signup) |
 | `/admin` | `AdminOverviewPage` | CMS overview counts + shortcuts |
 | `/admin/approvals` | `AdminApprovalsPage` | Pending product queue |
 | `/admin/products` | `AdminProductsPage` | Catalog list + status actions |
@@ -330,7 +339,10 @@ App.jsx → global CSS → AppRoutes
 | --- | --- |
 | `HomePage.jsx` | Hero → marquee → promise → chambers → signatures → editorial → close |
 | `DiscoverPage.jsx` | URL-synced discovery: search, filters, sort, pagination, masonry |
-| `LoginPage.jsx` / `AccountPage.jsx` | Auth surfaces (invite-only; no public register) |
+| `LoginPage.jsx` / `RegisterPage.jsx` / `AccountPage.jsx` / `AccountSettingsPage.jsx` | Collector auth, profile desk, account settings |
+| `components/layout/AccountMenu.jsx` | Guest **Log in** button; signed-in icon menu (Profile, Favorites, Collections, Compare, Admin, Log out) |
+| `utils/formatProductType.js` | Humanize `car`/`motorcycle`/`watch` → Cars/Motorcycles/Watches |
+| `pages/admin/AdminLoginPage.jsx` | Staff-only sign in (`/admin/login`); no public staff registration |
 | `ProductDetailPage.jsx` | Domain-aware product intelligence page |
 | `ComparisonPage.jsx` | Wide compare table from tray ids |
 | `FavoritesPage.jsx` | Saved favorites + recently viewed |
@@ -434,8 +446,14 @@ App.jsx → global CSS → AppRoutes
 | File | Covers |
 | --- | --- |
 | `styles/tokens.css` | Design tokens (colors, type, space, motion) — **source of truth for hex values** |
-| `styles/global.css` | Reset, page chrome, typography utilities, shared `.btn` / `.btn--soft` pills, shells, skeletons |
-| `styles/archive.css` | Header, hero, marquee, chambers, featured objects, Discover workspace, object cards, detail modal, product detail |
+| `styles/global.css` | Reset, chrome, typography, CTA ladder (ink `.btn`, soft `.btn--soft`, ghost), auth plate/inputs, account identity |
+| `styles/archive.css` | Header, hero, chambers, Discover, object cards (lifted borders), product detail |
+
+### Clarity rules (2026-09-11)
+
+- Inputs ≠ buttons: auth inputs use soft radius + white fill; primary actions use ink pills.
+- `.meta` defaults to `--muted-ink` for readable labels; brass reserved for eyebrows (`.page-head .meta`, Discover/Search eyebrows).
+- Object cards use stronger border + white-leaning fill for figure/ground.
 
 ### 6.1 Color tokens (`client/src/styles/tokens.css`)
 
@@ -448,10 +466,10 @@ Qissa-inspired lighter premium archive. Prefer CSS variables over hardcoding.
 | `--paper-deep` | `#dfd0c2` | Deeper paper / inset fields |
 | `--blush` | `#f0ddd6` | Soft blush wash |
 | `--blush-deep` | `#e4c8be` | Deeper blush (hover gradients) |
-| `--ink` | `#1c2430` | Primary text |
-| `--ink-soft` | `#2c3644` | Softened ink (pill labels) |
-| `--muted-ink` | `#6f675f` | Secondary / meta text |
-| `--brass` | `#b08d4f` | Brass accent / borders |
+| `--ink` | `#151b24` | Primary text |
+| `--ink-soft` | `#243040` | Softened ink |
+| `--muted-ink` | `#4e4841` | Secondary / readable labels |
+| `--brass` | `#9a7843` | Brass accent / eyebrows |
 | `--brass-bright` | `#c9a86a` | Brighter brass highlight |
 | `--brass-soft` | `rgba(176, 141, 79, 0.32)` | Soft brass wash |
 | `--navy` | `#243044` | Active chip / strong UI |
@@ -536,6 +554,45 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 ---
 
 ## 9. Changelog (append newest on top)
+
+### 2026-09-11 — Account settings + uniform profile actions
+
+- Profile desk actions all use soft buttons (no mixed ink/soft CTAs); Edit profile and Delete account live under Settings.
+- New `/account/settings`: edit profile, change email, change password, two-step delete account.
+- Account menu adds Settings; Log out matches other menu item weight.
+- API: `PATCH /auth/me/email`, `PATCH /auth/me/password` (password change bumps tokenVersion and reissues tokens).
+
+### 2026-09-11 — Profile edit + delete account
+
+- `PATCH /auth/me` edits first/last name and username (case + `. _ - ! @ # $` allowed; uniqueness case-insensitive).
+- `DELETE /auth/me` two-step client flow: confirm → type username + password; soft-deletes collectors only.
+- Profile desk: Edit profile control; Log out remains in account menu only.
+
+### 2026-09-11 — Clarity + signup pass
+
+**Auth / User**
+- `User` adds `firstName`, `lastName`, unique `username` (`^[a-z0-9_]{3,24}$`); `name` remains derived display (`First Last`).
+- `authService.register` validates new fields; codes `EMAIL_IN_USE`, `USERNAME_IN_USE`; always role `user`.
+- `authService.login` returns `ACCOUNT_NOT_FOUND` when email missing; client sends collector to `/register` with prefilled email + notice.
+- `authService.serializeUser` / `allocateUsername` / admin `createAdminUser` updated; seed admin gets `archivex_admin`.
+- Header: guest **Log in** button; signed-in **AccountMenu** icon (Profile, Favorites, Collections, Compare, Admin, Log out).
+- `/admin/login` remains staff-only (`staffOnly`); no public staff registration.
+
+**Clarity UI**
+- Auth plate: white inputs (soft radius) vs ink primary submit; first/last name row + username hint on register.
+- Sitewide: stronger card borders/fills, readable `.meta` (brass reserved for eyebrows), primary `.btn` ink CTA ladder.
+- `formatProductType` used on cards, featured, identity, breadcrumbs, related.
+- Discover lede: browse/filter chamber; Search lede: find by name/brand.
+- Favorite/collection gates pass `location.state.notice` on login.
+- Account/Profile shows first/last/username/email; staff role only for staff.
+
+**Follow-up (not in this pass):** password-change API, editable profile PATCH.
+
+### 2026-09-11 — Split collector vs admin auth
+
+- Public `/register` + `/login` for collectors; `POST /auth/register` always creates role `user`.
+- Separate `/admin/login` for staff (`staffOnly`); operator accounts remain Admin → Users only.
+- Admin gate redirects unauthenticated staff to `/admin/login`; Sign out returns there.
 
 ### 2026-09-11 (Phase 15) — Analytics
 

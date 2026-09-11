@@ -4,6 +4,20 @@ import { USER_ROLES, USER_STATUSES } from '../config/constants.js';
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 120 },
+    firstName: { type: String, trim: true, maxlength: 60, default: '' },
+    lastName: { type: String, trim: true, maxlength: 60, default: '' },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      minlength: 3,
+      maxlength: 30,
+      match: [
+        /^[A-Za-z0-9._\-!@#$]+$/,
+        'Username may use letters, numbers, and . _ - ! @ # $',
+      ],
+    },
     email: {
       type: String,
       required: true,

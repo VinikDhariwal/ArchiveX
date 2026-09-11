@@ -33,6 +33,9 @@ describe('Phase 14 media APIs', () => {
     const passwordHash = await bcrypt.hash('ArchiveX!admin', 10);
     await User.create({
       name: 'Admin',
+      firstName: 'Media',
+      lastName: 'Admin',
+      username: 'media_admin',
       email: 'admin@media.test',
       passwordHash,
       role: 'admin',

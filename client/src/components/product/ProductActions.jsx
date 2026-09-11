@@ -26,7 +26,12 @@ export default function ProductActions({ product }) {
 
   async function handleFavorite() {
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: `/products/${product.slug}` } });
+      navigate('/login', {
+        state: {
+          from: `/products/${product.slug}`,
+          notice: 'Log in or create an account to save favorites.',
+        },
+      });
       return;
     }
     dispatch(toggleFavorite(product.id));
@@ -40,7 +45,12 @@ export default function ProductActions({ product }) {
 
   function handleCollection() {
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: `/products/${product.slug}` } });
+      navigate('/login', {
+        state: {
+          from: `/products/${product.slug}`,
+          notice: 'Log in or create an account to add plates to a collection.',
+        },
+      });
       return;
     }
     setCollectionOpen(true);

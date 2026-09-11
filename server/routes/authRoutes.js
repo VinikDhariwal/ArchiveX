@@ -1,23 +1,18 @@
 import { Router } from 'express';
-import { login, refresh, logout, me } from '../controllers/authController.js';
+import { register, login, refresh, logout, me, updateMe, changeEmail, changePassword, deleteMe } from '../controllers/authController.js';
 import { optionalAuth, requireAuth } from '../middleware/authMiddleware.js';
-import ApiError from '../utils/ApiError.js';
 
 const router = Router();
 
-/** Public self-registration is closed — operators create accounts from /admin/users. */
-router.post('/register', (_req, _res, next) => {
-  next(
-    new ApiError(
-      'Public registration is closed. Accounts are created by archive operators.',
-      403,
-      'REGISTRATION_CLOSED'
-    )
-  );
-});
+/** Public collector signup — always role `user`. Staff accounts are created in /admin/users. */
+router.post('/register', register);
 router.post('/login', login);
 router.post('/refresh', refresh);
 router.post('/logout', optionalAuth, logout);
 router.get('/me', requireAuth, me);
+router.patch('/me', requireAuth, updateMe);
+router.patch('/me/email', requireAuth, changeEmail);
+router.patch('/me/password', requireAuth, changePassword);
+router.delete('/me', requireAuth, deleteMe);
 
 export default router;

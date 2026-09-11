@@ -112,7 +112,7 @@ export default function DiscoverPage() {
               <p className="discover-page__eyebrow">Archive</p>
               <h1 className="discover-page__title">Discover</h1>
               <p className="discover-page__lede">
-                A quieter chamber for cars and motorcycles — watches follow softly.
+                Browse and filter the chamber — cars and motorcycles first, watches following.
               </p>
             </div>
             <div className="discover-page__head-actions">

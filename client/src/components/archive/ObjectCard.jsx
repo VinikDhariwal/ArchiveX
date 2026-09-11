@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPrimaryImage, getPublisher } from '../../utils/archiveObject.js';
+import { formatProductType } from '../../utils/formatProductType.js';
 import {
   selectIsCompared,
   toggleCompare,
@@ -32,7 +33,7 @@ export default function ObjectCard({ object }) {
           />
         </div>
         <div className="object-card__body">
-          <span className="object-card__badge">{object.productType}</span>
+          <span className="object-card__badge">{formatProductType(object.productType)}</span>
           <p className="meta">
             {object.brand} · {object.year}
           </p>
@@ -41,7 +42,7 @@ export default function ObjectCard({ object }) {
         </div>
       </Link>
       <div className="object-card__actions">
-        <Link className="btn btn--soft" to={href}>
+        <Link className="btn" to={href}>
           Details
         </Link>
         <button

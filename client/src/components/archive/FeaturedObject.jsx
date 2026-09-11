@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { getPrimaryImage, getPublisher } from '../../utils/archiveObject.js';
+import { formatProductType } from '../../utils/formatProductType.js';
 
 export default function FeaturedObject({ object, eyebrow, sectionId, flipped = false }) {
   const primary = getPrimaryImage(object);
@@ -38,13 +39,13 @@ export default function FeaturedObject({ object, eyebrow, sectionId, flipped = f
         <p>{object.shortDescription}</p>
         <div className="featured-object__meta-row">
           <span>{object.brand}</span>
-          <span>{object.productType}</span>
+          <span>{formatProductType(object.productType)}</span>
           <span>{object.year}</span>
           <span className="rarity">{object.rarity}</span>
           <span>Published by {publisher}</span>
         </div>
         <div className="featured-object__actions">
-          <Link className="btn btn--soft" to={href}>
+          <Link className="btn" to={href}>
             Details
           </Link>
         </div>

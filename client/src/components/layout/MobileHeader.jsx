@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { navLinks } from '../../data/demoData.js';
 import { clientConfig } from '../../config/clientConfig.js';
 import { selectIsAuthenticated } from '../../features/auth/authSlice.js';
+import AccountMenu from './AccountMenu.jsx';
 
 export default function MobileHeader({ menuOpen, onOpenMenu, onCloseMenu }) {
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -14,6 +15,7 @@ export default function MobileHeader({ menuOpen, onOpenMenu, onCloseMenu }) {
           {clientConfig.appName}
         </Link>
         <div className="header-actions">
+          <AccountMenu />
           <button
             type="button"
             className="menu-toggle"
@@ -51,11 +53,11 @@ export default function MobileHeader({ menuOpen, onOpenMenu, onCloseMenu }) {
           ))}
           {isAuthenticated ? (
             <Link to="/account" onClick={onCloseMenu}>
-              Account
+              Profile
             </Link>
           ) : (
             <Link to="/login" onClick={onCloseMenu}>
-              Sign in
+              Log in
             </Link>
           )}
         </nav>

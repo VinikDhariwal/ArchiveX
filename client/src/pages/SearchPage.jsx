@@ -114,7 +114,7 @@ export default function SearchPage() {
           <p className="meta">Archive search</p>
           <h1 className="display search-page__title">Search</h1>
           <p className="search-page__lede">
-            Find objects by name, reference, house, or chamber language across the catalog.
+            Find a plate by name or brand — query-first search across the catalog.
           </p>
         </header>
 

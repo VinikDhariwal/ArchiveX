@@ -93,22 +93,54 @@
 
 .icon-btn {
   appearance: none;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 0;
-  background: transparent;
+  width: 2.65rem;
+  height: 2.65rem;
+  border: 1px solid color-mix(in srgb, var(--brass) 40%, var(--ink) 12%);
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--white) 82%, var(--paper)) 0%,
+    color-mix(in srgb, var(--paper-mid) 55%, var(--blush)) 100%
+  );
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--white) 70%, transparent) inset,
+    0 6px 14px color-mix(in srgb, var(--ink) 5%, transparent);
   color: var(--ink);
   display: inline-grid;
   place-items: center;
   padding: 0;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-museum),
+    background var(--duration-fast) var(--ease-museum),
+    color var(--duration-fast) var(--ease-museum),
+    box-shadow var(--duration-fast) var(--ease-museum);
+}
+
+.icon-btn:hover,
+.icon-btn:focus-visible {
+  border-color: color-mix(in srgb, var(--brass) 62%, var(--ink) 10%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--blush) 48%, var(--white)) 0%,
+    color-mix(in srgb, var(--paper-mid) 58%, var(--blush-deep)) 100%
+  );
+  color: var(--ink);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--white) 70%, transparent) inset,
+    0 8px 18px color-mix(in srgb, var(--ink) 8%, transparent);
+  outline: none;
 }
 
 .icon-btn svg {
-  width: 1.05rem;
-  height: 1.05rem;
+  width: 1.2rem;
+  height: 1.2rem;
   stroke: currentColor;
   fill: none;
-  stroke-width: 1.4;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .menu-toggle {
@@ -980,12 +1012,15 @@ button.link-cta {
   overflow: hidden;
   border-radius: 16px;
   color: var(--ink);
-  background: color-mix(in srgb, var(--paper) 55%, var(--blush));
-  border: 1px solid color-mix(in srgb, var(--ink) 7%, transparent);
-  box-shadow: 0 1px 0 color-mix(in srgb, var(--blush) 40%, transparent) inset;
+  background: color-mix(in srgb, var(--white) 72%, var(--paper));
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--white) 55%, transparent) inset,
+    0 10px 28px color-mix(in srgb, var(--ink) 6%, transparent);
   transition:
     border-color var(--duration-med) var(--ease-museum),
-    background var(--duration-med) var(--ease-museum);
+    background var(--duration-med) var(--ease-museum),
+    box-shadow var(--duration-med) var(--ease-museum);
 }
 
 .object-card[data-type='car'] {

@@ -54,6 +54,9 @@ describe('Phase 4 models', () => {
   it('creates User with admin role', async () => {
     const user = await User.create({
       name: 'Test Admin',
+      firstName: 'Test',
+      lastName: 'Admin',
+      username: 'test_admin',
       email: 'admin@test.local',
       passwordHash: 'hash',
       role: 'admin',

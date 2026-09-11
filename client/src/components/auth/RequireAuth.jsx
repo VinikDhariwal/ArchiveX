@@ -4,7 +4,7 @@ import { selectAccessToken, selectAuthUser, selectIsAdmin } from '../../features
 import { useGetMeQuery } from '../../app/api.js';
 import LoadingState from '../feedback/LoadingState.jsx';
 
-export function RequireAuth({ children }) {
+export function RequireAuth({ children, loginPath = '/login' }) {
   const token = useSelector(selectAccessToken);
   const user = useSelector(selectAuthUser);
   const location = useLocation();
@@ -13,7 +13,7 @@ export function RequireAuth({ children }) {
   });
 
   if (!token) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to={loginPath} replace state={{ from: location.pathname }} />;
   }
 
   if (!user && (isLoading || isFetching)) {
@@ -27,7 +27,7 @@ export function RequireAuth({ children }) {
   }
 
   if (isError && !user) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to={loginPath} replace state={{ from: location.pathname }} />;
   }
 
   return children;
@@ -38,7 +38,7 @@ export function RequireAdmin({ children }) {
   const user = useSelector(selectAuthUser);
 
   return (
-    <RequireAuth>
+    <RequireAuth loginPath="/admin/login">
       {user && !isAdmin ? <Navigate to="/unauthorized" replace /> : children}
     </RequireAuth>
   );

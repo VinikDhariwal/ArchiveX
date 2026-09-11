@@ -12,6 +12,7 @@ import ProductJournal from '../components/product/ProductJournal.jsx';
 import LoadingState from '../components/feedback/LoadingState.jsx';
 import ErrorState from '../components/feedback/ErrorState.jsx';
 import useDocumentTitle from '../hooks/useDocumentTitle.js';
+import { formatProductType } from '../utils/formatProductType.js';
 import {
   useGetProductBySlugQuery,
   useGetProductJournalQuery,
@@ -96,7 +97,7 @@ export default function ProductDetailPage() {
           items={[
             { label: 'Home', to: '/' },
             { label: 'Discover', to: '/discover' },
-            { label: object.productType, to: `/discover?domain=${object.productType}` },
+            { label: formatProductType(object.productType), to: `/discover?domain=${object.productType}` },
             { label: object.name },
           ]}
         />

@@ -1,3 +1,5 @@
+import { formatProductType } from '../../utils/formatProductType.js';
+
 export default function ProductIdentity({ product }) {
   if (!product) return null;
 
@@ -8,7 +10,7 @@ export default function ProductIdentity({ product }) {
       {product.reference ? <p className="product-identity__reference">{product.reference}</p> : null}
       <p className="product-detail__lede">{product.shortDescription}</p>
       <div className="featured-object__meta-row product-identity__meta">
-        <span>{product.productType}</span>
+        <span>{formatProductType(product.productType)}</span>
         {product.year ? <span>{product.year}</span> : null}
         <span className="rarity">{product.rarity}</span>
         {product.availability ? <span>{product.availability}</span> : null}

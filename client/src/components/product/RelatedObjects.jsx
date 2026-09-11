@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { getPrimaryImage } from '../../utils/archiveObject.js';
+import { formatProductType } from '../../utils/formatProductType.js';
 
 export default function RelatedObjects({ products = [], isLoading }) {
   return (
@@ -28,7 +29,7 @@ export default function RelatedObjects({ products = [], isLoading }) {
                   )}
                   <div>
                     <p className="meta">
-                      {item.brand} · {item.productType}
+                      {item.brand} · {formatProductType(item.productType)}
                     </p>
                     <p className="related-objects__name">{item.name}</p>
                   </div>

@@ -65,6 +65,9 @@ describe('Phase 9 collector APIs', () => {
     const hash = await bcrypt.hash('password123', 10);
     await User.create({
       name: 'Collector',
+      firstName: 'Phase',
+      lastName: 'Collector',
+      username: 'collector_phase9',
       email: 'collector-phase9@test.local',
       passwordHash: hash,
       role: 'user',
