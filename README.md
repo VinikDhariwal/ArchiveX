@@ -121,8 +121,13 @@ Never commit real `.env` files or secrets. Do not hardcode production hosts, cat
 - Phase 11: Brands / categories — complete
 - Phase 12: Search / recommendations — complete
 - Phase 13: Admin CMS — complete (analytics deferred to Phase 15)
-- Phase 14: Media — complete (local upload library + catalog image wiring)
-- Later phases: analytics, hardening, deployment — not started
+- Phase 14: Media — complete (Atlas GridFS + media library)
+- Phase 15: Analytics — complete
+- Phase 16: API documentation — complete
+- Phase 17: Testing — complete (coverage + GitHub Actions CI)
+- Later phases: security hardening, performance, deployment, acceptance — not started
+
+CI runs on `main` / `vinik` pushes and PRs (`.github/workflows/ci.yml`).
 
 ## Phase 4 data model notes
 
