@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Breadcrumbs from '../components/layout/Breadcrumbs.jsx';
@@ -14,15 +14,21 @@ import {
   countActiveFilters,
   discoverParamsToSearchParams,
   parseDiscoverSearchParams,
+  selectProductItems,
+  selectProductMeta,
   storeShuffleSeed,
 } from '../features/products/productApi.js';
-import { selectProductItems, selectProductMeta } from '../features/products/productSelectors.js';
 import {
   selectDraftQuery,
   selectMobileFiltersOpen,
   setDraftQuery,
   setMobileFiltersOpen,
 } from '../features/discover/filterSlice.js';
+
+function discoverFilterKey(params) {
+  const { page: _page, ...rest } = params;
+  return JSON.stringify(rest);
+}
 
 export default function DiscoverPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -32,16 +38,31 @@ export default function DiscoverPage() {
   useDocumentTitle('Discover');
 
   const params = useMemo(() => parseDiscoverSearchParams(searchParams), [searchParams]);
-  const queryArgs = useMemo(() => buildProductsQueryArgs(params), [params]);
+  const filterKey = useMemo(() => discoverFilterKey(params), [params]);
   const activeFilterCount = countActiveFilters(params);
+
+  const [page, setPage] = useState(1);
+  const [items, setItems] = useState([]);
+  const loadMoreRef = useRef(null);
+
+  useEffect(() => {
+    setPage(1);
+    setItems([]);
+  }, [filterKey]);
+
+  const queryArgs = useMemo(
+    () => buildProductsQueryArgs({ ...params, page: String(page) }),
+    [params, page]
+  );
 
   const { data, isLoading, isError, refetch, isFetching } = useGetProductsQuery(queryArgs);
   const { data: brands = [] } = useGetBrandsQuery(
     params.domain !== 'all' ? { domain: params.domain } : {}
   );
 
-  const products = selectProductItems(data);
   const meta = selectProductMeta(data);
+  const hasMore = page < (meta.totalPages || 1);
+  const showInitialSkeleton = isLoading && page === 1 && !items.length;
 
   useEffect(() => {
     dispatch(setDraftQuery(params.q || ''));
@@ -57,8 +78,36 @@ export default function DiscoverPage() {
     setSearchParams(discoverParamsToSearchParams(params), { replace: true });
   }, [params, searchParams, setSearchParams]);
 
+  useEffect(() => {
+    if (!data) return;
+    const pageItems = selectProductItems(data);
+    setItems((prev) => {
+      if (page === 1) return pageItems;
+      const seen = new Set(prev.map((item) => item.id));
+      return [...prev, ...pageItems.filter((item) => item.id && !seen.has(item.id))];
+    });
+  }, [data, page]);
+
+  useEffect(() => {
+    const node = loadMoreRef.current;
+    if (!node || !hasMore) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        if (isFetching || isError) return;
+        setPage((current) => current + 1);
+      },
+      { root: null, rootMargin: '480px 0px', threshold: 0 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMore, isFetching, isError, filterKey]);
+
   const updateParams = (patch) => {
     const next = { ...params, ...patch };
+    delete next.page;
     if (patch.domain && patch.domain !== params.domain) {
       // Drop domain-specific filters when switching chambers.
       delete next.bodyStyle;
@@ -74,7 +123,6 @@ export default function DiscoverPage() {
       delete next.waterResistance;
       delete next.productionPeriod;
       delete next.brand;
-      next.page = '1';
     }
     if (patch.sort === 'shuffle' && !patch.seed) {
       next.seed = String(Number(params.seed || 1));
@@ -89,7 +137,6 @@ export default function DiscoverPage() {
     updateParams({
       q: nextQ,
       sort: nextQ ? 'relevance' : params.sort === 'relevance' ? 'shuffle' : params.sort,
-      page: '1',
     });
     dispatch(setMobileFiltersOpen(false));
   };
@@ -107,7 +154,6 @@ export default function DiscoverPage() {
     updateParams({
       sort: 'shuffle',
       seed: nextSeed,
-      page: '1',
     });
   };
 
@@ -138,6 +184,13 @@ export default function DiscoverPage() {
               >
                 {mobileFiltersOpen ? 'Hide filters' : `Filters${activeFilterCount ? ` (${activeFilterCount})` : ''}`}
               </button>
+              <button
+                type="button"
+                className="discover-page__action discover-page__reshuffle"
+                onClick={handleReshuffle}
+              >
+                Reshuffle
+              </button>
             </div>
           </header>
         </div>
@@ -160,57 +213,44 @@ export default function DiscoverPage() {
               <ProductSort
                 value={params.sort}
                 total={meta.total || 0}
-                isLoading={isLoading || isFetching}
+                isLoading={showInitialSkeleton || (isFetching && page === 1)}
                 onChange={(sort) =>
                   updateParams({
                     sort,
-                    page: '1',
                     seed: sort === 'shuffle' ? String(Number(params.seed || 1) + 1) : params.seed,
                   })
                 }
               />
-              <button
-                type="button"
-                className="link-cta link-cta--muted discover-page__reshuffle"
-                onClick={handleReshuffle}
-              >
-                Reshuffle
-              </button>
             </div>
 
-            {isLoading ? <ProductGridSkeleton /> : null}
-            {isError ? <ErrorState message="Could not load the feed." onRetry={refetch} /> : null}
+            {showInitialSkeleton ? <ProductGridSkeleton /> : null}
+            {isError && !items.length ? (
+              <ErrorState message="Could not load the feed." onRetry={refetch} />
+            ) : null}
 
-            {!isLoading && !isError ? <ProductGrid products={products} /> : null}
+            {!showInitialSkeleton && !isError ? <ProductGrid products={items} /> : null}
+            {!showInitialSkeleton && isError && items.length ? (
+              <ErrorState message="Could not load more objects." onRetry={refetch} />
+            ) : null}
 
-            {!isLoading && !isError && !products.length ? (
+            {!showInitialSkeleton && !isError && !items.length ? (
               <p className="discover-page__empty">
                 No approved objects match these filters. Clear filters or try another chamber.
               </p>
             ) : null}
 
-            {!isLoading && !isError && meta.totalPages > 1 ? (
-              <nav className="discover-page__pagination" aria-label="Discover pagination">
-                <button
-                  type="button"
-                  className="discover-page__action"
-                  disabled={Number(params.page) <= 1}
-                  onClick={() => updateParams({ page: String(Number(params.page) - 1) })}
-                >
-                  Previous
-                </button>
-                <p className="product-sort__count">
-                  Page {meta.page} of {meta.totalPages}
-                </p>
-                <button
-                  type="button"
-                  className="discover-page__action"
-                  disabled={Number(params.page) >= meta.totalPages}
-                  onClick={() => updateParams({ page: String(Number(params.page) + 1) })}
-                >
-                  Next
-                </button>
-              </nav>
+            {items.length ? (
+              <div className="discover-page__infinite" aria-live="polite">
+                <div ref={loadMoreRef} className="discover-page__infinite-sentinel" />
+                {isFetching && page > 1 ? (
+                  <p className="discover-page__infinite-status">Loading more from the archive…</p>
+                ) : null}
+                {!hasMore && !isFetching ? (
+                  <p className="discover-page__infinite-status">
+                    End of the chamber — {meta.total || items.length} objects shown.
+                  </p>
+                ) : null}
+              </div>
             ) : null}
 
             <p className="discover-page__foot">

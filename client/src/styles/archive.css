@@ -1563,55 +1563,23 @@ button.link-cta {
   border: 0;
 }
 
-/* Discover: fixed workspace so filters + feed scroll independently */
-html:has(.discover-page),
-body:has(.discover-page) {
-  height: 100%;
-  overflow: hidden;
-}
-
-#root:has(.discover-page) {
-  height: 100dvh;
-  overflow: hidden;
-}
-
-.page-shell:has(.discover-page) {
-  height: 100dvh;
-  max-height: 100dvh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.page-shell:has(.discover-page) > .site-header {
-  flex: 0 0 auto;
-}
-
-.page-shell:has(.discover-page) > .site-footer {
-  display: none;
-}
-
+/* Discover: normal document flow — full paper bleed, sticky filter rail, footer always visible */
 .discover-page {
-  flex: 1 1 0;
-  min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0.85rem var(--page-gutter) 0.75rem;
-  overflow: hidden;
+  padding: 0.85rem var(--page-gutter) 2rem;
 }
 
 .discover-page__inner {
   width: min(100%, var(--content-max));
   margin-inline: auto;
-  flex: 1 1 0;
-  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
 .discover-page__inner--wide {
-  width: min(100%, 1280px);
+  width: min(100%, var(--content-max));
 }
 
 .discover-page__top {
@@ -1619,11 +1587,6 @@ body:has(.discover-page) {
   position: relative;
   z-index: 2;
   padding-bottom: 0.85rem;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--paper) 92%, transparent) 0%,
-    color-mix(in srgb, var(--paper) 88%, var(--blush)) 100%
-  );
 }
 
 .discover-page .breadcrumbs {
@@ -1726,26 +1689,25 @@ body:has(.discover-page) {
 
 /* One shared chamber — filters + feed read as a single surface */
 .discover-page__layout {
-  flex: 1 1 0;
-  min-height: 0;
   display: grid;
   grid-template-columns: minmax(230px, 270px) minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-  align-items: stretch;
+  align-items: start;
   gap: 0;
   border: 0;
   border-top: 1px solid color-mix(in srgb, var(--ink) 5%, transparent);
   border-radius: 0;
   background: transparent;
   box-shadow: none;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   z-index: 1;
 }
 
 .discover-page__rail {
-  min-height: 0;
-  max-height: 100%;
+  position: sticky;
+  top: calc(var(--header-height, 4.5rem) + 0.35rem);
+  align-self: start;
+  max-height: calc(100dvh - var(--header-height, 4.5rem) - 1rem);
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -1755,11 +1717,7 @@ body:has(.discover-page) {
 }
 
 .discover-page__main {
-  min-height: 0;
-  max-height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  min-width: 0;
   padding: 1rem 1.15rem 1.35rem;
   background: transparent;
   position: relative;
@@ -1771,7 +1729,7 @@ body:has(.discover-page) {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem 1rem;
+  gap: 0.65rem 1.1rem;
   margin: 0 0 1rem;
   padding: 0 0 0.75rem;
   border: 0;
@@ -1785,7 +1743,6 @@ body:has(.discover-page) {
 
 .discover-page__reshuffle {
   flex: 0 0 auto;
-  margin-left: auto;
 }
 
 .product-filters {
@@ -2046,6 +2003,40 @@ body:has(.discover-page) {
   gap: 0.65rem;
 }
 
+.product-filters__section--advanced {
+  gap: 0.85rem;
+}
+
+.product-filters__advanced {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.product-filters__advanced-toggle {
+  appearance: none;
+  justify-self: start;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  border-radius: 0;
+  background: transparent;
+  padding: 0.15rem 0;
+  font-family: var(--font-meta);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-museum), border-color var(--duration-fast)
+    var(--ease-museum);
+}
+
+.product-filters__advanced-toggle:hover,
+.product-filters__advanced-toggle[aria-expanded='true'] {
+  color: var(--ink);
+  border-bottom-color: color-mix(in srgb, var(--brass) 55%, var(--ink) 10%);
+}
+
 .product-filters__field {
   display: grid;
   gap: 0.28rem;
@@ -2072,6 +2063,11 @@ body:has(.discover-page) {
   transition:
     border-color var(--duration-fast) var(--ease-museum),
     background var(--duration-fast) var(--ease-museum);
+}
+
+.product-filters__field input::placeholder {
+  color: color-mix(in srgb, var(--muted-ink) 62%, transparent);
+  opacity: 1;
 }
 
 .product-filters__field input:focus,
@@ -2119,7 +2115,7 @@ body:has(.discover-page) {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem 1rem;
+  gap: 0.75rem 1.25rem;
   width: 100%;
 }
 
@@ -2227,6 +2223,28 @@ body:has(.discover-page) {
   font-size: 1.1rem;
 }
 
+.discover-page__infinite {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 0.5rem;
+  padding-top: 0.35rem;
+}
+
+.discover-page__infinite-sentinel {
+  width: 100%;
+  height: 1px;
+}
+
+.discover-page__infinite-status {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-meta);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
 .discover-page__foot {
   margin-top: var(--space-6);
 }
@@ -2299,6 +2317,10 @@ body:has(.discover-page) {
   color: var(--brass-bright);
 }
 
+.site-footer__label {
+  color: var(--brass) !important;
+}
+
 .site-footer__brand {
   font-family: var(--font-ui);
   font-size: 0.95rem;
@@ -2320,16 +2342,102 @@ body:has(.discover-page) {
   width: min(100%, var(--content-max));
   margin: var(--space-7) auto 0;
   padding-top: var(--space-5);
-  border-top: 0;
+  border-top: 1px solid color-mix(in srgb, var(--white) 12%, transparent);
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1rem 1.5rem;
   flex-wrap: wrap;
   font-family: var(--font-meta);
   font-size: 0.65rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--white) 48%, var(--brass-bright));
+}
+
+.site-footer__privacy {
+  letter-spacing: 0.14em;
+}
+
+.legal-page {
+  padding: clamp(1.25rem, 3vh, 2rem) var(--page-gutter) var(--space-8);
+}
+
+.legal-page__inner {
+  display: grid;
+  gap: 1.35rem;
+  width: min(100%, 760px);
+}
+
+.legal-page__head .page-lede {
+  max-width: 38rem;
+}
+
+.legal-page__updated {
+  margin: 0.85rem 0 0;
+  font-family: var(--font-meta);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.legal-page__body {
+  display: grid;
+  gap: 1.55rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+.legal-page__body section {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.legal-page__body h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 2.4vw, 1.85rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.legal-page__body p,
+.legal-page__body li {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: var(--text-md);
+  line-height: var(--leading-prose);
+  color: var(--ink-soft);
+}
+
+.legal-page__body ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.legal-page__body strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.legal-page__body a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--brass) 55%, transparent);
+  text-underline-offset: 0.18em;
+}
+
+.legal-page__body a:hover {
+  color: var(--navy);
+}
+
+.legal-page__foot {
+  margin: 0.5rem 0 0;
 }
 
 .compare-tray {
@@ -3056,6 +3164,11 @@ body.has-compare-dock .page-shell {
     grid-template-columns: 1fr;
   }
 
+  .site-footer__meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .featured-object--flip .featured-object__media,
   .featured-object--flip .featured-object__body {
     order: initial;
@@ -3162,13 +3275,14 @@ body.has-compare-dock .page-shell {
 
   .discover-page__layout {
     grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr);
     gap: 0;
   }
 
   .discover-page__rail {
+    position: static;
     display: none;
-    max-height: 40dvh;
+    max-height: none;
+    overflow: visible;
     border-right: 0;
     border-bottom: 1px solid color-mix(in srgb, var(--ink) 5.5%, transparent);
     padding-right: 0;
@@ -3177,11 +3291,14 @@ body.has-compare-dock .page-shell {
 
   .discover-page__layout.is-filters-open .discover-page__rail {
     display: block;
-    overflow-y: auto;
   }
 
   .discover-page__main {
-    min-height: 0;
+    padding-inline: 0;
+  }
+
+  .discover-page__toolbar {
+    align-items: flex-start;
   }
 
   .brand-index__grid {

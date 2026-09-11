@@ -89,7 +89,7 @@ export function discoverParamsToSearchParams(params) {
     const value = params[key];
     if (value === undefined || value === null || value === '') continue;
     if (key === 'domain' && value === 'all') continue;
-    if (key === 'page' && String(value) === '1') continue;
+    if (key === 'page') continue; // Discover is infinite-scroll; page is local only
     if (key === 'sort' && value === 'shuffle' && !params.q) {
       // Keep shuffle as default (omit unless seed/other filters need it)
     }

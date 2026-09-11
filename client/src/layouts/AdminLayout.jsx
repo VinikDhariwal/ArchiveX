@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { clientConfig } from '../config/clientConfig.js';
 import PageSkeleton from '../components/feedback/PageSkeleton.jsx';
+import Footer from '../components/layout/Footer.jsx';
 import { RequireAdmin } from '../components/auth/RequireAuth.jsx';
 import { useLogoutMutation } from '../app/api.js';
 
@@ -71,6 +72,7 @@ export default function AdminLayout() {
         <Suspense fallback={<PageSkeleton variant="admin" />}>
           <Outlet />
         </Suspense>
+        <Footer />
       </div>
     </RequireAdmin>
   );

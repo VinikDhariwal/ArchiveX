@@ -2,17 +2,17 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { DOMAIN_OPTIONS } from '../../features/products/productApi.js';
 
 const SHARED_FIELDS = [
-  { key: 'category', label: 'Category', placeholder: 'car-icons' },
-  { key: 'yearMin', label: 'Year from', placeholder: '1950', type: 'number' },
-  { key: 'yearMax', label: 'Year to', placeholder: '2025', type: 'number' },
+  { key: 'category', label: 'Category', placeholder: 'Any category' },
+  { key: 'yearMin', label: 'Year from', placeholder: 'From', type: 'number' },
+  { key: 'yearMax', label: 'Year to', placeholder: 'To', type: 'number' },
   {
     key: 'rarity',
     label: 'Rarity',
     type: 'select',
     options: ['', 'COMMON', 'COLLECTIBLE', 'RARE', 'ICONIC', 'ULTRA-RARE', 'UNIQUE'],
   },
-  { key: 'material', label: 'Material', placeholder: 'aluminium' },
-  { key: 'color', label: 'Color', placeholder: 'silver' },
+  { key: 'material', label: 'Material', placeholder: 'Any material' },
+  { key: 'color', label: 'Color', placeholder: 'Any color' },
   {
     key: 'availability',
     label: 'Availability',
@@ -23,31 +23,31 @@ const SHARED_FIELDS = [
 
 const DOMAIN_FIELDS = {
   car: [
-    { key: 'bodyStyle', label: 'Body type', placeholder: 'coupe' },
-    { key: 'engine', label: 'Engine', placeholder: 'V8' },
-    { key: 'power', label: 'Power', placeholder: '478' },
-    { key: 'drivetrain', label: 'Drivetrain', placeholder: 'AWD' },
-    { key: 'transmission', label: 'Transmission', placeholder: 'manual' },
-    { key: 'productionPeriod', label: 'Era', placeholder: '1987' },
+    { key: 'bodyStyle', label: 'Body type', placeholder: 'Any body type' },
+    { key: 'engine', label: 'Engine', placeholder: 'Any engine' },
+    { key: 'power', label: 'Power', placeholder: 'Any' },
+    { key: 'drivetrain', label: 'Drivetrain', placeholder: 'Any' },
+    { key: 'transmission', label: 'Transmission', placeholder: 'Any' },
+    { key: 'productionPeriod', label: 'Era', placeholder: 'Any era' },
   ],
   motorcycle: [
-    { key: 'engine', label: 'Engine', placeholder: 'V-twin' },
-    { key: 'displacement', label: 'Displacement', placeholder: '1200' },
-    { key: 'power', label: 'Power', placeholder: '75' },
-    { key: 'transmission', label: 'Transmission', placeholder: '6-speed' },
-    { key: 'productionPeriod', label: 'Era', placeholder: '1970' },
+    { key: 'engine', label: 'Engine', placeholder: 'Any engine' },
+    { key: 'displacement', label: 'Displacement', placeholder: 'Any' },
+    { key: 'power', label: 'Power', placeholder: 'Any' },
+    { key: 'transmission', label: 'Transmission', placeholder: 'Any' },
+    { key: 'productionPeriod', label: 'Era', placeholder: 'Any era' },
   ],
   watch: [
-    { key: 'movement', label: 'Movement', placeholder: 'automatic' },
-    { key: 'caseMaterial', label: 'Case', placeholder: 'steel' },
-    { key: 'caseSize', label: 'Size', placeholder: '40' },
-    { key: 'dialColor', label: 'Dial', placeholder: 'black' },
-    { key: 'waterResistance', label: 'Water', placeholder: '100m' },
-    { key: 'productionPeriod', label: 'Era', placeholder: '1960' },
+    { key: 'movement', label: 'Movement', placeholder: 'Any movement' },
+    { key: 'caseMaterial', label: 'Case', placeholder: 'Any case' },
+    { key: 'caseSize', label: 'Size', placeholder: 'Any' },
+    { key: 'dialColor', label: 'Dial', placeholder: 'Any dial' },
+    { key: 'waterResistance', label: 'Water', placeholder: 'Any' },
+    { key: 'productionPeriod', label: 'Era', placeholder: 'Any era' },
   ],
   all: [
-    { key: 'engine', label: 'Engine', placeholder: 'V8 / V-twin' },
-    { key: 'productionPeriod', label: 'Era', placeholder: '1954–1957' },
+    { key: 'engine', label: 'Engine', placeholder: 'Any engine' },
+    { key: 'productionPeriod', label: 'Era', placeholder: 'Any era' },
   ],
 };
 
@@ -319,7 +319,9 @@ export default function ProductFilters({
 
       <div className="product-filters__section">
         <p className="product-filters__heading">
-          {domain === 'all' ? 'Details' : `${domain.charAt(0).toUpperCase()}${domain.slice(1)} details`}
+          {domain === 'all'
+            ? 'Details'
+            : `${domain.charAt(0).toUpperCase()}${domain.slice(1)} details`}
         </p>
         <div className="product-filters__fields">
           {domainFields.map((field) => (

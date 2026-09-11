@@ -4,6 +4,7 @@ import PublicLayout from '../layouts/PublicLayout.jsx';
 import AuthenticatedLayout from '../layouts/AuthenticatedLayout.jsx';
 import AdminLayout from '../layouts/AdminLayout.jsx';
 import RouteErrorBoundary from '../components/feedback/RouteErrorBoundary.jsx';
+import ScrollToTop from '../components/layout/ScrollToTop.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import UnauthorizedPage from '../pages/UnauthorizedPage.jsx';
 
@@ -28,6 +29,7 @@ const BrandDetailPage = lazy(() => import('../pages/BrandDetailPage.jsx'));
 const CategoriesPage = lazy(() => import('../pages/CategoriesPage.jsx'));
 const CategoryDetailPage = lazy(() => import('../pages/CategoryDetailPage.jsx'));
 const SearchPage = lazy(() => import('../pages/SearchPage.jsx'));
+const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicyPage.jsx'));
 const AdminLoginPage = lazy(() => import('../pages/admin/AdminLoginPage.jsx'));
 const AdminOverviewPage = lazy(() => import('../pages/admin/AdminOverviewPage.jsx'));
 const AdminProductsPage = lazy(() => import('../pages/admin/AdminProductsPage.jsx'));
@@ -51,6 +53,7 @@ function LocationAwareBoundary({ children }) {
 export default function AppRoutes() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <LocationAwareBoundary>
           <Routes>
             <Route element={<PublicLayout />}>
@@ -66,6 +69,7 @@ export default function AppRoutes() {
               <Route path="categories/:slug" element={<CategoryDetailPage />} />
               <Route path="journal" element={<JournalPage />} />
               <Route path="journal/:slug" element={<ArticleDetailPage />} />
+              <Route path="privacy" element={<PrivacyPolicyPage />} />
               <Route path="unauthorized" element={<UnauthorizedPage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="register" element={<RegisterPage />} />
