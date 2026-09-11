@@ -20,24 +20,12 @@ export default function LoginPage() {
       await login({ email, password }).unwrap();
       const next = location.state?.from || '/account';
       navigate(next, { replace: true });
-    } catch (err) {
-      if (err?.data?.error?.code === 'ACCOUNT_NOT_FOUND') {
-        navigate('/register', {
-          replace: true,
-          state: {
-            email: email.trim().toLowerCase(),
-            notice:
-              'No collector account can be found with that email. Create a new account to continue — your email is ready below.',
-          },
-        });
-      }
+    } catch {
+      /* shown below */
     }
   };
 
-  const message =
-    error?.data?.error?.code === 'ACCOUNT_NOT_FOUND'
-      ? null
-      : error?.data?.error?.message || (error ? 'Could not log in.' : null);
+  const message = error?.data?.error?.message || (error ? 'Could not log in.' : null);
 
   return (
     <main className="auth-page auth-page--wide">

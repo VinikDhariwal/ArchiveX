@@ -37,10 +37,7 @@ export default function AdminLoginPage() {
     }
   };
 
-  const message =
-    error?.data?.error?.code === 'ACCOUNT_NOT_FOUND'
-      ? 'No staff account uses that email. Ask an admin to create one under Admin → Users.'
-      : error?.data?.error?.message || (error ? 'Could not sign in.' : null);
+  const message = error?.data?.error?.message || (error ? 'Could not sign in.' : null);
 
   return (
     <main className="admin-login-page">

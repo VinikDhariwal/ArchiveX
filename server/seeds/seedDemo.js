@@ -6,7 +6,7 @@
  *   npm run seed --prefix server
  */
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import { hashPassword } from '../utils/password.js';
 import env from '../config/env.js';
 import { connectDatabase } from '../config/database.js';
 import {
@@ -170,7 +170,7 @@ async function seed() {
 
   await connectDatabase();
 
-  const passwordHash = await bcrypt.hash(SEED_ADMIN_PASSWORD, 10);
+  const passwordHash = await hashPassword(SEED_ADMIN_PASSWORD);
 
   await User.deleteOne({ email: LEGACY_ADMIN_EMAIL });
 

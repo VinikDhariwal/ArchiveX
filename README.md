@@ -102,10 +102,13 @@ See [`.env.example`](.env.example).
 | `APP_NAME` / `API_NAME` / `API_SERVICE_ID` / `API_VERSION` | server | App identity from env/config |
 | `PORT` | server | API port (default `5001` in development only) |
 | `NODE_ENV` | server | `development` / `production` |
-| `CLIENT_ORIGIN` | server | CORS origin (**required in production**) |
+| `CLIENT_ORIGIN` | server | CORS allowlist (comma-separated; **required in production**) |
 | `MONGODB_URI` | server | Atlas connection string (**required to seed**) |
 | `MONGODB_DB_NAME` | server | Database name |
-| `JWT_*` | server | Auth secrets (later phases) |
+| `JWT_*` | server | Auth secrets (**≥32 chars required in production**) |
+| `BCRYPT_SALT_ROUNDS` | server | Password hash cost (default `12`) |
+| `RATE_LIMIT_*` | server | API/auth rate ceilings (Phase 18) |
+| `TRUST_PROXY` | server | Set `1` behind a reverse proxy so rate limits see real IPs |
 | `VITE_APP_NAME` / `VITE_APP_TAGLINE` | client | Branding from env |
 | `VITE_API_BASE_URL` | client | REST base URL (**required in production builds**) |
 
@@ -127,7 +130,8 @@ Never commit real `.env` files or secrets. Do not hardcode production hosts, cat
 - Phase 15: Analytics — complete
 - Phase 16: API documentation — complete
 - Phase 17: Testing — complete (broader server/client suites via `npm test`)
-- Later phases: security hardening, performance, deployment, acceptance — not started
+- Phase 18: Security hardening — complete (rate limits, CORS allowlist, input sanitize, bcrypt password digests + select:false, login anti-enumeration)
+- Later phases: performance, deployment, acceptance — not started
 
 ## Phase 4 data model notes
 
