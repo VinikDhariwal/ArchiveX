@@ -18,6 +18,25 @@ const PUBLIC_FILTER = {
   deletedAt: null,
 };
 
+/** Card/list projection — omit long dossier fields and tags on feed queries. */
+const LIST_SELECT =
+  'slug name reference brand productType releaseYear rarity availability featured shortDescription publisher images category';
+
+async function loadListedProductsByIds(ids) {
+  const order = ids.map(String);
+  if (!order.length) return [];
+  const docs = await Product.find({ _id: { $in: order }, ...PUBLIC_FILTER })
+    .select(LIST_SELECT)
+    .populate('brand', 'name slug')
+    .populate('category', 'name slug')
+    .lean();
+  const byId = new Map(docs.map((doc) => [String(doc._id), doc]));
+  return order
+    .map((id) => byId.get(id))
+    .filter(Boolean)
+    .map(serializeProduct);
+}
+
 function toPlainFields(specifications) {
   if (!specifications) return undefined;
   const fields =
@@ -113,17 +132,20 @@ export async function listPublicProducts(query = {}) {
     };
   }
 
-  // Shuffle needs a stable full-result set so pagination counts stay correct.
+  // Shuffle: order thin id rows, then hydrate only the current page.
   if (sort.mode === 'shuffle') {
-    const all = await Product.find(filter)
-      .populate('brand', 'name slug')
-      .populate('category', 'name slug')
-      .populate('tags', 'name slug')
-      .lean();
-
-    let products = shufflePreferringPrimary(all.map(serializeProduct), sort.seed);
-    const total = products.length;
-    products = products.slice(skip, skip + limit).map((item) => applyFieldSelection(item, fields));
+    const rows = await Product.find(filter).select('_id productType').lean();
+    const ordered = shufflePreferringPrimary(
+      rows.map((row) => ({
+        id: String(row._id),
+        productType: row.productType,
+      })),
+      sort.seed
+    );
+    const total = ordered.length;
+    const pageRows = ordered.slice(skip, skip + limit);
+    let products = await loadListedProductsByIds(pageRows.map((row) => row.id));
+    products = products.map((item) => applyFieldSelection(item, fields));
 
     return {
       products,
@@ -143,9 +165,9 @@ export async function listPublicProducts(query = {}) {
 
   if (needsInMemorySort) {
     const all = await Product.find(filter)
+      .select(LIST_SELECT)
       .populate('brand', 'name slug')
       .populate('category', 'name slug')
-      .populate('tags', 'name slug')
       .lean();
 
     let products = sortProductsInMemory(all.map(serializeProduct), sort.mode, searchTerm);
@@ -169,9 +191,9 @@ export async function listPublicProducts(query = {}) {
 
   const [items, total] = await Promise.all([
     Product.find(filter)
+      .select(LIST_SELECT)
       .populate('brand', 'name slug')
       .populate('category', 'name slug')
-      .populate('tags', 'name slug')
       .sort(mongoSort)
       .skip(skip)
       .limit(limit)
@@ -259,9 +281,9 @@ export async function listRecentlyViewed({ userId, sessionKey, limit = 8 } = {})
   if (!productIds.length) return [];
 
   const products = await Product.find({ _id: { $in: productIds }, ...PUBLIC_FILTER })
+    .select(LIST_SELECT)
     .populate('brand', 'name slug')
     .populate('category', 'name slug')
-    .populate('tags', 'name slug')
     .lean();
 
   const byId = new Map(products.map((item) => [String(item._id), item]));

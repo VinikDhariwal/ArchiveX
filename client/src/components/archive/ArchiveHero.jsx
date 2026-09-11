@@ -211,7 +211,9 @@ export default function ArchiveHero({ hero: heroProp }) {
             width={plate.image.width}
             height={plate.image.height}
             style={{ objectPosition: plate.image.objectPosition || 'center' }}
-            fetchPriority={index === 0 ? 'high' : 'low'}
+            fetchPriority={index === activeIndex ? 'high' : 'low'}
+            loading={index === activeIndex ? 'eager' : 'lazy'}
+            decoding="async"
             draggable={false}
           />
         ))}

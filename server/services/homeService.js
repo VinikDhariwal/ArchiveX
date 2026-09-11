@@ -156,7 +156,9 @@ async function loadProductsByIds(ids) {
   const docs = await Product.find({
     ...PUBLIC_PRODUCT,
     _id: { $in: valid },
-  }).populate('brand', 'name slug');
+  })
+    .populate('brand', 'name slug')
+    .lean();
   const map = new Map();
   for (const doc of docs) {
     map.set(String(doc._id), serializeProduct(doc));
@@ -171,8 +173,29 @@ async function loadFeaturedByType(productType) {
     featured: true,
   })
     .sort({ updatedAt: -1 })
-    .populate('brand', 'name slug');
+    .populate('brand', 'name slug')
+    .lean();
   return serializeProduct(doc);
+}
+
+async function loadFeaturedByTypes(productTypes = []) {
+  const types = [...new Set(productTypes.filter(Boolean))];
+  if (!types.length) return new Map();
+  const docs = await Product.find({
+    ...PUBLIC_PRODUCT,
+    productType: { $in: types },
+    featured: true,
+  })
+    .sort({ updatedAt: -1 })
+    .populate('brand', 'name slug')
+    .lean();
+  const map = new Map();
+  for (const doc of docs) {
+    if (!map.has(doc.productType)) {
+      map.set(doc.productType, serializeProduct(doc));
+    }
+  }
+  return map;
 }
 
 async function loadHeroPool() {
@@ -182,7 +205,8 @@ async function loadHeroPool() {
   })
     .sort({ featured: -1, updatedAt: -1 })
     .limit(24)
-    .populate('brand', 'name slug');
+    .populate('brand', 'name slug')
+    .lean();
   return docs.map(serializeProduct).filter(Boolean);
 }
 
@@ -251,6 +275,16 @@ async function resolveDomains(domains) {
     .map((chamber) => chamber.imageProductId)
     .filter(Boolean);
   const map = await loadProductsByIds(productIds);
+  const needsFeatured = chambersIn
+    .filter((chamber) => {
+      if (chamber.image?.url) return false;
+      if (chamber.imageProductId && map.has(String(chamber.imageProductId))) {
+        return !primaryImage(map.get(String(chamber.imageProductId)));
+      }
+      return !chamber.image?.url;
+    })
+    .map((chamber) => chamber.id);
+  const featuredByType = await loadFeaturedByTypes(needsFeatured);
 
   const chambers = [];
   for (const chamber of chambersIn) {
@@ -260,8 +294,7 @@ async function resolveDomains(domains) {
       if (fromProduct) image = fromProduct;
     }
     if (!image?.url) {
-      const fallback = await loadFeaturedByType(chamber.id);
-      const fromFeatured = primaryImage(fallback);
+      const fromFeatured = primaryImage(featuredByType.get(chamber.id));
       if (fromFeatured) image = fromFeatured;
     }
     if (!image?.url) {
@@ -296,12 +329,16 @@ async function resolveFeatured(featured) {
     : buildHomeDefaults().featured.slots;
 
   const map = await loadProductsByIds(slotsIn.map((slot) => slot.productId).filter(Boolean));
+  const featuredTypes = slotsIn
+    .filter((slot) => !(slot.productId && map.has(String(slot.productId))) && slot.productType)
+    .map((slot) => slot.productType);
+  const featuredByType = await loadFeaturedByTypes(featuredTypes);
   const slots = [];
 
   for (const slot of slotsIn) {
     let product = slot.productId ? map.get(String(slot.productId)) : null;
     if (!product && slot.productType) {
-      product = await loadFeaturedByType(slot.productType);
+      product = featuredByType.get(slot.productType) || null;
     }
     if (!product) continue;
     slots.push({
@@ -334,7 +371,9 @@ async function resolveEditorial(editorial) {
     const doc = await Article.findOne({
       ...PUBLIC_ARTICLE,
       _id: editorial.articleId,
-    });
+    })
+      .select('slug articleType title excerpt heroImage domains featured publishedAt byline publisher')
+      .lean();
     const card = serializeArticleCard(doc);
     if (card) {
       return {

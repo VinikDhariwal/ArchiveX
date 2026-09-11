@@ -9,6 +9,9 @@ const PUBLIC_FILTER = {
   deletedAt: null,
 };
 
+const CARD_SELECT =
+  'slug name reference brand productType releaseYear rarity availability featured shortDescription publisher images category tags';
+
 const RARITY_RANK = {
   COMMON: 1,
   COLLECTIBLE: 2,
@@ -47,9 +50,11 @@ export async function getRelatedProducts(productId, { limit = 6 } = {}) {
       ...(tagIds.length ? [{ tags: { $in: source.tags } }] : []),
     ],
   })
+    .select(CARD_SELECT)
     .populate('brand', 'name slug')
     .populate('category', 'name slug')
     .populate('tags', 'name slug')
+    .sort({ featured: -1, releaseYear: -1 })
     .limit(40)
     .lean();
 
@@ -85,10 +90,11 @@ export async function getRecommendedProducts({ limit = 8, productType } = {}) {
   if (productType) filter.productType = productType;
 
   const candidates = await Product.find(filter)
+    .select(CARD_SELECT)
     .populate('brand', 'name slug')
     .populate('category', 'name slug')
-    .populate('tags', 'name slug')
-    .limit(60)
+    .sort({ featured: -1, releaseYear: -1 })
+    .limit(Math.min(60, Math.max(capped * 4, 24)))
     .lean();
 
   const scored = candidates

@@ -53,6 +53,7 @@ const articleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+articleSchema.index({ status: 1, deletedAt: 1, featured: -1, publishedAt: -1 });
 articleSchema.index({ status: 1, publishedAt: -1 });
 articleSchema.index({ articleType: 1, status: 1 });
 articleSchema.index({
