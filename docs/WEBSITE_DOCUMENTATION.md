@@ -56,6 +56,7 @@ ArchiveX is a premium **website** for luxury **discovery**, **archive**, **edito
 | Phase 15 Analytics | Done — staff `/admin/analytics` views, favorites, catalog health |
 | Phase 16 API documentation | Done — OpenAPI 3.0 (`docs/openapi.json`), `docs/API.md`, `GET /api/v1/openapi.json` |
 | Phase 17 Testing | Done — auth account + collector edge suites, client Vitest smoke (`npm test`); QA hardening suites added |
+| Phase 18 Security hardening | Done — rate limits, CORS allowlist, request sanitize, bcrypt digests (`select:false`), login anti-enumeration, prod JWT secret length |
 | Collector contributions | Done — `/contribute` + `/account/submissions`, ownership-scoped `/contributions/products` APIs, admin submitter display |
 | Home page CMS | Done — singleton `HomePageConfig`; public `GET /home`; staff `GET|PATCH /admin/home`; `/admin/home` editor |
 
@@ -87,7 +88,7 @@ npm run seed --prefix server
 | GET | `/api/v1/articles/:slug` | Approved essay detail + related products |
 | GET | `/api/v1/home` | Public home configuration (resolved plates, domains, featured slots, editorial) |
 | POST | `/api/v1/auth/register` | Public collector signup — `firstName`, `lastName`, `username` (unique), `email`, `password`; always role `user`; `name` derived as display |
-| POST | `/api/v1/auth/login` | Access + refresh; `ACCOUNT_NOT_FOUND` (404) if email missing; `staffOnly` rejects collectors |
+| POST | `/api/v1/auth/login` | Access + refresh; unknown emails return `INVALID_CREDENTIALS` (401, no enumeration); `staffOnly` rejects collectors |
 | POST | `/api/v1/auth/refresh` | Rotate tokens via refresh cookie |
 | POST | `/api/v1/auth/logout` | Revoke refresh (tokenVersion++) + clear cookie |
 | GET | `/api/v1/auth/me` | Current user |
@@ -340,7 +341,7 @@ App.jsx → global CSS → AppRoutes
 | `/journal` | `JournalPage` | Approved essay index |
 | `/journal/:slug` | `ArticleDetailPage` | Long-form essay + related objects |
 | `/compare` | `ComparisonPage` | Domain-aware side-by-side compare (up to 4; public tray) |
-| `/login` | `LoginPage` | Collector log in; guest-gate notices; ACCOUNT_NOT_FOUND → `/register` |
+| `/login` | `LoginPage` | Collector log in; guest-gate notices; failed login stays generic (`INVALID_CREDENTIALS`) |
 | `/register` | `RegisterPage` | First/last name, unique username, email, password |
 | `/account` | `AccountPage` | Profile identity + desk; soft links to Contribute, submissions, Favorites, Collections, Compare |
 | `/account/settings` | `AccountSettingsPage` | Edit profile, change email, change password, delete account |
@@ -651,6 +652,15 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 - Served live: `GET /api/v1/openapi.json` (raw OpenAPI JSON) and `GET /api/v1/docs` (index).
 - Test: `server/tests/openapi.test.js`.
 
+### 2026-09-11 — Phase 18 security hardening
+
+- Rate limits: API ceiling + stricter auth limiter on login/register/refresh (`RATE_LIMITED` 429).
+- CORS allowlist from `CLIENT_ORIGIN` (comma-separated); `TRUST_PROXY` for real client IPs.
+- Request sanitize strips `$` / dotted operator keys from body/query/params.
+- Passwords: bcrypt digests only (`BCRYPT_SALT_ROUNDS` default 12), `passwordHash` `select: false`, never returned in API JSON; login uses timing-equalized compares and generic `INVALID_CREDENTIALS`.
+- Production requires JWT secrets ≥32 characters.
+- Tests: `server/tests/phase18.test.js`.
+
 ### 2026-09-11 — Account settings + uniform profile actions
 
 - Profile desk actions all use soft buttons (no mixed ink/soft CTAs); Edit profile and Delete account live under Settings.
@@ -669,7 +679,7 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 **Auth / User**
 - `User` adds `firstName`, `lastName`, unique `username` (`^[a-z0-9_]{3,24}$`); `name` remains derived display (`First Last`).
 - `authService.register` validates new fields; codes `EMAIL_IN_USE`, `USERNAME_IN_USE`; always role `user`.
-- `authService.login` returns `ACCOUNT_NOT_FOUND` when email missing; client sends collector to `/register` with prefilled email + notice.
+- `authService.login` returns generic `INVALID_CREDENTIALS` for unknown emails and wrong passwords (no account enumeration); register remains available from the login page.
 - `authService.serializeUser` / `allocateUsername` / admin `createAdminUser` updated; seed admin gets `archivex_admin`.
 - Header: guest **Log in** button; signed-in **AccountMenu** icon (Profile, Favorites, Collections, Compare, Admin, Log out).
 - `/admin/login` remains staff-only (`staffOnly`); no public staff registration.
@@ -794,7 +804,8 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ### 2026-09-09 (late) — Phase 6 Authentication
 
-- JWT access tokens + httpOnly refresh cookies; bcrypt password hashing.
+- Auth: JWT access + httpOnly refresh; **bcrypt password digests** (never reversible encryption / never plaintext); `passwordHash` excluded from default queries and API JSON.
+- Rate limits + CORS allowlist + request sanitize (Phase 18).
 - Auth routes: register, login, refresh, logout, me.
 - Client: login/register/account pages, auth slice, RTK reauth, RequireAuth / RequireAdmin.
 - Account + admin layouts gated; header Sign in / Account.
@@ -830,4 +841,5 @@ Custom dropdown menus (Brands, Sort, Refine selects): ivory panel, soft shadow, 
 
 ## 10. Next documentation updates expected
 
-Phase 18 Security hardening — rate limiting, validation tightening, production auth/CORS hardening.
+Phase 19 Performance — caching, query/index review, asset budgets.  
+Phases 20–21 Deployment + Acceptance.

@@ -116,7 +116,7 @@ describe('Phase 6 auth APIs', () => {
     assert.equal(response.body.error?.code, 'INVALID_CREDENTIALS');
   });
 
-  it('reports when login email has no account', async () => {
+  it('rejects unknown login emails without revealing account existence', async () => {
     const response = await request('/api/v1/auth/login', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -126,8 +126,29 @@ describe('Phase 6 auth APIs', () => {
       }),
     });
 
-    assert.equal(response.status, 404);
-    assert.equal(response.body.error?.code, 'ACCOUNT_NOT_FOUND');
+    assert.equal(response.status, 401);
+    assert.equal(response.body.error?.code, 'INVALID_CREDENTIALS');
+  });
+
+  it('never returns passwordHash on /me', async () => {
+    const login = await request('/api/v1/auth/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        email: 'login@test.local',
+        password: 'password123',
+      }),
+    });
+
+    const response = await request('/api/v1/auth/me', {
+      headers: {
+        authorization: `Bearer ${login.body.data.accessToken}`,
+      },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.data.user.passwordHash, undefined);
+    assert.equal('passwordHash' in response.body.data.user, false);
   });
 
   it('returns me for authenticated users', async () => {

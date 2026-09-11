@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import { hashPassword, assertPasswordPolicy } from '../utils/password.js';
 import {
   ARTICLE_STATUSES,
   ARTICLE_TYPES,
@@ -703,9 +703,7 @@ export async function createAdminUser(actorId, payload = {}, actorRole = 'admin'
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new ApiError('A valid email is required', 400, 'VALIDATION_ERROR');
   }
-  if (password.length < 8) {
-    throw new ApiError('Password must be at least 8 characters', 400, 'VALIDATION_ERROR');
-  }
+  assertPasswordPolicy(password);
 
   const existing = await User.findOne({ email });
   if (existing) throw new ApiError('Email is already registered', 409, 'EMAIL_IN_USE');
@@ -729,7 +727,7 @@ export async function createAdminUser(actorId, payload = {}, actorRole = 'admin'
   const resolvedFirst = firstName || nameParts[0] || 'Operator';
   const resolvedLast = lastName || nameParts.slice(1).join(' ') || 'User';
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await hashPassword(password);
   const user = await User.create({
     name: displayName,
     firstName: resolvedFirst,

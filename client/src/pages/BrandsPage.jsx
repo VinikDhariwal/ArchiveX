@@ -80,8 +80,8 @@ export default function BrandsPage() {
 
         <header className="brands-page__head">
           <div className="brands-page__intro">
-            <p className="meta">Houses, A–Z</p>
-            <h1 className="display brands-page__title">Brands</h1>
+            <p className="brands-page__eyebrow">Archive</p>
+            <h1 className="brands-page__title">Brands</h1>
             <p className="brands-page__lede">
               An alphabetical index of collector houses in the archive.
             </p>
@@ -97,12 +97,12 @@ export default function BrandsPage() {
         </header>
 
         <div className="brands-page__controls">
-          <div className="taxonomy-pills" role="group" aria-label="Filter by domain">
+          <div className="product-filters__domains" role="group" aria-label="Filter by domain">
             {DOMAIN_FILTERS.map((item) => (
               <button
                 key={item.value || 'all'}
                 type="button"
-                className={`taxonomy-pill${domain === item.value ? ' is-active' : ''}`}
+                className={`product-filters__domain${domain === item.value ? ' is-active' : ''}`}
                 onClick={() => setDomain(item.value)}
               >
                 {item.label}

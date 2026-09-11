@@ -1,12 +1,12 @@
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/index.js';
 import ApiError from '../utils/ApiError.js';
 import env from '../config/env.js';
 import { USER_ROLES } from '../config/constants.js';
+import { assertPasswordPolicy, hashPassword, verifyPasswordOrDummy } from '../utils/password.js';
 
-const SALT_ROUNDS = 10;
 const REFRESH_COOKIE = 'archivex_refresh';
+const PASSWORD_SELECT = '+passwordHash';
 
 export function serializeUser(user) {
   if (!user) return null;
@@ -154,9 +154,7 @@ export async function register({ firstName, lastName, username, email, password,
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
     throw new ApiError('A valid email is required', 400, 'VALIDATION_ERROR');
   }
-  if (rawPassword.length < 8) {
-    throw new ApiError('Password must be at least 8 characters', 400, 'VALIDATION_ERROR');
-  }
+  assertPasswordPolicy(rawPassword);
   if (displayName.length < 2) {
     throw new ApiError('Name must be at least 2 characters', 400, 'VALIDATION_ERROR');
   }
@@ -183,7 +181,7 @@ export async function register({ firstName, lastName, username, email, password,
     throw new ApiError('Username is already taken', 409, 'USERNAME_IN_USE');
   }
 
-  const passwordHash = await bcrypt.hash(rawPassword, SALT_ROUNDS);
+  const passwordHash = await hashPassword(rawPassword);
   const user = await User.create({
     name: displayName,
     firstName: trimmedFirst,
@@ -212,17 +210,15 @@ export async function login({ email, password, staffOnly = false }) {
   const trimmedEmail = String(email || '').trim().toLowerCase();
   const rawPassword = String(password || '');
 
-  const user = await User.findOne({ email: trimmedEmail });
-  if (!user) {
-    throw new ApiError('No collector account can be found with that email', 404, 'ACCOUNT_NOT_FOUND');
+  // Always load hash (select:false) and always run bcrypt so timing / enumeration stay flat.
+  const user = await User.findOne({ email: trimmedEmail }).select(PASSWORD_SELECT);
+  const matches = await verifyPasswordOrDummy(rawPassword, user?.passwordHash);
+
+  if (!user || !matches) {
+    throw new ApiError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
   }
 
   assertActiveUser(user);
-
-  const matches = await bcrypt.compare(rawPassword, user.passwordHash);
-  if (!matches) {
-    throw new ApiError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
-  }
 
   if (staffOnly && !STAFF_ROLES.includes(user.role)) {
     throw new ApiError('Staff credentials required', 403, 'STAFF_REQUIRED');
@@ -319,7 +315,7 @@ export async function updateProfile(userId, payload = {}) {
 }
 
 export async function changeEmail(userId, { email, password } = {}) {
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select(PASSWORD_SELECT);
   assertActiveUser(user);
 
   const nextEmail = String(email || '')
@@ -330,11 +326,9 @@ export async function changeEmail(userId, { email, password } = {}) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail)) {
     throw new ApiError('A valid email is required', 400, 'VALIDATION_ERROR');
   }
-  if (rawPassword.length < 8) {
-    throw new ApiError('Current password is required', 400, 'VALIDATION_ERROR');
-  }
+  assertPasswordPolicy(rawPassword, { label: 'Current password' });
 
-  const matches = await bcrypt.compare(rawPassword, user.passwordHash);
+  const matches = await verifyPasswordOrDummy(rawPassword, user.passwordHash);
   if (!matches) {
     throw new ApiError('Invalid password', 401, 'INVALID_CREDENTIALS');
   }
@@ -354,28 +348,24 @@ export async function changeEmail(userId, { email, password } = {}) {
 }
 
 export async function changePassword(userId, { currentPassword, newPassword } = {}) {
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select(PASSWORD_SELECT);
   assertActiveUser(user);
 
   const current = String(currentPassword || '');
   const next = String(newPassword || '');
 
-  if (current.length < 8) {
-    throw new ApiError('Current password is required', 400, 'VALIDATION_ERROR');
-  }
-  if (next.length < 8) {
-    throw new ApiError('New password must be at least 8 characters', 400, 'VALIDATION_ERROR');
-  }
+  assertPasswordPolicy(current, { label: 'Current password' });
+  assertPasswordPolicy(next, { label: 'New password' });
   if (current === next) {
     throw new ApiError('New password must be different', 400, 'VALIDATION_ERROR');
   }
 
-  const matches = await bcrypt.compare(current, user.passwordHash);
+  const matches = await verifyPasswordOrDummy(current, user.passwordHash);
   if (!matches) {
     throw new ApiError('Invalid password', 401, 'INVALID_CREDENTIALS');
   }
 
-  user.passwordHash = await bcrypt.hash(next, SALT_ROUNDS);
+  user.passwordHash = await hashPassword(next);
   user.tokenVersion = (user.tokenVersion || 0) + 1;
   await user.save();
 
@@ -391,7 +381,7 @@ export async function changePassword(userId, { currentPassword, newPassword } = 
  * Soft-deletes collector accounts only (staff use Admin → Users).
  */
 export async function deleteAccount(userId, { confirmUsername, password } = {}) {
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select(PASSWORD_SELECT);
   assertActiveUser(user);
 
   if (STAFF_ROLES.includes(user.role)) {
@@ -408,11 +398,9 @@ export async function deleteAccount(userId, { confirmUsername, password } = {}) 
   }
 
   const rawPassword = String(password || '');
-  if (rawPassword.length < 8) {
-    throw new ApiError('Password is required to delete your account', 400, 'VALIDATION_ERROR');
-  }
+  assertPasswordPolicy(rawPassword, { label: 'Password' });
 
-  const matches = await bcrypt.compare(rawPassword, user.passwordHash);
+  const matches = await verifyPasswordOrDummy(rawPassword, user.passwordHash);
   if (!matches) {
     throw new ApiError('Invalid password', 401, 'INVALID_CREDENTIALS');
   }

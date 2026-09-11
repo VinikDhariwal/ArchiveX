@@ -63,7 +63,7 @@ export default function BrandDetailPage() {
   const domains = brand.primaryDomains || [];
 
   return (
-    <main className="taxonomy-page">
+    <main className="taxonomy-page brand-chamber">
       <div className="section-inner taxonomy-page__inner">
         <Breadcrumbs
           items={[
@@ -73,8 +73,8 @@ export default function BrandDetailPage() {
           ]}
         />
 
-        <header className="page-head">
-          <p className="meta">Brand chamber</p>
+        <header className="page-head brand-chamber__head">
+          <p className="brand-chamber__eyebrow">Brand chamber</p>
           <h1 className="display page-head__title">{brand.name}</h1>
           <p className="page-lede">{brand.description || 'A house in the ArchiveX catalog.'}</p>
           <p className="taxonomy-meta">
@@ -85,9 +85,9 @@ export default function BrandDetailPage() {
           </p>
         </header>
 
-        <div className="taxonomy-page__actions">
+        <div className="taxonomy-page__actions brand-chamber__actions">
           {domains.map((domain) => (
-            <Link key={domain} className="btn" to={`/discover?domain=${domain}`}>
+            <Link key={domain} className="link-cta" to={`/discover?domain=${domain}`}>
               Discover {domain}
             </Link>
           ))}
@@ -96,7 +96,7 @@ export default function BrandDetailPage() {
           </Link>
         </div>
 
-        <section className="taxonomy-objects" aria-labelledby="brand-objects-title">
+        <section className="taxonomy-objects brand-chamber__objects" aria-labelledby="brand-objects-title">
           <h2 id="brand-objects-title" className="product-section__title">
             Objects in this house
           </h2>

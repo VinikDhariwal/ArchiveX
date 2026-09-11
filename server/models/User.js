@@ -26,7 +26,8 @@ const userSchema = new mongoose.Schema(
       trim: true,
       maxlength: 254,
     },
-    passwordHash: { type: String, required: true },
+    /** bcrypt digest only — never plaintext, never reversible ciphertext. */
+    passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: USER_ROLES, default: 'user', index: true },
     status: { type: String, enum: USER_STATUSES, default: 'active', index: true },
     tokenVersion: { type: Number, default: 0 },
@@ -38,6 +39,22 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.set('toJSON', {
+  transform(_doc, ret) {
+    delete ret.passwordHash;
+    delete ret.__v;
+    return ret;
+  },
+});
+
+userSchema.set('toObject', {
+  transform(_doc, ret) {
+    delete ret.passwordHash;
+    delete ret.__v;
+    return ret;
+  },
+});
 
 export const User = mongoose.models.User || mongoose.model('User', userSchema);
 export default User;
