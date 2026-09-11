@@ -117,6 +117,63 @@ export const api = createApi({
         }
       },
     }),
+    updateMe: builder.mutation({
+      query: (body) => ({ url: '/auth/me', method: 'PATCH', body }),
+      transformResponse: (response) => response?.data?.user ?? null,
+      invalidatesTags: ['Auth'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled, getState }) {
+        try {
+          const { data } = await queryFulfilled;
+          const token = getState().auth?.accessToken;
+          if (data && token) {
+            dispatch(setCredentials({ user: data, accessToken: token }));
+          }
+        } catch {
+          /* handled by UI */
+        }
+      },
+    }),
+    changeEmail: builder.mutation({
+      query: (body) => ({ url: '/auth/me/email', method: 'PATCH', body }),
+      transformResponse: (response) => response?.data?.user ?? null,
+      invalidatesTags: ['Auth'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled, getState }) {
+        try {
+          const { data } = await queryFulfilled;
+          const token = getState().auth?.accessToken;
+          if (data && token) {
+            dispatch(setCredentials({ user: data, accessToken: token }));
+          }
+        } catch {
+          /* handled by UI */
+        }
+      },
+    }),
+    changePassword: builder.mutation({
+      query: (body) => ({ url: '/auth/me/password', method: 'PATCH', body }),
+      transformResponse: (response) => response?.data,
+      invalidatesTags: ['Auth'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data?.user && data?.accessToken) {
+            dispatch(setCredentials({ user: data.user, accessToken: data.accessToken }));
+          }
+        } catch {
+          /* handled by UI */
+        }
+      },
+    }),
+    deleteMe: builder.mutation({
+      query: (body) => ({ url: '/auth/me', method: 'DELETE', body }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } finally {
+          dispatch(clearCredentials());
+        }
+      },
+    }),
     getProducts: builder.query({
       query: (params = {}) => ({
         url: '/products',
@@ -576,6 +633,10 @@ export const {
   useLoginMutation,
   useLogoutMutation,
   useGetMeQuery,
+  useUpdateMeMutation,
+  useChangeEmailMutation,
+  useChangePasswordMutation,
+  useDeleteMeMutation,
   useGetProductsQuery,
   useGetProductFilterSchemaQuery,
   useGetProductBySlugQuery,

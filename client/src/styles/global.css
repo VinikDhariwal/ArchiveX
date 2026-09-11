@@ -144,6 +144,177 @@ button {
   gap: 0.75rem;
 }
 
+.header-login-btn {
+  min-height: 2.65rem;
+  padding: 0.45rem 1.15rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  border-color: color-mix(in srgb, var(--ink) 88%, var(--brass));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ink-soft) 70%, var(--navy)) 0%,
+    var(--ink) 100%
+  );
+  color: var(--paper);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--white) 18%, transparent) inset,
+    0 8px 18px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.header-login-btn:hover {
+  border-color: var(--ink);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--navy) 55%, var(--ink)) 0%,
+    color-mix(in srgb, var(--ink) 88%, var(--brass)) 100%
+  );
+  color: var(--white);
+}
+
+.account-menu {
+  position: relative;
+}
+
+.account-menu.is-open .account-menu__trigger {
+  border-color: color-mix(in srgb, var(--ink) 78%, var(--brass));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ink-soft) 70%, var(--navy)) 0%,
+    var(--ink) 100%
+  );
+  color: var(--paper);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--white) 16%, transparent) inset,
+    0 8px 18px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.account-menu__panel {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  right: 0;
+  z-index: 60;
+  width: min(17.5rem, calc(100vw - 2rem));
+  padding: 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      185deg,
+      color-mix(in srgb, var(--white) 88%, var(--paper)) 0%,
+      color-mix(in srgb, var(--blush) 36%, var(--paper-mid)) 100%
+    );
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--ink) 10%, transparent);
+  animation: account-menu-in 180ms var(--ease-museum) both;
+}
+
+@keyframes account-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.account-menu__identity,
+.account-menu__lede {
+  margin: 0 0 0.55rem;
+  padding: 0.35rem 0.55rem 0.7rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 7%, transparent);
+}
+
+.account-menu__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.account-menu__email {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--muted-ink);
+  word-break: break-all;
+}
+
+.account-menu__lede {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-meta);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.account-menu__lede {
+  padding-bottom: 0.65rem;
+}
+
+.account-menu__item {
+  appearance: none;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  margin: 0;
+  padding: 0.7rem 0.7rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-museum);
+}
+
+.account-menu__item:hover,
+.account-menu__item:focus-visible {
+  background: color-mix(in srgb, var(--white) 72%, transparent);
+  outline: none;
+}
+
+.account-menu__item--primary {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ink-soft) 70%, var(--navy)) 0%,
+    var(--ink) 100%
+  );
+  color: var(--paper);
+  margin-bottom: 0.2rem;
+}
+
+.account-menu__item--primary:hover,
+.account-menu__item--primary:focus-visible {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--navy) 55%, var(--ink)) 0%,
+    color-mix(in srgb, var(--ink) 88%, var(--brass)) 100%
+  );
+  color: var(--white);
+}
+
+.account-menu__item--action {
+  margin-top: 0.25rem;
+  color: var(--muted-ink);
+  font-size: 0.85rem;
+}
+
+.account-menu__item:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
 .layout-banner {
   border-bottom: 1px solid var(--line);
   background: color-mix(in srgb, var(--paper-deep) 55%, var(--paper));
@@ -337,7 +508,10 @@ button {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brass) 28%, transparent);
 }
 
-.admin-shell__exit {
+.admin-shell__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem 1.1rem;
   flex-shrink: 0;
 }
 
@@ -352,8 +526,15 @@ button {
   font-size: var(--text-xs);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--brass);
+  color: var(--muted-ink);
   line-height: 1.45;
+}
+
+.page-head .meta,
+.discover-page__eyebrow,
+.search-page__head .meta,
+.archive-section__eyebrow {
+  color: var(--brass);
 }
 
 .hairline {
@@ -413,17 +594,17 @@ button {
   justify-content: center;
   min-height: 2.4rem;
   padding: 0.5rem 1.1rem;
-  border: 1px solid color-mix(in srgb, var(--brass) 34%, var(--ink) 8%);
+  border: 1px solid color-mix(in srgb, var(--ink) 88%, var(--brass));
   border-radius: 999px;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--paper) 78%, var(--white)) 0%,
-    color-mix(in srgb, var(--paper-mid) 70%, var(--blush)) 100%
+    color-mix(in srgb, var(--ink-soft) 70%, var(--navy)) 0%,
+    var(--ink) 100%
   );
   box-shadow:
-    0 1px 0 color-mix(in srgb, var(--white) 62%, transparent) inset,
-    0 6px 14px color-mix(in srgb, var(--ink) 3%, transparent);
-  color: var(--ink);
+    0 1px 0 color-mix(in srgb, var(--white) 18%, transparent) inset,
+    0 8px 18px color-mix(in srgb, var(--ink) 12%, transparent);
+  color: var(--paper);
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   font-weight: 600;
@@ -439,13 +620,13 @@ button {
 }
 
 .btn:hover {
-  border-color: color-mix(in srgb, var(--brass) 58%, var(--ink) 7%);
+  border-color: var(--ink);
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--blush) 52%, var(--paper)) 0%,
-    color-mix(in srgb, var(--paper-mid) 62%, var(--blush-deep)) 100%
+    color-mix(in srgb, var(--navy) 55%, var(--ink)) 0%,
+    color-mix(in srgb, var(--ink) 88%, var(--brass)) 100%
   );
-  color: var(--ink);
+  color: var(--white);
 }
 
 .btn--soft {
@@ -847,9 +1028,452 @@ button {
   padding-block: clamp(2rem, 5vh, 4rem) var(--space-8);
 }
 
+.auth-page--wide {
+  min-height: calc(100dvh - var(--header-height));
+  padding-block: 0;
+  background:
+    radial-gradient(70% 55% at 0% 0%, color-mix(in srgb, var(--blush) 55%, transparent), transparent 60%),
+    radial-gradient(55% 45% at 100% 20%, color-mix(in srgb, var(--brass) 14%, transparent), transparent 55%),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper-mid) 100%);
+}
+
+.auth-page__stage {
+  width: min(100%, 72rem);
+  margin-inline: auto;
+  padding: clamp(1.75rem, 4vh, 3rem) var(--page-gutter) clamp(3rem, 8vh, 5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(1.75rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+.auth-page__intro {
+  position: sticky;
+  top: calc(var(--header-height) + 1rem);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border-radius: 28px;
+  border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--white) 55%, transparent) 0%,
+      color-mix(in srgb, var(--blush) 35%, var(--paper)) 100%
+    );
+  box-shadow: 0 18px 44px color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+.auth-page__title {
+  margin: 0.55rem 0 0;
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  line-height: 1.05;
+}
+
+.auth-page__lede {
+  margin: 1rem 0 0;
+  max-width: 28rem;
+  font-size: var(--text-md);
+  line-height: var(--leading-body);
+  color: var(--ink-soft);
+}
+
+.auth-page__points {
+  margin: 1.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.auth-page__points li {
+  position: relative;
+  padding-left: 1.15rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.auth-page__points li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brass) 70%, var(--ink));
+}
+
+.auth-page__panel {
+  min-width: 0;
+  padding: clamp(1.35rem, 2.5vw, 2rem);
+  border-radius: 28px;
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  background: color-mix(in srgb, var(--white) 94%, var(--paper));
+  box-shadow: 0 22px 50px color-mix(in srgb, var(--ink) 9%, transparent);
+}
+
+.account-page__identity {
+  display: grid;
+  gap: 0.85rem 1.25rem;
+  margin: 1.5rem 0 0;
+  padding: 1.15rem 1.2rem;
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--white) 88%, var(--paper));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.account-page__identity dt {
+  margin: 0;
+  font-family: var(--font-meta);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.account-page__identity dd {
+  margin: 0.25rem 0 0;
+  color: var(--ink);
+  font-size: 1.02rem;
+}
+
+.account-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-top: 1.75rem;
+}
+
+.account-page__inner--profile {
+  width: min(100%, 44rem);
+}
+
+.account-page--desk {
+  padding-block: clamp(1.5rem, 4vh, 2.75rem) var(--space-8);
+}
+
+.account-page__desk {
+  width: min(100%, var(--content-max));
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+.account-page__layout {
+  display: grid;
+  grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.25rem);
+  align-items: start;
+  margin-top: 1.15rem;
+}
+
+.account-profile {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: start;
+  gap: 1.15rem;
+  margin-top: 0;
+  padding: clamp(1.25rem, 2.5vw, 1.65rem);
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--white) 92%, var(--paper));
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--ink) 7%, transparent);
+  position: sticky;
+  top: calc(var(--header-height) + 1rem);
+}
+
+.account-profile__avatar {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  letter-spacing: -0.02em;
+  color: var(--paper);
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--ink-soft) 70%, var(--navy)) 0%,
+    var(--ink) 100%
+  );
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+.account-profile__body {
+  min-width: 0;
+  width: 100%;
+}
+
+.account-profile__name {
+  margin: 0.35rem 0 0;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  line-height: 1.1;
+}
+
+.account-profile__handle {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-meta);
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+.account-profile__email,
+.account-profile__role {
+  margin: 0.35rem 0 0;
+  color: var(--muted-ink);
+  font-size: 0.95rem;
+}
+
+.account-profile__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.35rem;
+  list-style: none;
+  margin: 1.2rem 0 0;
+  padding: 0;
+}
+
+.account-profile__stat {
+  display: grid;
+  gap: 0.15rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.account-profile__stat:hover .account-profile__stat-value {
+  color: var(--brass);
+}
+
+.account-profile__stat-value {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  line-height: 1;
+  color: var(--ink);
+  transition: color var(--duration-fast) var(--ease-museum);
+}
+
+.account-profile__stat-label {
+  font-family: var(--font-meta);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.account-profile__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.account-profile__edit {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 0.75rem;
+  width: 100%;
+}
+
+.account-profile__edit label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.account-profile__edit input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.75rem;
+  padding: 0 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  border-radius: 16px;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+}
+
+.account-profile__edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.account-profile__danger {
+  margin-top: 1.5rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  width: 100%;
+}
+
+.account-profile__delete-trigger {
+  color: var(--oxide);
+}
+
+.account-profile__delete-step {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.account-profile__delete-step p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.account-profile__delete-step label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.account-profile__delete-step input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.75rem;
+  padding: 0 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  border-radius: 16px;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+}
+
+.account-desk {
+  min-width: 0;
+  padding: clamp(1.15rem, 2.5vw, 1.65rem);
+  border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--white) 70%, var(--paper));
+}
+
+.account-desk__head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.account-desk__title {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 3vw, 2rem);
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.account-desk__empty {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+  padding: 1.25rem 0.25rem 0.5rem;
+  color: var(--ink-soft);
+}
+
+.account-desk__grid {
+  margin-top: 0.25rem;
+}
+
+.account-settings {
+  width: min(100%, 52rem);
+}
+
+.account-settings__grid {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.account-settings__card {
+  padding: clamp(1.25rem, 2.5vw, 1.65rem);
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--white) 92%, var(--paper));
+}
+
+.account-settings__card--danger {
+  border-color: color-mix(in srgb, var(--oxide) 28%, var(--ink) 8%);
+}
+
+.account-settings__title {
+  margin: 0 0 1rem;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  color: var(--ink);
+}
+
+.account-settings__form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.account-settings__form label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.account-settings__form input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.85rem;
+  padding: 0 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  border-radius: 16px;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+}
+
+.account-settings__note {
+  margin: 0 0 1rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.account-settings__ok {
+  margin: 0;
+  color: var(--forest);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 960px) {
+  .account-page__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .account-profile {
+    position: static;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+  }
+}
+
+@media (max-width: 640px) {
+  .account-page__identity {
+    grid-template-columns: 1fr;
+  }
+
+  .account-profile {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .account-profile__stats,
+  .account-profile__actions {
+    justify-content: center;
+  }
+}
+
 .auth-page__inner,
 .account-page__inner {
   width: min(100%, 34rem);
+}
+
+.auth-page--wide .auth-page__inner {
+  width: min(100%, 72rem);
 }
 
 /* Admin never shows the public site footer */
@@ -859,30 +1483,42 @@ button {
 
 .auth-form {
   display: grid;
-  gap: 1.75rem;
-  margin-top: 1.5rem;
-  padding: 1.5rem 1.45rem 1.65rem;
-  border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
-  border-radius: clamp(16px, 2vw, 22px);
-  background:
-    linear-gradient(
-      185deg,
-      color-mix(in srgb, var(--white) 82%, var(--paper)) 0%,
-      color-mix(in srgb, var(--blush) 40%, var(--paper-mid)) 100%
-    );
-  box-shadow: 0 14px 36px color-mix(in srgb, var(--ink) 5%, transparent);
+  gap: 1.25rem;
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .auth-form label,
 .auth-form__actions {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.45rem;
+}
+
+.auth-form label > .meta {
+  color: var(--ink-soft);
+  letter-spacing: 0.12em;
+}
+
+.auth-form__row {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.auth-form__hint {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--muted-ink);
 }
 
 .auth-form__actions::before {
   content: '';
   display: block;
-  height: 0.6875rem;
+  height: 0.35rem;
 }
 
 .auth-form input,
@@ -890,12 +1526,26 @@ button {
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  height: 3rem;
-  min-height: 3rem;
+  height: 3.15rem;
+  min-height: 3.15rem;
   margin: 0;
   padding: 0 1.15rem;
-  border-radius: 999px;
   line-height: 1;
+}
+
+.auth-form input {
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--white) 98%, var(--paper));
+  box-shadow: none;
+  color: var(--ink);
+  font: inherit;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--brass) 55%, var(--ink) 12%);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brass) 20%, transparent);
 }
 
 .auth-form__password {
@@ -935,38 +1585,48 @@ button {
   color: var(--ink);
 }
 
-.auth-form input {
-  border: 1px solid color-mix(in srgb, var(--brass) 34%, var(--ink) 8%);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--paper) 78%, var(--white)) 0%,
-    color-mix(in srgb, var(--paper-mid) 70%, var(--blush)) 100%
-  );
-  box-shadow:
-    0 1px 0 color-mix(in srgb, var(--white) 62%, transparent) inset,
-    0 6px 14px color-mix(in srgb, var(--ink) 3%, transparent);
-  color: var(--ink);
-  font: inherit;
-}
-
-.auth-form input:focus {
-  outline: none;
-  border-color: color-mix(in srgb, var(--brass) 58%, var(--ink) 7%);
-  box-shadow:
-    0 1px 0 color-mix(in srgb, var(--white) 62%, transparent) inset,
-    0 0 0 2px color-mix(in srgb, var(--brass) 28%, transparent);
-}
-
 .auth-form__error {
   margin: 0;
   color: var(--oxide);
   font-size: 0.95rem;
 }
 
+.auth-page__notice {
+  margin: 0 0 1.15rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid color-mix(in srgb, var(--brass) 42%, var(--ink) 8%);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--blush) 48%, var(--white));
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
 .auth-form__submit {
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 999px;
+  border-color: color-mix(in srgb, var(--ink) 88%, var(--brass));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ink-soft) 70%, var(--navy)) 0%,
+    var(--ink) 100%
+  );
+  color: var(--paper);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--white) 18%, transparent) inset,
+    0 8px 18px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.auth-form__submit:hover {
+  border-color: var(--ink);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--navy) 55%, var(--ink)) 0%,
+    color-mix(in srgb, var(--ink) 88%, var(--brass)) 100%
+  );
+  color: var(--white);
 }
 
 .auth-form__submit:disabled {
@@ -982,6 +1642,43 @@ button {
 .auth-page__switch a {
   color: var(--ink);
   font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .auth-page__stage {
+    grid-template-columns: 1fr;
+    gap: 1.35rem;
+  }
+
+  .auth-page__intro {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-page__panel,
+  .auth-page__intro {
+    border-radius: 22px;
+    padding: 1.15rem;
+  }
+}
+
+.admin-login-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background:
+    radial-gradient(ellipse 80% 55% at 50% -10%, color-mix(in srgb, var(--blush) 55%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper-mid) 100%);
+}
+
+.admin-login-page__panel {
+  width: min(100%, 34rem);
 }
 
 /* —— Admin CMS —— */

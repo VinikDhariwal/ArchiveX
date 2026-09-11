@@ -12,6 +12,7 @@ const STATUSES = ['active', 'disabled', 'pending'];
 
 const empty = {
   name: '',
+  username: '',
   email: '',
   password: '',
   role: 'user',
@@ -41,7 +42,7 @@ export default function AdminUsersPage() {
     <AdminPageShell
       eyebrow="Admin · Users"
       title="User management"
-      lede="Create collector and staff accounts here. Public self-registration is closed."
+      lede="Create collector and staff accounts. Collectors can also self-register; staff roles stay operator-only."
     >
       {!forbidden ? (
         <form className="admin-form admin-form--compact" onSubmit={onCreate}>
@@ -53,6 +54,17 @@ export default function AdminUsersPage() {
                 minLength={2}
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+            </label>
+            <label>
+              <span className="meta">Username (optional)</span>
+              <input
+                minLength={3}
+                maxLength={30}
+                pattern="[A-Za-z0-9._\-!@#$]{3,30}"
+                value={form.username || ''}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+                placeholder="Optional · letters / . _ - ! @ # $"
               />
             </label>
             <label>
@@ -111,6 +123,7 @@ export default function AdminUsersPage() {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Username</th>
               <th>Email</th>
               <th>Role</th>
               <th>Status</th>
@@ -120,6 +133,7 @@ export default function AdminUsersPage() {
             {users.map((user) => (
               <tr key={user.id}>
                 <td>{user.name}</td>
+                <td>{user.username ? `@${user.username}` : '—'}</td>
                 <td>{user.email}</td>
                 <td>
                   <MuseumSelect

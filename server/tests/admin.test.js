@@ -28,6 +28,9 @@ describe('Phase 13 admin CMS APIs', () => {
     const passwordHash = await bcrypt.hash('ArchiveX!admin', 10);
     await User.create({
       name: 'Admin',
+      firstName: 'Archive',
+      lastName: 'Admin',
+      username: 'admin_user',
       email: 'admin@archivex.local',
       passwordHash,
       role: 'admin',
@@ -35,6 +38,9 @@ describe('Phase 13 admin CMS APIs', () => {
     });
     await User.create({
       name: 'Collector',
+      firstName: 'Archive',
+      lastName: 'Collector',
+      username: 'plain_user',
       email: 'user@archivex.local',
       passwordHash,
       role: 'user',

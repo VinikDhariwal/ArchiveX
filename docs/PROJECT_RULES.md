@@ -229,14 +229,16 @@ Use:
 
 ### Color tokens (reference)
 
-- `--paper: #f3f0e8`
-- `--paper-deep: #e3ded2`
-- `--ink: #171817`
-- `--muted-ink: #7d7a6e`
-- `--brass: #a68d61`
+Live values live in `client/src/styles/tokens.css` (source of truth). Snapshot:
+
+- `--paper: #f4ebe3`
+- `--paper-deep: #dfd0c2`
+- `--ink: #151b24`
+- `--muted-ink: #4e4841`
+- `--brass: #9a7843`
 - `--oxide: #a34f32`
-- `--forest: #24372f`
-- `--white: #faf8f3`
+- `--forest: #2f3d38`
+- `--white: #fff8f2`
 - `--line: rgba(23, 24, 23, 0.12)`
 
 ### Avoid

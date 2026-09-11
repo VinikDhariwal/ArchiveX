@@ -17,6 +17,7 @@ import { serializeBrand } from './brandService.js';
 import { serializeCategory } from './categoryService.js';
 import { serializeArticleCard } from './articleService.js';
 import { recordAudit } from './auditService.js';
+import { allocateUsername, buildDisplayName, findUserByUsername, normalizeUsername } from './authService.js';
 
 function slugify(value, fallback = 'item') {
   return (
@@ -154,6 +155,9 @@ function serializeAdminUser(doc) {
   return {
     id: String(plain._id),
     name: plain.name,
+    firstName: plain.firstName || '',
+    lastName: plain.lastName || '',
+    username: plain.username || '',
     email: plain.email,
     role: plain.role,
     status: plain.status,
@@ -655,12 +659,15 @@ export async function listAdminUsers() {
 
 export async function createAdminUser(actorId, payload = {}) {
   const name = String(payload.name || '').trim();
+  const firstName = String(payload.firstName || '').trim();
+  const lastName = String(payload.lastName || '').trim();
   const email = String(payload.email || '').trim().toLowerCase();
   const password = String(payload.password || '');
   const role = USER_ROLES.includes(payload.role) ? payload.role : 'user';
   const status = USER_STATUSES.includes(payload.status) ? payload.status : 'active';
 
-  if (name.length < 2) throw new ApiError('Name must be at least 2 characters', 400, 'VALIDATION_ERROR');
+  const displayName = buildDisplayName(firstName, lastName) || name;
+  if (displayName.length < 2) throw new ApiError('Name must be at least 2 characters', 400, 'VALIDATION_ERROR');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new ApiError('A valid email is required', 400, 'VALIDATION_ERROR');
   }
@@ -671,9 +678,31 @@ export async function createAdminUser(actorId, payload = {}) {
   const existing = await User.findOne({ email });
   if (existing) throw new ApiError('Email is already registered', 409, 'EMAIL_IN_USE');
 
+  let username = normalizeUsername(payload.username);
+  if (username) {
+    if (!/^[A-Za-z0-9._\-!@#$]{3,30}$/.test(username)) {
+      throw new ApiError(
+        'Username must be 3–30 characters: letters, numbers, and . _ - ! @ # $',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+    const taken = await findUserByUsername(username);
+    if (taken) throw new ApiError('Username is already taken', 409, 'USERNAME_IN_USE');
+  } else {
+    username = await allocateUsername(email.split('@')[0] || 'operator');
+  }
+
+  const nameParts = displayName.split(/\s+/);
+  const resolvedFirst = firstName || nameParts[0] || 'Operator';
+  const resolvedLast = lastName || nameParts.slice(1).join(' ') || 'User';
+
   const passwordHash = await bcrypt.hash(password, 10);
   const user = await User.create({
-    name,
+    name: displayName,
+    firstName: resolvedFirst,
+    lastName: resolvedLast,
+    username,
     email,
     passwordHash,
     role,

@@ -1,8 +1,9 @@
 import { Suspense } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { clientConfig } from '../config/clientConfig.js';
 import PageSkeleton from '../components/feedback/PageSkeleton.jsx';
 import { RequireAdmin } from '../components/auth/RequireAuth.jsx';
+import { useLogoutMutation } from '../app/api.js';
 
 const adminNav = [
   { label: 'Overview', to: '/admin', end: true },
@@ -19,6 +20,18 @@ const adminNav = [
 
 /** Admin layout — requires editor/moderator/admin/superadmin role. */
 export default function AdminLayout() {
+  const navigate = useNavigate();
+  const [logout, { isLoading: isLoggingOut }] = useLogoutMutation();
+
+  async function handleSignOut() {
+    try {
+      await logout().unwrap();
+    } catch {
+      /* credentials cleared in mutation finally */
+    }
+    navigate('/admin/login', { replace: true });
+  }
+
   return (
     <RequireAdmin>
       <div className="page-shell admin-shell">
@@ -39,9 +52,19 @@ export default function AdminLayout() {
                 ))}
               </ul>
             </nav>
-            <Link className="link-cta link-cta--muted admin-shell__exit" to="/">
-              Back to site
-            </Link>
+            <div className="admin-shell__actions">
+              <Link className="link-cta link-cta--muted" to="/">
+                Back to site
+              </Link>
+              <button
+                type="button"
+                className="quiet-action"
+                disabled={isLoggingOut}
+                onClick={handleSignOut}
+              >
+                Sign out
+              </button>
+            </div>
           </div>
         </header>
         <Suspense fallback={<PageSkeleton variant="admin" />}>

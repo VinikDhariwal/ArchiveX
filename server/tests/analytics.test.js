@@ -27,6 +27,9 @@ describe('Phase 15 analytics APIs', () => {
     const passwordHash = await bcrypt.hash('ArchiveX!admin', 10);
     await User.create({
       name: 'Admin',
+      firstName: 'Archive',
+      lastName: 'Admin',
+      username: 'analytics_admin',
       email: 'admin@archivex.local',
       passwordHash,
       role: 'admin',
@@ -34,6 +37,9 @@ describe('Phase 15 analytics APIs', () => {
     });
     const collector = await User.create({
       name: 'Collector',
+      firstName: 'Archive',
+      lastName: 'Collector',
+      username: 'analytics_user',
       email: 'user@archivex.local',
       passwordHash,
       role: 'user',

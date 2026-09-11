@@ -179,6 +179,9 @@ async function seed() {
     {
       $set: {
         name: 'ArchiveX Admin',
+        firstName: 'ArchiveX',
+        lastName: 'Admin',
+        username: 'archivex_admin',
         email: SEED_ADMIN_EMAIL,
         passwordHash,
         role: 'admin',
