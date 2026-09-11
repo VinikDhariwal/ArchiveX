@@ -138,9 +138,6 @@ export default function DiscoverPage() {
               >
                 {mobileFiltersOpen ? 'Hide filters' : `Filters${activeFilterCount ? ` (${activeFilterCount})` : ''}`}
               </button>
-              <button type="button" className="discover-page__action" onClick={handleReshuffle}>
-                Reshuffle
-              </button>
             </div>
           </header>
         </div>
@@ -172,6 +169,13 @@ export default function DiscoverPage() {
                   })
                 }
               />
+              <button
+                type="button"
+                className="link-cta link-cta--muted discover-page__reshuffle"
+                onClick={handleReshuffle}
+              >
+                Reshuffle
+              </button>
             </div>
 
             {isLoading ? <ProductGridSkeleton /> : null}

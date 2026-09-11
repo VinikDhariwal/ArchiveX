@@ -61,19 +61,19 @@ export default function ProductActions({ product }) {
       <div className="product-actions" role="group" aria-label="Collector actions">
         <button
           type="button"
-          className={`btn btn--soft ${isFavorite ? 'is-active' : ''}`}
+          className={`quiet-action ${isFavorite ? 'is-active' : ''}`}
           aria-pressed={isFavorite}
           disabled={adding || removing}
           onClick={handleFavorite}
         >
           {isFavorite ? 'Saved' : 'Favorite'}
         </button>
-        <button type="button" className="btn btn--soft" onClick={handleCollection}>
+        <button type="button" className="quiet-action" onClick={handleCollection}>
           Collection
         </button>
         <button
           type="button"
-          className={`btn btn--soft ${isCompared ? 'is-active is-compared' : ''}`}
+          className={`quiet-action ${isCompared ? 'is-active is-compared' : ''}`}
           aria-pressed={isCompared}
           title={
             isCompared
@@ -84,10 +84,12 @@ export default function ProductActions({ product }) {
         >
           {isCompared ? 'In compare' : 'Compare'}
         </button>
-        <Link className="btn btn--soft" to="/discover">
+      </div>
+      <p className="product-actions__back">
+        <Link className="link-cta link-cta--muted" to="/discover">
           Back to discover
         </Link>
-      </div>
+      </p>
       {collectionOpen ? (
         <AddToCollectionModal product={product} onClose={() => setCollectionOpen(false)} />
       ) : null}

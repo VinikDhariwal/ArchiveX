@@ -13,8 +13,6 @@ export default function ProductIdentity({ product }) {
         <span>{formatProductType(product.productType)}</span>
         {product.year ? <span>{product.year}</span> : null}
         <span className="rarity">{product.rarity}</span>
-        {product.availability ? <span>{product.availability}</span> : null}
-        {product.marketSignals?.marketRange ? <span>{product.marketSignals.marketRange}</span> : null}
       </div>
     </header>
   );

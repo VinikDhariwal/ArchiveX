@@ -17,10 +17,10 @@ export default function RarityProfile({ product }) {
       </h2>
       <div className="product-rarity">
         {rows.map((row) => (
-          <article key={row.label} className="product-rarity__card">
+          <div key={row.label} className="product-rarity__row">
             <h3 className="product-rarity__label">{row.label}</h3>
             <p>{row.value}</p>
-          </article>
+          </div>
         ))}
       </div>
     </section>
