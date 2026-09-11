@@ -37,6 +37,9 @@ jobs:
 
       - name: Run server tests
         run: npm test --prefix server
+        env:
+          # Allow mongodb-memory-server to download the binary on first CI run
+          MONGOMS_DISABLE_POSTINSTALL: '0'
 
       - name: Run client tests
         run: npm test --prefix client
