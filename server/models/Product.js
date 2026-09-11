@@ -93,6 +93,7 @@ productSchema.index({ productType: 1, status: 1, featured: -1 });
 productSchema.index({ brand: 1, status: 1 });
 productSchema.index({ rarity: 1, status: 1 });
 productSchema.index({ releaseYear: -1, status: 1 });
+productSchema.index({ submittedBy: 1, status: 1 });
 productSchema.index({
   name: 'text',
   reference: 'text',

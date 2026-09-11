@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import MuseumFrame from './MuseumFrame.jsx';
 
 export default function ProductGallery({ images = [], productName }) {
@@ -25,18 +25,32 @@ export default function ProductGallery({ images = [], productName }) {
     }, 120);
   };
 
-  const step = (delta) => {
-    if (!images.length) return;
-    setIsFading(true);
-    window.setTimeout(() => {
-      setActiveIndex((index) => (index + delta + images.length) % images.length);
-      setIsFading(false);
-    }, 120);
-  };
+  const step = useCallback(
+    (delta) => {
+      if (!images.length) return;
+      setIsFading(true);
+      window.setTimeout(() => {
+        setActiveIndex((index) => (index + delta + images.length) % images.length);
+        setIsFading(false);
+      }, 120);
+    },
+    [images.length]
+  );
 
   useEffect(() => {
     const onKey = (event) => {
       if (!images.length) return;
+      // Never hijack arrow keys while the user is typing or moving a caret.
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
       if (lightboxOpen && event.key === 'Escape') {
         setLightboxOpen(false);
         return;
@@ -46,7 +60,7 @@ export default function ProductGallery({ images = [], productName }) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [images.length, lightboxOpen, activeIndex]);
+  }, [images.length, lightboxOpen, step]);
 
   useEffect(() => {
     if (!lightboxOpen) return undefined;

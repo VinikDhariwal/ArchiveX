@@ -1,25 +1,21 @@
-import { useEffect, useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import {
   useAddProductToCollectionMutation,
   useCreateCollectionMutation,
   useGetCollectionsQuery,
 } from '../../app/api.js';
+import useModalBehavior from '../../hooks/useModalBehavior.js';
 
 export default function AddToCollectionModal({ product, onClose }) {
   const titleId = useId();
+  const panelRef = useRef(null);
   const { data: collections = [], isLoading } = useGetCollectionsQuery();
   const [addProduct, { isLoading: adding }] = useAddProductToCollectionMutation();
   const [createCollection, { isLoading: creating }] = useCreateCollectionMutation();
   const [newName, setNewName] = useState('');
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    const onKey = (event) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  useModalBehavior(panelRef, onClose);
 
   async function handleAdd(collectionId) {
     setMessage('');
@@ -35,18 +31,27 @@ export default function AddToCollectionModal({ product, onClose }) {
   async function handleCreate(event) {
     event.preventDefault();
     if (!newName.trim()) return;
+    setMessage('');
+    let collection;
     try {
-      const collection = await createCollection({ name: newName.trim() }).unwrap();
+      collection = await createCollection({ name: newName.trim() }).unwrap();
+    } catch {
+      setMessage('Could not create collection.');
+      return;
+    }
+    try {
       await addProduct({ collectionId: collection.id, productId: product.id }).unwrap();
       onClose();
     } catch {
-      setMessage('Could not create collection.');
+      setMessage('Collection created, but the object could not be added. Try it from the list above.');
+      setNewName('');
     }
   }
 
   return (
     <div className="collector-modal" role="presentation" onClick={onClose}>
       <div
+        ref={panelRef}
         className="collector-modal__panel"
         role="dialog"
         aria-modal="true"

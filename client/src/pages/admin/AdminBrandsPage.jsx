@@ -21,9 +21,10 @@ const empty = {
 
 export default function AdminBrandsPage() {
   const { data: brands = [], isLoading, isError } = useGetAdminBrandsQuery();
-  const [createBrand] = useCreateAdminBrandMutation();
-  const [updateBrand] = useUpdateAdminBrandMutation();
+  const [createBrand, { isLoading: creating }] = useCreateAdminBrandMutation();
+  const [updateBrand, { isLoading: updating }] = useUpdateAdminBrandMutation();
   const [deleteBrand] = useDeleteAdminBrandMutation();
+  const saving = creating || updating;
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState(null);
@@ -137,8 +138,8 @@ export default function AdminBrandsPage() {
         </label>
         {error ? <p className="auth-form__error">{error}</p> : null}
         <div className="admin-row-actions">
-          <button type="submit" className="btn">
-            {editingId ? 'Save brand' : 'Create brand'}
+          <button type="submit" className="btn" disabled={saving}>
+            {saving ? 'Saving…' : editingId ? 'Save brand' : 'Create brand'}
           </button>
           {editingId ? (
             <button type="button" className="quiet-action" onClick={reset}>
@@ -181,8 +182,14 @@ export default function AdminBrandsPage() {
                   <button
                     type="button"
                     className="quiet-action"
-                    onClick={() => {
-                      if (window.confirm(`Remove ${brand.name}?`)) deleteBrand(brand.id);
+                    onClick={async () => {
+                      if (!window.confirm(`Remove ${brand.name}?`)) return;
+                      setError(null);
+                      try {
+                        await deleteBrand(brand.id).unwrap();
+                      } catch (err) {
+                        setError(err?.data?.error?.message || `Could not delete ${brand.name}.`);
+                      }
                     }}
                   >
                     Delete

@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { clientConfig } from '../config/clientConfig.js';
-import { clearCredentials, setCredentials } from '../features/auth/authSlice.js';
+import { clearCredentials, setCredentials, STORAGE_KEY } from '../features/auth/authSlice.js';
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: clientConfig.apiBaseUrl,
@@ -12,15 +12,25 @@ const rawBaseQuery = fetchBaseQuery({
   },
 });
 
+// Single in-flight refresh shared by all concurrent 401s. Without this,
+// parallel failures each fire /auth/refresh and rotating tokens race each
+// other, logging the user out.
+let refreshPromise = null;
+
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await rawBaseQuery(args, api, extraOptions);
 
-  if (result.error?.status === 401) {
-    const refresh = await rawBaseQuery(
-      { url: '/auth/refresh', method: 'POST' },
-      api,
-      extraOptions
-    );
+  const url = typeof args === 'string' ? args : args?.url || '';
+  const isAuthEndpoint = url.startsWith('/auth/');
+
+  if (result.error?.status === 401 && !isAuthEndpoint) {
+    if (!refreshPromise) {
+      refreshPromise = rawBaseQuery({ url: '/auth/refresh', method: 'POST' }, api, extraOptions);
+      refreshPromise.finally(() => {
+        refreshPromise = null;
+      });
+    }
+    const refresh = await refreshPromise;
 
     if (refresh.data?.data?.accessToken) {
       api.dispatch(
@@ -30,7 +40,9 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         })
       );
       result = await rawBaseQuery(args, api, extraOptions);
-    } else {
+    } else if ([401, 403].includes(refresh.error?.status)) {
+      // Only end the session on a definitive rejection; a transient network
+      // failure of the refresh call should not log the user out.
       api.dispatch(clearCredentials());
     }
   }
@@ -61,6 +73,7 @@ export const api = createApi({
     'AdminUser',
     'AdminAudit',
     'AdminMedia',
+    'Contribution',
   ],
   endpoints: (builder) => ({
     getHealth: builder.query({
@@ -108,7 +121,7 @@ export const api = createApi({
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          const token = localStorage.getItem('archivex_access_token');
+          const token = localStorage.getItem(STORAGE_KEY);
           if (data && token) {
             dispatch(setCredentials({ user: data, accessToken: token }));
           }
@@ -375,6 +388,56 @@ export const api = createApi({
       transformResponse: (response) => response?.data || [],
       providesTags: [{ type: 'RecentlyViewed', id: 'LIST' }],
     }),
+    getMyContributions: builder.query({
+      query: () => '/contributions/products',
+      transformResponse: (response) => response?.data || [],
+      providesTags: (result) =>
+        result?.length
+          ? [
+              ...result.map((item) => ({ type: 'Contribution', id: item.id })),
+              { type: 'Contribution', id: 'LIST' },
+            ]
+          : [{ type: 'Contribution', id: 'LIST' }],
+    }),
+    getMyContribution: builder.query({
+      query: (id) => `/contributions/products/${id}`,
+      transformResponse: (response) => response?.data?.product ?? response?.data ?? null,
+      providesTags: (_result, _error, id) => [{ type: 'Contribution', id }],
+    }),
+    createContribution: builder.mutation({
+      query: (body) => ({
+        url: '/contributions/products',
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (response) => response?.data?.product ?? response?.data ?? null,
+      invalidatesTags: [{ type: 'Contribution', id: 'LIST' }, { type: 'AdminProduct', id: 'LIST' }],
+    }),
+    updateContribution: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/contributions/products/${id}`,
+        method: 'PATCH',
+        body,
+      }),
+      transformResponse: (response) => response?.data?.product ?? response?.data ?? null,
+      invalidatesTags: (_result, _error, arg) => [
+        { type: 'Contribution', id: arg.id },
+        { type: 'Contribution', id: 'LIST' },
+        { type: 'AdminProduct', id: 'LIST' },
+      ],
+    }),
+    deleteContribution: builder.mutation({
+      query: (id) => ({
+        url: `/contributions/products/${id}`,
+        method: 'DELETE',
+      }),
+      transformResponse: (response) => response?.data ?? null,
+      invalidatesTags: (_result, _error, id) => [
+        { type: 'Contribution', id },
+        { type: 'Contribution', id: 'LIST' },
+        { type: 'AdminProduct', id: 'LIST' },
+      ],
+    }),
 
     getAdminOverview: builder.query({
       query: () => '/admin/overview',
@@ -433,12 +496,15 @@ export const api = createApi({
         body: { status },
       }),
       transformResponse: (response) => response?.data,
+      // Bare 'Product' invalidates every provided Product tag, including the
+      // slug-keyed public detail entry — a just-rejected product must not keep
+      // rendering from cache on an already-visited detail page.
       invalidatesTags: (_r, _e, arg) => [
         { type: 'AdminProduct', id: arg.id },
         { type: 'AdminProduct', id: 'LIST' },
         'AdminOverview',
         'AdminAudit',
-        { type: 'Product', id: 'LIST' },
+        'Product',
       ],
     }),
     deleteAdminProduct: builder.mutation({
@@ -447,7 +513,7 @@ export const api = createApi({
         { type: 'AdminProduct', id: 'LIST' },
         'AdminOverview',
         'AdminAudit',
-        { type: 'Product', id: 'LIST' },
+        'Product',
       ],
     }),
     getAdminBrands: builder.query({
@@ -661,6 +727,11 @@ export const {
   useAddProductToCollectionMutation,
   useRemoveProductFromCollectionMutation,
   useGetRecentlyViewedQuery,
+  useGetMyContributionsQuery,
+  useGetMyContributionQuery,
+  useCreateContributionMutation,
+  useUpdateContributionMutation,
+  useDeleteContributionMutation,
   useGetAdminOverviewQuery,
   useGetAdminAnalyticsQuery,
   useGetAdminProductsQuery,

@@ -18,9 +18,10 @@ const empty = {
 
 export default function AdminCategoriesPage() {
   const { data: categories = [], isLoading, isError } = useGetAdminCategoriesQuery();
-  const [createCategory] = useCreateAdminCategoryMutation();
-  const [updateCategory] = useUpdateAdminCategoryMutation();
+  const [createCategory, { isLoading: creating }] = useCreateAdminCategoryMutation();
+  const [updateCategory, { isLoading: updating }] = useUpdateAdminCategoryMutation();
   const [deleteCategory] = useDeleteAdminCategoryMutation();
+  const saving = creating || updating;
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState(null);
@@ -99,8 +100,8 @@ export default function AdminCategoriesPage() {
         </label>
         {error ? <p className="auth-form__error">{error}</p> : null}
         <div className="admin-row-actions">
-          <button type="submit" className="btn">
-            {editingId ? 'Save category' : 'Create category'}
+          <button type="submit" className="btn" disabled={saving}>
+            {saving ? 'Saving…' : editingId ? 'Save category' : 'Create category'}
           </button>
           {editingId ? (
             <button type="button" className="quiet-action" onClick={reset}>
@@ -141,8 +142,14 @@ export default function AdminCategoriesPage() {
                   <button
                     type="button"
                     className="quiet-action"
-                    onClick={() => {
-                      if (window.confirm(`Remove ${category.name}?`)) deleteCategory(category.id);
+                    onClick={async () => {
+                      if (!window.confirm(`Remove ${category.name}?`)) return;
+                      setError(null);
+                      try {
+                        await deleteCategory(category.id).unwrap();
+                      } catch (err) {
+                        setError(err?.data?.error?.message || `Could not delete ${category.name}.`);
+                      }
                     }}
                   >
                     Delete

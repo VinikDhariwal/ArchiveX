@@ -106,8 +106,14 @@ export default function AdminMediaPage() {
                 <button
                   type="button"
                   className="quiet-action"
-                  onClick={() => {
-                    if (window.confirm('Remove this media asset?')) deleteMedia(item.id);
+                  onClick={async () => {
+                    if (!window.confirm('Remove this media asset?')) return;
+                    setError(null);
+                    try {
+                      await deleteMedia(item.id).unwrap();
+                    } catch (err) {
+                      setError(err?.data?.error?.message || 'Could not delete media asset.');
+                    }
                   }}
                 >
                   Delete

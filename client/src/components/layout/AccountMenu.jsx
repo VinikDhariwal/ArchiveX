@@ -103,6 +103,22 @@ export default function AccountMenu() {
           >
             Settings
           </Link>
+          <Link
+            className="account-menu__item"
+            role="menuitem"
+            to="/contribute"
+            onClick={closeAndGo}
+          >
+            Contribute
+          </Link>
+          <Link
+            className="account-menu__item"
+            role="menuitem"
+            to="/account/submissions"
+            onClick={closeAndGo}
+          >
+            My submissions
+          </Link>
           {isAdmin ? (
             <Link className="account-menu__item" role="menuitem" to="/admin" onClick={closeAndGo}>
               Admin

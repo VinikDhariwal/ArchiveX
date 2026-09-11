@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { clientConfig } from '../../config/clientConfig.js';
 import { DEMO_DISCLAIMER } from '../../data/demoData.js';
 
@@ -17,16 +18,16 @@ export default function Footer() {
             Explore
           </p>
           <p>
-            <a href="#curated">Archive</a>
+            <Link to="/discover">Archive</Link>
           </p>
           <p>
-            <a href="#featured-car">Cars</a>
+            <Link to="/discover?domain=car">Cars</Link>
           </p>
           <p>
-            <a href="#featured-motorcycle">Motorcycles</a>
+            <Link to="/discover?domain=motorcycle">Motorcycles</Link>
           </p>
           <p>
-            <a href="#journal">Journal</a>
+            <Link to="/journal">Journal</Link>
           </p>
         </div>
         <div>

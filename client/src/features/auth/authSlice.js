@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const STORAGE_KEY = 'archivex_access_token';
+export const STORAGE_KEY = 'archivex_access_token';
 
 function readStoredToken() {
   try {

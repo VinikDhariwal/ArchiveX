@@ -78,6 +78,12 @@ export default function AccountPage() {
               </ul>
 
               <div className="account-profile__actions">
+                <Link className="btn btn--soft" to="/contribute">
+                  Contribute
+                </Link>
+                <Link className="btn btn--soft" to="/account/submissions">
+                  My submissions
+                </Link>
                 <Link className="btn btn--soft" to="/favorites">
                   Favorites
                 </Link>

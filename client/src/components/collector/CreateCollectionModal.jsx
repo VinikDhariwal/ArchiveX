@@ -1,24 +1,23 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateCollectionMutation } from '../../app/api.js';
+import useModalBehavior from '../../hooks/useModalBehavior.js';
 
 export default function CreateCollectionModal({ onClose, onCreated }) {
   const titleId = useId();
   const inputRef = useRef(null);
+  const panelRef = useRef(null);
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [visibility, setVisibility] = useState('private');
   const [createCollection, { isLoading, error }] = useCreateCollectionMutation();
 
+  useModalBehavior(panelRef, onClose);
+
   useEffect(() => {
     inputRef.current?.focus();
-    const onKey = (event) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, []);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -35,6 +34,7 @@ export default function CreateCollectionModal({ onClose, onCreated }) {
   return (
     <div className="collector-modal" role="presentation" onClick={onClose}>
       <div
+        ref={panelRef}
         className="collector-modal__panel"
         role="dialog"
         aria-modal="true"

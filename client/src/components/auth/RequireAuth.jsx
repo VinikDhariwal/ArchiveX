@@ -13,7 +13,7 @@ export function RequireAuth({ children, loginPath = '/login' }) {
   });
 
   if (!token) {
-    return <Navigate to={loginPath} replace state={{ from: location.pathname }} />;
+    return <Navigate to={loginPath} replace state={{ from: location.pathname + location.search }} />;
   }
 
   if (!user && (isLoading || isFetching)) {
@@ -27,7 +27,7 @@ export function RequireAuth({ children, loginPath = '/login' }) {
   }
 
   if (isError && !user) {
-    return <Navigate to={loginPath} replace state={{ from: location.pathname }} />;
+    return <Navigate to={loginPath} replace state={{ from: location.pathname + location.search }} />;
   }
 
   return children;

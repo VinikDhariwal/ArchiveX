@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Breadcrumbs from '../components/layout/Breadcrumbs.jsx';
 import ObjectCard from '../components/archive/ObjectCard.jsx';
@@ -18,7 +19,26 @@ export default function CollectionDetailPage() {
   });
   const [removeProduct] = useRemoveProductFromCollectionMutation();
   const [updateCollection, { isLoading: saving }] = useUpdateCollectionMutation();
+  const [actionError, setActionError] = useState(null);
   useDocumentTitle(collection?.name || 'Collection');
+
+  const onVisibilityChange = async (visibility) => {
+    setActionError(null);
+    try {
+      await updateCollection({ id: collection.id, visibility }).unwrap();
+    } catch {
+      setActionError('Could not update visibility. Please try again.');
+    }
+  };
+
+  const onRemoveProduct = async (product) => {
+    setActionError(null);
+    try {
+      await removeProduct({ collectionId: collection.id, productId: product.id }).unwrap();
+    } catch {
+      setActionError(`Could not remove “${product.name}”. Please try again.`);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -67,9 +87,7 @@ export default function CollectionDetailPage() {
               <select
                 value={collection.visibility}
                 disabled={saving}
-                onChange={(event) =>
-                  updateCollection({ id: collection.id, visibility: event.target.value })
-                }
+                onChange={(event) => onVisibilityChange(event.target.value)}
               >
                 <option value="private">Private</option>
                 <option value="shared">Shared</option>
@@ -81,6 +99,8 @@ export default function CollectionDetailPage() {
             </button>
           </div>
         </header>
+
+        {actionError ? <p className="auth-form__error" role="alert">{actionError}</p> : null}
 
         {!products.length ? (
           <div className="collector-empty">
@@ -97,9 +117,7 @@ export default function CollectionDetailPage() {
                 <button
                   type="button"
                   className="quiet-action collector-card__action"
-                  onClick={() =>
-                    removeProduct({ collectionId: collection.id, productId: product.id })
-                  }
+                  onClick={() => onRemoveProduct(product)}
                 >
                   Remove from collection
                 </button>

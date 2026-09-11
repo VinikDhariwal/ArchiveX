@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   useGetAdminProductsQuery,
@@ -8,7 +9,17 @@ import AdminPageShell from './AdminPageShell.jsx';
 export default function AdminApprovalsPage() {
   const { data, isLoading, isError } = useGetAdminProductsQuery({ status: 'pending', limit: 100 });
   const [setStatus, { isLoading: isSaving }] = useSetAdminProductStatusMutation();
+  const [actionError, setActionError] = useState(null);
   const items = data?.items || [];
+
+  const onSetStatus = async (item, status) => {
+    setActionError(null);
+    try {
+      await setStatus({ id: item.id, status }).unwrap();
+    } catch (err) {
+      setActionError(err?.data?.error?.message || `Could not update ${item.name}.`);
+    }
+  };
 
   return (
     <AdminPageShell
@@ -23,6 +34,7 @@ export default function AdminApprovalsPage() {
     >
       {isLoading ? <p className="admin-muted">Loading queue…</p> : null}
       {isError ? <p className="auth-form__error">Could not load approvals.</p> : null}
+      {actionError ? <p className="auth-form__error" role="alert">{actionError}</p> : null}
       {!isLoading && !items.length ? (
         <p className="admin-muted">Queue is clear — no pending products.</p>
       ) : null}
@@ -36,13 +48,19 @@ export default function AdminApprovalsPage() {
               </p>
               <h2 className="admin-queue__title">{item.name}</h2>
               <p className="admin-muted">{item.shortDescription || item.slug}</p>
+              {item.submittedByUser ? (
+                <p className="admin-muted">
+                  Submitted by {item.submittedByUser.name || item.submittedByUser.username}
+                  {item.submittedByUser.email ? ` · ${item.submittedByUser.email}` : ''}
+                </p>
+              ) : null}
             </div>
             <div className="admin-row-actions">
               <button
                 type="button"
                 className="link-cta"
                 disabled={isSaving}
-                onClick={() => setStatus({ id: item.id, status: 'approved' })}
+                onClick={() => onSetStatus(item, 'approved')}
               >
                 Approve
               </button>
@@ -50,7 +68,7 @@ export default function AdminApprovalsPage() {
                 type="button"
                 className="quiet-action"
                 disabled={isSaving}
-                onClick={() => setStatus({ id: item.id, status: 'rejected' })}
+                onClick={() => onSetStatus(item, 'rejected')}
               >
                 Reject
               </button>

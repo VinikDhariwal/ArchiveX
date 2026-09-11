@@ -121,12 +121,17 @@ export const listUsers = asyncHandler(async (_req, res) => {
 });
 
 export const createUser = asyncHandler(async (req, res) => {
-  const user = await adminService.createAdminUser(actorId(req), req.body);
+  const user = await adminService.createAdminUser(actorId(req), req.body, req.user?.role);
   return successResponse(res, user, undefined, 201);
 });
 
 export const updateUser = asyncHandler(async (req, res) => {
-  const user = await adminService.updateAdminUser(actorId(req), req.params.id, req.body);
+  const user = await adminService.updateAdminUser(
+    actorId(req),
+    req.params.id,
+    req.body,
+    req.user?.role
+  );
   return successResponse(res, user);
 });
 

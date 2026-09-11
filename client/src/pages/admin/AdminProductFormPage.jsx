@@ -119,7 +119,15 @@ export default function AdminProductFormPage() {
       }
     >
       {isEdit && loadingExisting ? <p className="admin-muted">Loading product…</p> : null}
-      <form className="admin-form" onSubmit={onSubmit}>
+      {isEdit && existing?.submittedByUser ? (
+        <p className="admin-muted">
+          Collector submission by {existing.submittedByUser.name || existing.submittedByUser.username}
+          {existing.submittedByUser.email ? ` · ${existing.submittedByUser.email}` : ''}
+        </p>
+      ) : null}
+      {/* Hide the form until the existing product loads; otherwise anything the
+          operator types gets wiped when the query resolves. */}
+      <form className="admin-form" onSubmit={onSubmit} hidden={isEdit && loadingExisting}>
         <div className="admin-form__grid">
           <label>
             <span className="meta">Name</span>
